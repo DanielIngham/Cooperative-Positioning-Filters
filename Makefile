@@ -5,9 +5,9 @@ SRC_DIR := src
 
 # Library
 LIBRARY := data_handler
-LIB_DIR := lib/DataHandler
+LIB := lib
+LIB_DIR := $(LIB)/DataHandler
 LIB_BUILD := $(LIB_DIR)/lib
-LIB_INCLUDE := $(LIB_DIR)/include
 
 # Compiler
 CXX := g++
@@ -15,8 +15,7 @@ CXX := g++
 # Flags
 WFLAGS := -Wall -Wextra -Werror -Wshadow 
 MFLAGS := -ffloat-store -fno-fast-math
-CFLAGS := $(WFLAGS) $(MFLAGS) -I$(INCLUDE_DIR) -I$(LIB_INCLUDE)
-
+CFLAGS := $(WFLAGS) $(MFLAGS) -I$(INCLUDE_DIR) -I$(LIB)
 # Files
 PROJECT := filter
 TARGET := $(BUILD_DIR)/$(PROJECT)
