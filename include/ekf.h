@@ -10,6 +10,7 @@
 #define INCLUDE_INCLUDE_EKF_H_
 
 #include <DataHandler/DataHandler.h>
+#include <Eigen/Dense>
 #include <vector>
 
 /**
@@ -24,7 +25,8 @@ public:
 
 private:
   static const unsigned short total_states = 3;
-  static const unsigned short total_inputs = 3;
+  static const unsigned short total_inputs = 2;
+  static const unsigned short total_measurements = 2;
 
   enum { FORWARD_VELOCITY = 0, ANGULAR_VELOCITY = 1 };
   enum { RANGE = 0, BEARING = 1 };
@@ -43,32 +45,47 @@ private:
      * @details \f[begin{bmatrix} x & y & \theta
      * \end{bmatrix}^\top\f]
      */
-    double state_estimate[total_states][1] = {{0.0}, {0.0}, {0.0}};
+    Eigen::Matrix<double, total_states, 1> state_estimate =
+        Eigen::Matrix<double, total_states, 1>::Zero();
 
     /**
      * @brief Estimation Error Covariance.
      */
-    double error_covarince[total_states][total_states] = {
-        {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+    Eigen::Matrix<double, total_states, total_states> error_covarince =
+        Eigen::Matrix<double, total_states, total_states>::Zero();
 
-    double kalman_gain[total_states][total_states] = {
-        {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+    /**
+     * @brief Kalman gain.
+     */
+    Eigen::Matrix<double, total_states, total_states> kalman_gain =
+        Eigen::Matrix<double, total_states, total_states>::Zero();
 
     /**
      * @brief Odometry process noise: forward velocity, angular velocity.
      * @details \f[v & \omega \f]
      */
-    double process_noise[total_inputs][1] = {{0.0}, {0.0}};
+    Eigen::Matrix<double, total_inputs, 1> process_noise =
+        Eigen::Matrix<double, total_inputs, 1>::Zero();
 
     /**
      * @brief Measurement noise: range, bearing.
      * @details \f[r & \phi \f]
      */
-    double measurement_noise[total_inputs][1] = {{0.0}, {0.0}};
+    Eigen::Matrix<double, total_measurements, 1> measurement_noise =
+        Eigen::Matrix<double, total_measurements, 1>::Zero();
 
-    double motion_jacobian[total_states][total_states];
+    /**
+     * @brief Jacobian of the motion model.
+     */
+    Eigen::Matrix<double, total_states, total_states> motion_jacobian =
+        Eigen::Matrix<double, total_states, total_states>::Zero();
 
-    double measurment_jacobian[total_states][total_states];
+    /**
+     * @brief Jacobian of the measurement model.
+     */
+    Eigen::Matrix<double, total_measurements, total_measurements>
+        measurment_jacobian = Eigen::Matrix<double, total_measurements,
+                                            total_measurements>::Zero();
   };
 
   void prediction(const Robot::Odometry &odometry,
