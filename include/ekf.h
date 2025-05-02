@@ -16,6 +16,10 @@
 /**
  * @class EKF
  * @brief Extended Kalman Filter.
+ * @details The data contained in the class includes:
+ * - All robots states, odometry readings, and measurements.
+ * - All landmarks positions.
+ * - All robot sensors errors statistics.
  */
 class EKF {
 public:
@@ -50,9 +54,12 @@ private:
 
     /**
      * @brief Estimation Error Covariance.
+     * @details There is a high certainty in the prior value of system state,
+     * therefore the prior estimation error covariance is initialised to a small
+     * value.
      */
     Eigen::Matrix<double, total_states, total_states> error_covarince =
-        Eigen::Matrix<double, total_states, total_states>::Zero();
+        Eigen::Matrix<double, total_states, total_states>::Identity() * 0.001;
 
     /**
      * @brief Kalman gain.
@@ -75,11 +82,16 @@ private:
         Eigen::Matrix<double, total_measurements, 1>::Zero();
 
     /**
-     * @brief Jacobian of the motion model.
+     * @brief Jacobian matrix of the motion model.
      */
     Eigen::Matrix<double, total_states, total_states> motion_jacobian =
         Eigen::Matrix<double, total_states, total_states>::Zero();
 
+    /**
+     * @brief Jacobian matrix of the process noise.
+     */
+    Eigen::Matrix<double, total_states, total_inputs> process_jacobian =
+        Eigen::Matrix<double, total_states, total_inputs>::Zero();
     /**
      * @brief Jacobian of the measurement model.
      */
@@ -98,7 +110,7 @@ private:
   /**
    * @brief Houses all estimation parameters for all robots.
    */
-  std::vector<EstimationParameters> robots;
+  std::vector<EstimationParameters> robot_parameters;
 };
 
 #endif // INCLUDE_INCLUDE_EKF_H_
