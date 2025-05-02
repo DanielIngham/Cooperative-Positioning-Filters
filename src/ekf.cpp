@@ -76,6 +76,14 @@ void EKF::prediction(const Robot::Odometry &odometry,
                      EstimationParameters &estimation_parameters) {
   double sample_period = data_.getSamplePeriod();
 
+  /* Make the prediction using the motion model. */
+  estimation_parameters.state_estimate
+      << prior_state.x + odometry.forward_velocity * sample_period *
+                             std::cos(prior_state.orientation),
+      prior_state.y + odometry.forward_velocity * sample_period *
+                          std::sin(prior_state.orientation),
+      prior_state.orientation + odometry.angular_velocity * sample_period;
+
   /* Calculate the Motion Jacobian */
   estimation_parameters.motion_jacobian << 1, 0,
       -odometry.forward_velocity * sample_period *
@@ -85,29 +93,65 @@ void EKF::prediction(const Robot::Odometry &odometry,
           std::cos(prior_state.orientation),
       0, 0, 1;
 
-  /* TODO: Calculate the process noise Jacobian */
+  /* Calculate the process noise Jacobian */
   estimation_parameters.process_jacobian
       << sample_period * std::cos(prior_state.orientation),
       0, sample_period * std::sin(prior_state.orientation), 0, 0, sample_period;
 
-  /* Make the prediction using the motion model. */
-  estimation_parameters.state_estimate
-      << prior_state.x + odometry.forward_velocity * sample_period *
-                             std::cos(prior_state.orientation),
-      prior_state.y + odometry.forward_velocity * sample_period *
-                          std::sin(prior_state.orientation),
-      prior_state.orientation + odometry.angular_velocity * sample_period;
-
   /* Propagate the estimation error covariance. */
-  estimation_parameters.error_covarince =
+  estimation_parameters.error_covariance =
       estimation_parameters.motion_jacobian *
-          estimation_parameters.error_covarince *
+          estimation_parameters.error_covariance *
           estimation_parameters.motion_jacobian.transpose() +
       estimation_parameters.process_jacobian *
           estimation_parameters.process_noise *
           estimation_parameters.process_jacobian.transpose();
 }
 
-void EKF::correction(const Robot::Odometry &odometry,
-                     const Robot::State prior_state,
-                     const EstimationParameters estimation_parameters) {}
+/**
+ * @brief Perform the correct step.
+ */
+void EKF::correction(const Robot::Measurement &measurement,
+                     const Robot::State &prior_state,
+                     EstimationParameters &estimation_parameters,
+                     const EstimationParameters &other_robot) {
+
+  double x_difference = estimation_parameters.state_estimate(X, 0) -
+                        other_robot.state_estimate(X, 0);
+  double y_difference = estimation_parameters.state_estimate(Y, 0) -
+                        other_robot.state_estimate(Y, 0);
+
+  double denominator =
+      std::sqrt(x_difference * x_difference + y_difference * y_difference);
+
+  /* Create a temporary augmented error covariance matrix to house the
+   * error covariance of both the ego vehicle and the measured vehicle:
+   * error_covarince =  | P1  0 |
+   *                    |  0 P2 |
+   * where P1 and P2 are the estimation error covariance of the ego robot and
+   * the observed robot respectively.
+   */
+  Eigen::Matrix<double, 2 * total_states, 2 * total_states> error_covariance;
+  error_covariance.setZero();
+
+  error_covariance.topLeftCorner(3, 3) = estimation_parameters.error_covariance;
+  error_covariance.bottomRightCorner(3, 3) = other_robot.error_covariance;
+
+  /* Calculate measurement Jacobian */
+  estimation_parameters.measurment_jacobian << -x_difference / denominator,
+      -y_difference / denominator, 0, x_difference / denominator,
+      y_difference / denominator, 0, y_difference / (denominator * denominator),
+      -x_difference / (denominator * denominator), -1,
+      -y_difference / (denominator * denominator),
+      x_difference / (denominator * denominator), 0;
+
+  /* Measurement noise Jacobian is identity. No need to calculate. */
+
+  /* TODO: Calculate Innovation */
+
+  /* TODO: Calculate Kalman Gain */
+
+  /* TODO: Update estimation error covariance */
+
+  /* TODO: Correct prediction */
+}
