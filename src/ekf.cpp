@@ -8,6 +8,7 @@
 #include "ekf.h"
 #include "DataHandler/Robot.h"
 #include <cmath>
+#include <locale>
 
 /**
  * @brief EKF class constructor.
@@ -19,7 +20,7 @@ EKF::EKF(DataHandler &data) : data_(data) {
 
   std::vector<Robot> &robots = data_.getRobots();
 
-  /* Populate the Estimation parameters for each robot*/
+  /* Populate the Estimation parameters for each robot. */
   for (size_t id = 0; id < data_.getNumberOfRobots(); id++) {
     EstimationParameters initial_parameters;
 
@@ -28,17 +29,18 @@ EKF::EKF(DataHandler &data) : data_(data) {
     robots[id].synced.states.push_back(
         Robot::State(robots[id].synced.states.front()));
 
+    /* Initial state: 3x1 Matrix. */
     initial_parameters.state_estimate << robots[id].synced.states.front().x,
         robots[id].synced.states.front().y,
         robots[id].synced.states.front().orientation;
 
-    /* Populate odometry error covariance matrices */
+    /* Populate odometry error covariance matrix: 2x2 matrix. */
     initial_parameters.process_noise.diagonal().topRows(total_inputs)
         << robots[id].forward_velocity_error.variance,
         robots[id].angular_velocity_error.variance;
 
-    /* Populate measurement error covariance matrices */
-    initial_parameters.measurement_noise.diagonal().topRows(total_inputs)
+    /* Populate measurement error covariance matrix: 2x2 matrix. */
+    initial_parameters.measurement_noise.diagonal().topRows(total_measurements)
         << robots[id].range_error.variance,
         robots[id].bearing_error.variance;
   }
@@ -66,39 +68,59 @@ void EKF::peformInference() {
  * @brief performs the prediction step of the Extended Kalman filter.
  * @param[in] odometry The prior inputs into the system comprising a forward and
  * angular velocity.
- * @param[in] prior_state The prior state of the system comprising a x,y
- * coordinate pair and robot orientation.
- * @param[out] estimation_parameters The parameters required by the Extended
+ * @param[in,out] estimation_parameters The parameters required by the Extended
  * Kalman filter to perform the prediction step.
+ *
+ * @details The motion model used for the extended kalman filter prediction take
+ * the form
+ * \f[\begin{bmatrix} x_i^{(t+1)} \\  y_i^{(t+1)}
+ * \\ \theta_i^{(t+1)}\end{bmatrix} = \begin{bmatrix} x_i^{(t)} +
+ * \tilde{v}_i^{(t)}\Delta t\cos(\theta_i^{(t)}) \\ y_i^{(t)} +
+ * \tilde{v}_i^{(t)}\Delta t\sin(\theta_i^{(t)})\\ \theta_i^{(t)} +
+ * \tilde{\omega}_i^{(t)}\Delta t. \end{bmatrix}, \f] where \f$i\f$ denotes the
+ * robots ID; \f$t\f$ denotes the current timestep; \f$\Delta t\f$ denotes the
+ * sample period; \f$x\f$ and \f$y\f$ are the robots coordinates; \f$\theta\f$
+ * denotes the robots heading (orientation); \f$\tilde{v}_i\f$ denotes the
+ * forward velocity input; and \f$\tilde{\omega}\f$ denotes the angular velocity
+ * input. Both \f$\tilde{v}_i\f$ and \f$\tilde{\omega}_i\f$ are normally
+ * distributed random variables \f$\mathcal{N}(0,w)\f$ (see
+ * EKF::EstimationParameters::process_noise).
  */
 void EKF::prediction(const Robot::Odometry &odometry,
-                     const Robot::State &prior_state,
                      EstimationParameters &estimation_parameters) {
+
   double sample_period = data_.getSamplePeriod();
 
-  /* Make the prediction using the motion model. */
+  /* Make the prediction using the motion model: 3x1 matrix. */
   estimation_parameters.state_estimate
-      << prior_state.x + odometry.forward_velocity * sample_period *
-                             std::cos(prior_state.orientation),
-      prior_state.y + odometry.forward_velocity * sample_period *
-                          std::sin(prior_state.orientation),
-      prior_state.orientation + odometry.angular_velocity * sample_period;
+      << estimation_parameters.state_estimate(X) +
+             odometry.forward_velocity * sample_period *
+                 std::cos(estimation_parameters.state_estimate(ORIENTATION)),
+      estimation_parameters.state_estimate(Y) +
+          odometry.forward_velocity * sample_period *
+              std::sin(estimation_parameters.state_estimate(ORIENTATION)),
+      estimation_parameters.state_estimate(ORIENTATION) +
+          odometry.angular_velocity * sample_period;
 
-  /* Calculate the Motion Jacobian */
+  /* Calculate the Motion Jacobian: 3x3 matrix. */
   estimation_parameters.motion_jacobian << 1, 0,
       -odometry.forward_velocity * sample_period *
-          std::sin(prior_state.orientation),
+          std::sin(estimation_parameters.state_estimate(ORIENTATION)),
       0, 1,
       odometry.forward_velocity * sample_period *
-          std::cos(prior_state.orientation),
+          std::cos(estimation_parameters.state_estimate(ORIENTATION)),
       0, 0, 1;
 
-  /* Calculate the process noise Jacobian */
+  /* Calculate the process noise Jacobian: 3x2 matrix. */
   estimation_parameters.process_jacobian
-      << sample_period * std::cos(prior_state.orientation),
-      0, sample_period * std::sin(prior_state.orientation), 0, 0, sample_period;
+      << sample_period *
+             std::cos(estimation_parameters.state_estimate(ORIENTATION)),
+      0,
+      sample_period *
+          std::sin(estimation_parameters.state_estimate(ORIENTATION)),
+      0, 0, sample_period;
 
-  /* Propagate the estimation error covariance. */
+  /* Propagate the estimation error covariance: 3x3 matrix. */
   estimation_parameters.error_covariance =
       estimation_parameters.motion_jacobian *
           estimation_parameters.error_covariance *
@@ -109,35 +131,44 @@ void EKF::prediction(const Robot::Odometry &odometry,
 }
 
 /**
- * @brief Perform the correct step.
+ * @brief Performs the Extended Kalman correct step.
+ * @param[in,out] estimation_parameters The parameters required by the Extended
+ * Kalman filter to perform the correction step.
+ * @param[in] other_robot The robot that was measured by the ego robot.
+ * @details The measusurement model for the measurement taken from ego vehicle
+ * \f$i\f$ to vehicle \f$j\f$ used for the correction step takes the form
+ * \f[ \begin{bmatrix} r_{ij}^{(t)} \\ \phi_{ij}^{(t)}\end{bmatrix} =
+ * \begin{bmatrix}\sqrt{(x_j^{(t)} - x_i^{(t)})^2 + (y_j^{(t)} - y_i^{(t)})^2} +
+ * q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
+ * }\right) - \theta_i^{(t)} + q_\phi\end{bmatrix}, \f] where \f$x\f$ and
+ * \f$y\f$ denote the robots coordinates; \f$\theta\f$ denotes the ego robots
+ * orientation (heading); and \f$q_r\f$ and \f$q_\omega\f$ denote the Gaussian
+ * distributed measurement noise (See
+ * EKF::EstimationParameters.measurement_noise).
+ *
+ * @note Cooperative Localisation (Positioning) involves robots that share thier
+ * state and estimation error covariances when one robot measures the other. As
+ * a result, the estimation error covariance needs to be augmented from a 3x3 to
+ * a 6x6 matrix to house the error covariance of both the ego vehicle (\f$i\f$)
+ * and the measured vehicle (\f$j\f$):
+ * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
+ * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
+ * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot
+ * \f$i\f$ and the observed robot \f$j\f$ respectively.
  */
-void EKF::correction(const Robot::Measurement &measurement,
-                     const Robot::State &prior_state,
-                     EstimationParameters &estimation_parameters,
+void EKF::correction(EstimationParameters &estimation_parameters,
                      const EstimationParameters &other_robot) {
 
-  double x_difference = estimation_parameters.state_estimate(X, 0) -
-                        other_robot.state_estimate(X, 0);
-  double y_difference = estimation_parameters.state_estimate(Y, 0) -
-                        other_robot.state_estimate(Y, 0);
+  /* Calculate measurement Jacobian */
+  double x_difference =
+      other_robot.state_estimate(X) - estimation_parameters.state_estimate(X);
+
+  double y_difference =
+      other_robot.state_estimate(Y) - estimation_parameters.state_estimate(Y);
 
   double denominator =
       std::sqrt(x_difference * x_difference + y_difference * y_difference);
 
-  /* Create a temporary augmented error covariance matrix to house the
-   * error covariance of both the ego vehicle and the measured vehicle:
-   * error_covarince =  | P1  0 |
-   *                    |  0 P2 |
-   * where P1 and P2 are the estimation error covariance of the ego robot and
-   * the observed robot respectively.
-   */
-  Eigen::Matrix<double, 2 * total_states, 2 * total_states> error_covariance;
-  error_covariance.setZero();
-
-  error_covariance.topLeftCorner(3, 3) = estimation_parameters.error_covariance;
-  error_covariance.bottomRightCorner(3, 3) = other_robot.error_covariance;
-
-  /* Calculate measurement Jacobian */
   estimation_parameters.measurment_jacobian << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
       y_difference / denominator, 0, y_difference / (denominator * denominator),
@@ -145,13 +176,60 @@ void EKF::correction(const Robot::Measurement &measurement,
       -y_difference / (denominator * denominator),
       x_difference / (denominator * denominator), 0;
 
-  /* Measurement noise Jacobian is identity. No need to calculate. */
+  /* NOTE: Measurement noise Jacobian is identity. No need to calculate. */
 
-  /* TODO: Calculate Innovation */
+  /* Create and populate new 6x6 error covariance matrix. */
+  Eigen::Matrix<double, 2 * total_states, 2 * total_states> error_covariance;
+  error_covariance.setZero();
 
-  /* TODO: Calculate Kalman Gain */
+  error_covariance.topLeftCorner<3, 3>() =
+      estimation_parameters.error_covariance;
 
-  /* TODO: Update estimation error covariance */
+  error_covariance.bottomRightCorner<3, 3>() = other_robot.error_covariance;
 
-  /* TODO: Correct prediction */
+  /* Calculate Covariance Innovation: */
+  estimation_parameters.innovation =
+      estimation_parameters.measurment_jacobian *
+          estimation_parameters.error_covariance *
+          estimation_parameters.measurment_jacobian.transpose() +
+      estimation_parameters.measurement_noise;
+
+  /* Calculate Kalman Gain */
+  estimation_parameters.kalman_gain =
+      error_covariance * estimation_parameters.measurment_jacobian.transpose() *
+      estimation_parameters.innovation.inverse();
+
+  /* Update estimation error covariance */
+  error_covariance =
+      error_covariance - estimation_parameters.kalman_gain *
+                             estimation_parameters.innovation *
+                             estimation_parameters.kalman_gain.transpose();
+
+  /* Create the state matrix for both robot: 6x1 matrix. */
+  Eigen::Matrix<double, 2 * total_states, 1> estimated_state;
+  estimated_state.setZero();
+
+  estimated_state.head<total_states>() = estimation_parameters.state_estimate;
+  estimated_state.tail<total_states>() = other_robot.state_estimate;
+
+  /* Populate the predicted measurement matrix. */
+  Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
+
+  predicted_measurement << std::sqrt((x_difference * x_difference) +
+                                     (y_difference * y_difference)),
+      std::atan2(y_difference, x_difference) -
+          estimation_parameters.state_estimate[ORIENTATION];
+
+  estimated_state = estimated_state + estimation_parameters.kalman_gain *
+                                          (estimation_parameters.measurement -
+                                           predicted_measurement);
+
+  /* Resize matrices back to normal */
+  /* NOTE: The resize means all information regarding the observed robots states
+   * is lost. This operates on the assumptoin that the error covariance is
+   * uncorrelated, which may lead to the estimator being over confident in bad
+   * estimates. */
+  estimation_parameters.state_estimate = estimated_state.head<total_states>();
+  estimation_parameters.error_covariance =
+      error_covariance.topLeftCorner<3, 3>();
 }
