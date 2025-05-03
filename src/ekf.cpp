@@ -83,20 +83,29 @@ void EKF::peformInference() {
 
   size_t measurement_index = 0;
   for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
+    /* Perform prediction for each robot using odometry values. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-      /* Perform prediction using odometry values. */
       prediction(robots[id].synced.odometry[k], robot_parameters[id]);
 
-      /* If a measurements are available, loop through each measurement
-       * and update the estimate. */
+      /* Update the robot state data structure. */
+      robots[id].synced.states[k].time = robots[id].groundtruth.states[k].time;
+      robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
+      robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
+      robots[id].synced.states[k].orientation =
+          robot_parameters[id].state_estimate(ORIENTATION);
+    }
+
+    /* If a measurements are available, loop through each measurement
+     * and update the estimate. */
+    for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
       if (std::round((robots[id].synced.measurements[measurement_index].time -
                       robots[id].synced.odometry[k].time) *
                      10000.0) /
               10000.0 ==
           0.0) {
 
-        /* Loop through the measurements taken and perform the meausrement
-         * update for each.
+        /* Loop through the measurements taken and perform the measurement
+         * update for each robot.
          * NOTE: This operation uses the assumption that the measurements fo the
          * indpendent robots/landmarks are independent of one another.
          */
@@ -129,10 +138,20 @@ void EKF::peformInference() {
 
           } else {
             unsigned short index = subject_id - data_.getNumberOfRobots();
-            measured_object = robot_parameters[index];
+            measured_object = landmark_parameters[index];
           }
 
           correction(robot_parameters[id], measured_object);
+
+          /* Update the robot state data structure. */
+          robots[id].synced.states[k].time =
+              robots[id].groundtruth.states[k].time;
+          robots[id].synced.states[k].x =
+              robot_parameters[id].state_estimate(X);
+          robots[id].synced.states[k].y =
+              robot_parameters[id].state_estimate(Y);
+          robots[id].synced.states[k].orientation =
+              robot_parameters[id].state_estimate(ORIENTATION);
         }
 
         measurement_index++;
@@ -282,11 +301,12 @@ void EKF::correction(EstimationParameters &estimation_parameters,
                              estimation_parameters.kalman_gain.transpose();
 
   /* Create the state matrix for both robot: 6x1 matrix. */
-  Eigen::Matrix<double, 2 * total_states, 1> estimated_state;
+  Eigen::Matrix<double, 2 + total_states, 1> estimated_state;
   estimated_state.setZero();
 
   estimated_state.head<total_states>() = estimation_parameters.state_estimate;
-  estimated_state.tail<total_states>() = other_robot.state_estimate;
+  estimated_state.tail<total_states - 1>() =
+      other_robot.state_estimate.head<total_states - 1>();
 
   /* Populate the predicted measurement matrix. */
   Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
