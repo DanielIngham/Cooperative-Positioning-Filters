@@ -93,32 +93,35 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a70530931b536585cb4d65596982c4b4b" id="r_a70530931b536585cb4d65596982c4b4b"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#a70530931b536585cb4d65596982c4b4b">state_estimate</a></td></tr>
-<tr class="memdesc:a70530931b536585cb4d65596982c4b4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Estimated robot state: x coordinate [m], y-coordinate [m], and orientation (heading) [rad].  <br /></td></tr>
+<tr class="memdesc:a70530931b536585cb4d65596982c4b4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Estimated robot state - x coordinate [m], y-coordinate [m], and orientation (heading) [rad]: 3x1 matrix.  <br /></td></tr>
 <tr class="separator:a70530931b536585cb4d65596982c4b4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad611ad56bc0bff292ca704fc5a3a7e04" id="r_ad611ad56bc0bff292ca704fc5a3a7e04"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#ad611ad56bc0bff292ca704fc5a3a7e04">measurement</a></td></tr>
+<tr class="memdesc:ad611ad56bc0bff292ca704fc5a3a7e04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recieved range and bearing measurement: 2x1 matrix.  <br /></td></tr>
+<tr class="separator:ad611ad56bc0bff292ca704fc5a3a7e04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55e37c4c87eb63032f31520c9082e224" id="r_a55e37c4c87eb63032f31520c9082e224"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#a55e37c4c87eb63032f31520c9082e224">error_covariance</a></td></tr>
-<tr class="memdesc:a55e37c4c87eb63032f31520c9082e224"><td class="mdescLeft">&#160;</td><td class="mdescRight">Estimation Error Covariance.  <br /></td></tr>
+<tr class="memdesc:a55e37c4c87eb63032f31520c9082e224"><td class="mdescLeft">&#160;</td><td class="mdescRight">Estimation Error Covariance: 3x3 matrix.  <br /></td></tr>
 <tr class="separator:a55e37c4c87eb63032f31520c9082e224"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae9222b90924123250afa659385ebd0c" id="r_aae9222b90924123250afa659385ebd0c"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#aae9222b90924123250afa659385ebd0c">innovation</a></td></tr>
 <tr class="memdesc:aae9222b90924123250afa659385ebd0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measurement correction innovation matrix: 2x2 matrix.  <br /></td></tr>
 <tr class="separator:aae9222b90924123250afa659385ebd0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca8f2330f1bdba3e99dc0e864fec1a2c" id="r_aca8f2330f1bdba3e99dc0e864fec1a2c"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, 2 *<a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#aca8f2330f1bdba3e99dc0e864fec1a2c">kalman_gain</a></td></tr>
-<tr class="memdesc:aca8f2330f1bdba3e99dc0e864fec1a2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kalman gain: 6x2 matrix.  <br /></td></tr>
-<tr class="separator:aca8f2330f1bdba3e99dc0e864fec1a2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2404d18720c54f3eb419f0d80a5b675b" id="r_a2404d18720c54f3eb419f0d80a5b675b"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa7223f059429231ac4d38324251a5c36">total_inputs</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#a2404d18720c54f3eb419f0d80a5b675b">process_noise</a></td></tr>
-<tr class="memdesc:a2404d18720c54f3eb419f0d80a5b675b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Odometry process noise covariance matrix.  <br /></td></tr>
-<tr class="separator:a2404d18720c54f3eb419f0d80a5b675b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12a8811c2e939f330929d8bec6e0ed36" id="r_a12a8811c2e939f330929d8bec6e0ed36"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#a12a8811c2e939f330929d8bec6e0ed36">measurement_noise</a></td></tr>
-<tr class="memdesc:a12a8811c2e939f330929d8bec6e0ed36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measurement noise covariance matrix.  <br /></td></tr>
-<tr class="separator:a12a8811c2e939f330929d8bec6e0ed36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4c70dd34bdf60963121b2e371dcaf48" id="r_ae4c70dd34bdf60963121b2e371dcaf48"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, 2+<a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#ae4c70dd34bdf60963121b2e371dcaf48">kalman_gain</a></td></tr>
+<tr class="memdesc:ae4c70dd34bdf60963121b2e371dcaf48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kalman gain: 5x2 matrix.  <br /></td></tr>
+<tr class="separator:ae4c70dd34bdf60963121b2e371dcaf48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc26fbabb31552a0ab588ffd9935c920" id="r_acc26fbabb31552a0ab588ffd9935c920"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa7223f059429231ac4d38324251a5c36">total_inputs</a>, <a class="el" href="classEKF.html#aa7223f059429231ac4d38324251a5c36">total_inputs</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#acc26fbabb31552a0ab588ffd9935c920">process_noise</a></td></tr>
+<tr class="memdesc:acc26fbabb31552a0ab588ffd9935c920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Odometry process noise covariance matrix: 2x2 matrix.  <br /></td></tr>
+<tr class="separator:acc26fbabb31552a0ab588ffd9935c920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fb02f8e7b80deef1982e200efe2dba7" id="r_a1fb02f8e7b80deef1982e200efe2dba7"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#a1fb02f8e7b80deef1982e200efe2dba7">measurement_noise</a></td></tr>
+<tr class="memdesc:a1fb02f8e7b80deef1982e200efe2dba7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measurement noise covariance matrix: 2x2 matrix.  <br /></td></tr>
+<tr class="separator:a1fb02f8e7b80deef1982e200efe2dba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d6c2fdd9a98888dfb993c5b07d0770f" id="r_a1d6c2fdd9a98888dfb993c5b07d0770f"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#a1d6c2fdd9a98888dfb993c5b07d0770f">motion_jacobian</a></td></tr>
 <tr class="memdesc:a1d6c2fdd9a98888dfb993c5b07d0770f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jacobian matrix of the motion model.  <br /></td></tr>
 <tr class="separator:a1d6c2fdd9a98888dfb993c5b07d0770f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc85650c88046282e898063800dc9e47" id="r_adc85650c88046282e898063800dc9e47"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, <a class="el" href="classEKF.html#aa7223f059429231ac4d38324251a5c36">total_inputs</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#adc85650c88046282e898063800dc9e47">process_jacobian</a></td></tr>
 <tr class="memdesc:adc85650c88046282e898063800dc9e47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jacobian matrix of the process noise.  <br /></td></tr>
 <tr class="separator:adc85650c88046282e898063800dc9e47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6bb9a99242a9faf78ccd2509054957a" id="r_ae6bb9a99242a9faf78ccd2509054957a"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 2 *<a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#ae6bb9a99242a9faf78ccd2509054957a">measurment_jacobian</a></td></tr>
-<tr class="memdesc:ae6bb9a99242a9faf78ccd2509054957a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jacobian of the measurement model.  <br /></td></tr>
-<tr class="separator:ae6bb9a99242a9faf78ccd2509054957a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a7cea41afff7f644ef7eee4026a2793" id="r_a2a7cea41afff7f644ef7eee4026a2793"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 2+<a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html#a2a7cea41afff7f644ef7eee4026a2793">measurment_jacobian</a></td></tr>
+<tr class="memdesc:a2a7cea41afff7f644ef7eee4026a2793"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jacobian of the measurement model: 2 x 5 matrix.  <br /></td></tr>
+<tr class="separator:a2a7cea41afff7f644ef7eee4026a2793"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Houses the parameters required for performing Bayesian filtering. </p>
@@ -137,7 +140,7 @@ Public Attributes</h2></td></tr>
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">        Eigen::Matrix&lt;double, total_states, total_states&gt;::Identity() * 0.001</div>
 </div><!-- fragment -->
-<p>Estimation Error Covariance. </p>
+<p>Estimation Error Covariance: 3x3 matrix. </p>
 <p>There is a high certainty in the prior value of system state, therefore the prior estimation error covariance is initialised to a small value. </p>
 
 </div>
@@ -160,40 +163,59 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aca8f2330f1bdba3e99dc0e864fec1a2c" name="aca8f2330f1bdba3e99dc0e864fec1a2c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca8f2330f1bdba3e99dc0e864fec1a2c">&#9670;&#160;</a></span>kalman_gain</h2>
+<a id="ae4c70dd34bdf60963121b2e371dcaf48" name="ae4c70dd34bdf60963121b2e371dcaf48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4c70dd34bdf60963121b2e371dcaf48">&#9670;&#160;</a></span>kalman_gain</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Matrix&lt;double, 2 * <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>&gt; EKF::EstimationParameters::kalman_gain</td>
+          <td class="memname">Eigen::Matrix&lt;double, 2 + <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>&gt; EKF::EstimationParameters::kalman_gain</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">        Eigen::Matrix&lt;double, 2 * total_states, total_measurements&gt;::Zero()</div>
+<div class="line">        Eigen::Matrix&lt;double, 2 + total_states, total_measurements&gt;::Zero()</div>
 </div><!-- fragment -->
-<p>Kalman gain: 6x2 matrix. </p>
-<dl class="section note"><dt>Note</dt><dd>The reason the Kalman gain matrix has 6 elements is because the cooperative localisation (positioning) requires the estimation covariances of both the ego and measured robots [3x2]. See <a class="el" href="classEKF.html#a6ea1128ade286cc18dce9f7b15c75698" title="Performs the Extended Kalman correct step.">EKF::correction</a>. </dd></dl>
+<p>Kalman gain: 5x2 matrix. </p>
+<dl class="section note"><dt>Note</dt><dd>The reason the Kalman gain matrix has 5 elements is because the cooperative localisation (positioning) requires the estimation covariances of both the ego and measured robots position [3+2]. See <a class="el" href="classEKF.html#af8b5f4c91123c123a01a116b10475eb4" title="Performs the Extended Kalman correct step.">EKF::correction</a>. </dd></dl>
 
 </div>
 </div>
-<a id="a12a8811c2e939f330929d8bec6e0ed36" name="a12a8811c2e939f330929d8bec6e0ed36"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a12a8811c2e939f330929d8bec6e0ed36">&#9670;&#160;</a></span>measurement_noise</h2>
+<a id="ad611ad56bc0bff292ca704fc5a3a7e04" name="ad611ad56bc0bff292ca704fc5a3a7e04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad611ad56bc0bff292ca704fc5a3a7e04">&#9670;&#160;</a></span>measurement</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Matrix&lt;double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 1&gt; EKF::EstimationParameters::measurement_noise</td>
+          <td class="memname">Eigen::Matrix&lt;double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 1&gt; EKF::EstimationParameters::measurement</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">        Eigen::Matrix&lt;double, total_measurements, 1&gt;::Zero()</div>
 </div><!-- fragment -->
-<p>Measurement noise covariance matrix. </p>
+<p>Recieved range and bearing measurement: 2x1 matrix. </p>
+
+</div>
+</div>
+<a id="a1fb02f8e7b80deef1982e200efe2dba7" name="a1fb02f8e7b80deef1982e200efe2dba7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1fb02f8e7b80deef1982e200efe2dba7">&#9670;&#160;</a></span>measurement_noise</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::Matrix&lt;double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>&gt; EKF::EstimationParameters::measurement_noise</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= Eigen::Matrix&lt;double, <a class="code hl_variable" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>,</div>
+<div class="line">                                          <a class="code hl_variable" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>&gt;::Zero()</div>
+<div class="ttc" id="aclassEKF_html_aa50dd0d9b81e347bb27539f516048f37"><div class="ttname"><a href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">EKF::total_measurements</a></div><div class="ttdeci">static const unsigned short total_measurements</div><div class="ttdoc">The total number of system measurements: range [m] and bearing [rad].</div><div class="ttdef"><b>Definition</b> ekf.h:45</div></div>
+</div><!-- fragment -->
+<p>Measurement noise covariance matrix: 2x2 matrix. </p>
 <p>The matrix for the measurement noise covariance matrix take the form </p><p class="formulaDsp">
 \[ v = \begin{bmatrix} q_r &amp; 0 \\ 0 &amp; q_\phi \end{bmatrix}, \]
 </p>
@@ -201,26 +223,26 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ae6bb9a99242a9faf78ccd2509054957a" name="ae6bb9a99242a9faf78ccd2509054957a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae6bb9a99242a9faf78ccd2509054957a">&#9670;&#160;</a></span>measurment_jacobian</h2>
+<a id="a2a7cea41afff7f644ef7eee4026a2793" name="a2a7cea41afff7f644ef7eee4026a2793"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a7cea41afff7f644ef7eee4026a2793">&#9670;&#160;</a></span>measurment_jacobian</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Matrix&lt;double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 2 * <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>&gt; EKF::EstimationParameters::measurment_jacobian</td>
+          <td class="memname">Eigen::Matrix&lt;double, <a class="el" href="classEKF.html#aa50dd0d9b81e347bb27539f516048f37">total_measurements</a>, 2 + <a class="el" href="classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c">total_states</a>&gt; EKF::EstimationParameters::measurment_jacobian</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">            Eigen::Matrix&lt;double, total_measurements, 2 * total_states&gt;::Zero()</div>
+<div class="line">            Eigen::Matrix&lt;double, total_measurements, 2 + total_states&gt;::Zero()</div>
 </div><!-- fragment -->
-<p>Jacobian of the measurement model. </p>
+<p>Jacobian of the measurement model: 2 x 5 matrix. </p>
 <p>The formula used for the calculation of the Jacobian of the measurement matrix between ego vehicle \(i\) and measured vehicle \(j\) take the form  </p><p class="formulaDsp">
 \[ H = \begin{bmatrix} \frac{-\Delta x}{d} &amp; \frac{-\Delta y}{d} &amp; 0 &amp;
-\frac{\Delta x}{d} &amp; \frac{\Delta y}{d} &amp; 0 \\ \frac{\Delta y}{d^2} &amp;
+\frac{\Delta x}{d} &amp; \frac{\Delta y}{d} \\ \frac{\Delta y}{d^2} &amp;
 \frac{-\Delta x}{d^2} &amp; -1 &amp; \frac{-\Delta y}{d^2} &amp; \frac{\Delta x}{d^2}
-&amp; 0 \end{bmatrix} \]
+\end{bmatrix} \]
 </p>
 <p> where \(\Delta x = x_j - x_i\); \(\Delta y = y_j
 - y_i\); and \(\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\). </p>
@@ -246,7 +268,7 @@ Public Attributes</h2></td></tr>
 \[ F = \begin{bmatrix} 1 &amp; 0 &amp; -\tilde{v}\Delta t \sin(\theta) \\ 0 &amp; 1
 &amp; \tilde{v} \Delta t \cos(\theta) \\ 0 &amp; 0 &amp; 1 \end{bmatrix}, \]
 </p>
-<p> where \(\theta\) denotes the heading (orientation) of the ego vehicle; and \(\tilde{v}\) denotes the forward velocity. The forward velocity is a random variable with Gaussian distributed noise \(\mathcal{N}(0,w)\) , where \(w\) is defined by the covariance matrix <a class="el" href="structEKF_1_1EstimationParameters.html#a12a8811c2e939f330929d8bec6e0ed36" title="Measurement noise covariance matrix.">EKF::EstimationParameters.measurement_noise</a>. See <a class="el" href="classEKF.html#a851c2b2b68ee8f63a00782ff42afa9a2" title="performs the prediction step of the Extended Kalman filter.">EKF::prediction</a> for information on the motion model from which this was derived. </p>
+<p> where \(\theta\) denotes the heading (orientation) of the ego vehicle; and \(\tilde{v}\) denotes the forward velocity. The forward velocity is a random variable with Gaussian distributed noise \(\mathcal{N}(0,w)\) , where \(w\) is defined by the covariance matrix <a class="el" href="structEKF_1_1EstimationParameters.html#a1fb02f8e7b80deef1982e200efe2dba7" title="Measurement noise covariance matrix: 2x2 matrix.">EKF::EstimationParameters.measurement_noise</a>. See <a class="el" href="classEKF.html#a52129272c38df94754a58bcf66902f23" title="performs the prediction step of the Extended Kalman filter.">EKF::prediction</a> for information on the motion model from which this was derived. </p>
 
 </div>
 </div>
@@ -269,25 +291,25 @@ Public Attributes</h2></td></tr>
 \[L = \begin{bmatrix}\Delta t \cos(\theta) &amp; 0 \\ \Delta t \sin(\theta)
 &amp; 0 \\ 0 &amp; \Delta t \end{bmatrix}, \]
 </p>
-<p> where \(\Delta t\) denotes the sample period; and \(\theta\) denotes the heading (orientation) of the ego robot. measurement_noise. See <a class="el" href="classEKF.html#a851c2b2b68ee8f63a00782ff42afa9a2" title="performs the prediction step of the Extended Kalman filter.">EKF::prediction</a> for information on the motion model from which this was derived. </p>
+<p> where \(\Delta t\) denotes the sample period; and \(\theta\) denotes the heading (orientation) of the ego robot. measurement_noise. See <a class="el" href="classEKF.html#a52129272c38df94754a58bcf66902f23" title="performs the prediction step of the Extended Kalman filter.">EKF::prediction</a> for information on the motion model from which this was derived. </p>
 
 </div>
 </div>
-<a id="a2404d18720c54f3eb419f0d80a5b675b" name="a2404d18720c54f3eb419f0d80a5b675b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2404d18720c54f3eb419f0d80a5b675b">&#9670;&#160;</a></span>process_noise</h2>
+<a id="acc26fbabb31552a0ab588ffd9935c920" name="acc26fbabb31552a0ab588ffd9935c920"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc26fbabb31552a0ab588ffd9935c920">&#9670;&#160;</a></span>process_noise</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Matrix&lt;double, <a class="el" href="classEKF.html#aa7223f059429231ac4d38324251a5c36">total_inputs</a>, 1&gt; EKF::EstimationParameters::process_noise</td>
+          <td class="memname">Eigen::Matrix&lt;double, <a class="el" href="classEKF.html#aa7223f059429231ac4d38324251a5c36">total_inputs</a>, <a class="el" href="classEKF.html#aa7223f059429231ac4d38324251a5c36">total_inputs</a>&gt; EKF::EstimationParameters::process_noise</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">        Eigen::Matrix&lt;double, total_inputs, 1&gt;::Zero()</div>
+<div class="line">        Eigen::Matrix&lt;double, total_inputs, total_inputs&gt;::Zero()</div>
 </div><!-- fragment -->
-<p>Odometry process noise covariance matrix. </p>
+<p>Odometry process noise covariance matrix: 2x2 matrix. </p>
 <p>The process noise covariance matrix is defined by the expression: </p><p class="formulaDsp">
 \[ w = \begin{bmatrix} q_v &amp; 0 \\ 0 &amp; q_\omega \end{bmatrix}, \]
 </p>
@@ -309,7 +331,7 @@ Public Attributes</h2></td></tr>
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">        Eigen::Matrix&lt;double, total_states, 1&gt;::Zero()</div>
 </div><!-- fragment -->
-<p>Estimated robot state: x coordinate [m], y-coordinate [m], and orientation (heading) [rad]. </p>
+<p>Estimated robot state - x coordinate [m], y-coordinate [m], and orientation (heading) [rad]: 3x1 matrix. </p>
 <p>The state vector of the robot take the form </p><p class="formulaDsp">
 \[\begin{bmatrix} x
 &amp; y &amp; \theta \end{bmatrix}^\top, \]
