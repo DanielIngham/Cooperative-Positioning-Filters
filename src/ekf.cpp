@@ -6,7 +6,8 @@
  * @date 2025-05-01
  */
 #include "ekf.h"
-#include "DataHandler/Robot.h"
+#include "DataHandler/Landmark.h"
+#include <DataHandler/Robot.h>
 #include <cmath>
 #include <locale>
 
@@ -21,7 +22,7 @@ EKF::EKF(DataHandler &data) : data_(data) {
   std::vector<Robot> &robots = data_.getRobots();
 
   /* Populate the Estimation parameters for each robot. */
-  for (size_t id = 0; id < data_.getNumberOfRobots(); id++) {
+  for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
     EstimationParameters initial_parameters;
 
     /* Assume known prior. This is done by setting the first value of the
@@ -43,6 +44,28 @@ EKF::EKF(DataHandler &data) : data_(data) {
     initial_parameters.measurement_noise.diagonal().topRows(total_measurements)
         << robots[id].range_error.variance,
         robots[id].bearing_error.variance;
+
+    robot_parameters.push_back(initial_parameters);
+  }
+
+  /* Populate the estimation parameters for each landmark. */
+  std::vector<Landmark> landmarks = data_.getLandmarks();
+
+  for (unsigned short id = 0; id < data_.getNumberOfLandmarks(); id++) {
+    EstimationParameters initial_parameters;
+
+    initial_parameters.state_estimate << landmarks[id].x, landmarks[id].y, 0.0;
+
+    /* The landmark only has two states: x and y coordintate.
+     * NOTE: Although the landmark only has two states, the same data structure
+     * is used for both the robot and landmark for compatibility with the
+     * EFK::correction function, since only the x and y coordinate and thier
+     * corresponding error covariances are used for the measurement update. */
+    initial_parameters.error_covariance.diagonal().topRows(total_states - 1)
+        << landmarks[id].x_std_dev * landmarks[id].x_std_dev,
+        landmarks[id].y_std_dev * landmarks[id].y_std_dev, 0.0;
+
+    landmark_parameters.push_back(initial_parameters);
   }
 }
 
@@ -56,10 +79,64 @@ EKF::~EKF() {}
  * framework for all robots provided.
  */
 void EKF::peformInference() {
-  // std::vector<Robot> &robots = this->data_.getRobots();
+  std::vector<Robot> &robots = this->data_.getRobots();
 
+  size_t measurement_index = 0;
   for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
+      /* Perform prediction using odometry values. */
+      prediction(robots[id].synced.odometry[k], robot_parameters[id]);
+
+      /* If a measurements are available, loop through each measurement
+       * and update the estimate. */
+      if (std::round((robots[id].synced.measurements[measurement_index].time -
+                      robots[id].synced.odometry[k].time) *
+                     10000.0) /
+              10000.0 ==
+          0.0) {
+
+        /* Loop through the measurements taken and perform the meausrement
+         * update for each.
+         * NOTE: This operation uses the assumption that the measurements fo the
+         * indpendent robots/landmarks are independent of one another.
+         */
+        const Robot::Measurement &current_measurement =
+            robots[id].synced.measurements[measurement_index];
+
+        for (unsigned short j = 0; j < current_measurement.subjects.size();
+             j++) {
+          /* Find the subject for whom the barcode belongs to. */
+          int subject_id = data_.getID(current_measurement.subjects[j]);
+
+          if (-1 == subject_id) {
+            break;
+          }
+
+          /* Populate the measurement matrix required for the correction step.
+           */
+          robot_parameters[id].measurement << current_measurement.ranges[j],
+              current_measurement.bearings[j];
+
+          /* The datahandler first assigns the ID to the robots then the
+           * landmarks. Therefore if the ID is less than or equal to the number
+           * of robots, then it belongs to a robot, otherwise it belong to a
+           * landmark. */
+          EstimationParameters measured_object;
+
+          if (subject_id <= data_.getNumberOfRobots()) {
+            unsigned short index = subject_id - 1;
+            measured_object = robot_parameters[index];
+
+          } else {
+            unsigned short index = subject_id - data_.getNumberOfRobots();
+            measured_object = robot_parameters[index];
+          }
+
+          correction(robot_parameters[id], measured_object);
+        }
+
+        measurement_index++;
+      }
     }
   }
 }
@@ -171,26 +248,25 @@ void EKF::correction(EstimationParameters &estimation_parameters,
 
   estimation_parameters.measurment_jacobian << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
-      y_difference / denominator, 0, y_difference / (denominator * denominator),
+      y_difference / denominator, y_difference / (denominator * denominator),
       -x_difference / (denominator * denominator), -1,
       -y_difference / (denominator * denominator),
-      x_difference / (denominator * denominator), 0;
-
+      x_difference / (denominator * denominator);
   /* NOTE: Measurement noise Jacobian is identity. No need to calculate. */
 
   /* Create and populate new 6x6 error covariance matrix. */
-  Eigen::Matrix<double, 2 * total_states, 2 * total_states> error_covariance;
+  Eigen::Matrix<double, 2 + total_states, 2 + total_states> error_covariance;
   error_covariance.setZero();
 
   error_covariance.topLeftCorner<3, 3>() =
       estimation_parameters.error_covariance;
 
-  error_covariance.bottomRightCorner<3, 3>() = other_robot.error_covariance;
+  error_covariance.bottomRightCorner<2, 2>() =
+      other_robot.error_covariance.topLeftCorner<2, 2>();
 
   /* Calculate Covariance Innovation: */
   estimation_parameters.innovation =
-      estimation_parameters.measurment_jacobian *
-          estimation_parameters.error_covariance *
+      estimation_parameters.measurment_jacobian * error_covariance *
           estimation_parameters.measurment_jacobian.transpose() +
       estimation_parameters.measurement_noise;
 
