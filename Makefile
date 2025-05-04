@@ -1,13 +1,14 @@
+PROJECT_DIR =$(CURDIR)
 # Directories
-BUILD_DIR := build
-INCLUDE_DIR := include
-SRC_DIR := src
+BUILD_DIR :=build
+INCLUDE_DIR :=include
+SRC_DIR :=src
 
 # Library
-LIBRARY := data_handler
-LIB := lib
-LIB_DIR := $(LIB)/DataHandler
-LIB_BUILD := $(LIB_DIR)/lib
+LIBRARY :=data_handler
+LIB :=lib
+LIB_DIR :=$(LIB)/DataHandler
+LIB_BUILD :=$(LIB_DIR)/lib
 
 # Compiler
 CXX := g++
@@ -29,6 +30,7 @@ CPPCHECK := cppcheck
 
 # Linking
 $(TARGET): $(OBJECTS)
+	# Linking
 	@mkdir -p $(dir $@)
 	$(CXX) $^ -L$(LIB_BUILD) -l$(LIBRARY) -o $@ 
 
@@ -38,7 +40,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(MAKE) -C $(LIB_DIR)
 	# Compile the project
 	@mkdir -p $(dir $@)
-	$(CXX) -g -I $(INCLUDE_DIR) $(CFLAGS) -c $^ -o $@ 
+	$(CXX) -g $(CFLAGS) -c $^ -o $@ 
 
 all: $(TARGET)
 	
@@ -46,8 +48,10 @@ clean:
 	$(MAKE) -C $(LIB_DIR) clean
 	rm -rf $(BUILD_DIR)
 
+
 run: $(TARGET)
-	$(TARGET)
+	# Set an environment variable called PROJECT_DIR 
+	PROJECT_DIR=$(PROJECT_DIR) $(TARGET)
 
 # Static C++ Code Analyser
 cppcheck: 
