@@ -159,11 +159,10 @@ void EKF::peformInference() {
       }
     }
   }
-  std::cout << "Inference: " << std::endl;
+
+  /* Calculate the inference error. */
   for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-    std::cout << "Robot " << id + 1 << ": c"
-              << data_.getNumberOfSyncedDatapoints()
-              << robots[0].synced.states.size() << std::endl;
+    robots[id].calculateStateError();
   }
 }
 
