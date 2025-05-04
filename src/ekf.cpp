@@ -9,7 +9,7 @@
 #include "DataHandler/Landmark.h"
 #include <DataHandler/Robot.h>
 #include <cmath>
-#include <locale>
+#include <iostream>
 
 /**
  * @brief EKF class constructor.
@@ -23,6 +23,7 @@ EKF::EKF(DataHandler &data) : data_(data) {
 
   /* Populate the Estimation parameters for each robot. */
   for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
+
     EstimationParameters initial_parameters;
 
     /* Assume known prior. This is done by setting the first value of the
@@ -80,12 +81,16 @@ EKF::~EKF() {}
  */
 void EKF::peformInference() {
   std::vector<Robot> &robots = this->data_.getRobots();
+  std::vector<Landmark> landmarks = data_.getLandmarks();
 
   /* Loop through each timestep and perform inference.  */
-  size_t measurement_index = 0;
+  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 1);
+
   for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
+
     /* Perform prediction for each robot using odometry values. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
+
       prediction(robots[id].synced.odometry[k], robot_parameters[id]);
 
       /* Update the robot state data structure. */
@@ -99,64 +104,66 @@ void EKF::peformInference() {
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-      if (std::round((robots[id].synced.measurements[measurement_index].time -
-                      robots[id].synced.odometry[k].time) *
-                     10000.0) /
-              10000.0 ==
+
+      /* Range check. */
+      if (measurement_index[id] >= robots[id].synced.measurements.size()) {
+        continue;
+      }
+
+      /* Check if a measurement is available. */
+      if (std::round(
+              (robots[id].synced.measurements[measurement_index[id]].time -
+               robots[id].synced.odometry[k].time) *
+              10000.0) /
+              10000.0 !=
           0.0) {
+        continue;
+      }
 
-        /* Loop through the measurements taken and perform the measurement
-         * update for each robot.
-         * NOTE: This operation uses the assumption that the measurements fo the
-         * indpendent robots/landmarks are independent of one another.
+      /* Loop through the measurements taken and perform the measurement
+       * update for each robot.
+       * NOTE: This operation uses the assumption that the measurements fo the
+       * indpendent robots/landmarks are independent of one another.
+       */
+      const Robot::Measurement &current_measurement =
+          robots[id].synced.measurements[measurement_index[id]];
+
+      for (unsigned short j = 0; j < current_measurement.subjects.size(); j++) {
+        /* Find the subject for whom the barcode belongs to. */
+        int subject_id = data_.getID(current_measurement.subjects[j]);
+
+        if (-1 == subject_id) {
+          continue;
+        }
+        /* Populate the measurement matrix required for the correction step.
          */
-        const Robot::Measurement &current_measurement =
-            robots[id].synced.measurements[measurement_index];
+        robot_parameters[id].measurement << current_measurement.ranges[j],
+            current_measurement.bearings[j];
 
-        for (unsigned short j = 0; j < current_measurement.subjects.size();
-             j++) {
-          /* Find the subject for whom the barcode belongs to. */
-          int subject_id = data_.getID(current_measurement.subjects[j]);
+        /* The datahandler first assigns the ID to the robots then the
+         * landmarks. Therefore if the ID is less than or equal to the number
+         * of robots, then it belongs to a robot, otherwise it belong to a
+         * landmark. */
+        EstimationParameters measured_object;
 
-          if (-1 == subject_id) {
-            break;
-          }
+        if (subject_id <= data_.getNumberOfRobots()) {
+          unsigned short index = subject_id - 1;
+          measured_object = robot_parameters[index];
 
-          /* Populate the measurement matrix required for the correction step.
-           */
-          robot_parameters[id].measurement << current_measurement.ranges[j],
-              current_measurement.bearings[j];
-
-          /* The datahandler first assigns the ID to the robots then the
-           * landmarks. Therefore if the ID is less than or equal to the number
-           * of robots, then it belongs to a robot, otherwise it belong to a
-           * landmark. */
-          EstimationParameters measured_object;
-
-          if (subject_id <= data_.getNumberOfRobots()) {
-            unsigned short index = subject_id - 1;
-            measured_object = robot_parameters[index];
-
-          } else {
-            unsigned short index = subject_id - data_.getNumberOfRobots();
-            measured_object = landmark_parameters[index];
-          }
-
-          correction(robot_parameters[id], measured_object);
-
-          /* Update the robot state data structure. */
-          robots[id].synced.states[k].time =
-              robots[id].groundtruth.states[k].time;
-          robots[id].synced.states[k].x =
-              robot_parameters[id].state_estimate(X);
-          robots[id].synced.states[k].y =
-              robot_parameters[id].state_estimate(Y);
-          robots[id].synced.states[k].orientation =
-              robot_parameters[id].state_estimate(ORIENTATION);
+        } else {
+          unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
+          measured_object = landmark_parameters[index];
         }
 
-        measurement_index++;
+        correction(robot_parameters[id], measured_object);
+
+        /* Update the robot state data structure. */
+        robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
+        robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
+        robots[id].synced.states[k].orientation =
+            robot_parameters[id].state_estimate(ORIENTATION);
       }
+      measurement_index[id] += 1;
     }
   }
 
@@ -203,6 +210,13 @@ void EKF::prediction(const Robot::Odometry &odometry,
               std::sin(estimation_parameters.state_estimate(ORIENTATION)),
       estimation_parameters.state_estimate(ORIENTATION) +
           odometry.angular_velocity * sample_period;
+
+  /* Normalise the orientation estimate between -180 and 180. */
+  while (estimation_parameters.state_estimate(ORIENTATION) >= M_PI)
+    estimation_parameters.state_estimate(ORIENTATION) -= 2.0 * M_PI;
+
+  while (estimation_parameters.state_estimate(ORIENTATION) < -M_PI)
+    estimation_parameters.state_estimate(ORIENTATION) += 2.0 * M_PI;
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   estimation_parameters.motion_jacobian << 1, 0,
@@ -271,6 +285,11 @@ void EKF::correction(EstimationParameters &estimation_parameters,
   double denominator =
       std::sqrt(x_difference * x_difference + y_difference * y_difference);
 
+  const double MIN_DISTANCE = 1e-6;
+  if (denominator < MIN_DISTANCE) {
+    denominator = MIN_DISTANCE;
+  }
+
   estimation_parameters.measurment_jacobian << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
       y_difference / denominator, y_difference / (denominator * denominator),
@@ -279,7 +298,7 @@ void EKF::correction(EstimationParameters &estimation_parameters,
       x_difference / (denominator * denominator);
   /* NOTE: Measurement noise Jacobian is identity. No need to calculate. */
 
-  /* Create and populate new 6x6 error covariance matrix. */
+  /* Create and populate new 5x5 error covariance matrix. */
   Eigen::Matrix<double, 2 + total_states, 2 + total_states> error_covariance;
   error_covariance.setZero();
 
@@ -322,16 +341,33 @@ void EKF::correction(EstimationParameters &estimation_parameters,
       std::atan2(y_difference, x_difference) -
           estimation_parameters.state_estimate[ORIENTATION];
 
-  estimated_state = estimated_state + estimation_parameters.kalman_gain *
-                                          (estimation_parameters.measurement -
-                                           predicted_measurement);
+  Eigen::Matrix<double, total_measurements, 1> measurement_residual =
+      (estimation_parameters.measurement - predicted_measurement);
+
+  /* Normalise the angle residual */
+  while (measurement_residual(BEARING) >= M_PI)
+    measurement_residual(BEARING) -= 2.0 * M_PI;
+
+  while (measurement_residual(BEARING) < -M_PI)
+    measurement_residual(BEARING) += 2.0 * M_PI;
+
+  estimated_state = estimated_state +
+                    estimation_parameters.kalman_gain * measurement_residual;
 
   /* Resize matrices back to normal */
   /* NOTE: The resize means all information regarding the observed robots states
    * is lost. This operates on the assumptoin that the error covariance is
    * uncorrelated, which may lead to the estimator being over confident in bad
    * estimates. */
+
   estimation_parameters.state_estimate = estimated_state.head<total_states>();
   estimation_parameters.error_covariance =
-      error_covariance.topLeftCorner<3, 3>();
+      error_covariance.topLeftCorner<total_states, total_states>();
+
+  /* Normalise the orientation estimate between -180 and 180. */
+  while (estimation_parameters.state_estimate(ORIENTATION) >= M_PI)
+    estimation_parameters.state_estimate(ORIENTATION) -= 2.0 * M_PI;
+
+  while (estimation_parameters.state_estimate(ORIENTATION) < -M_PI)
+    estimation_parameters.state_estimate(ORIENTATION) += 2.0 * M_PI;
 }
