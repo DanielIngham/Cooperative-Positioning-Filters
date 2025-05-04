@@ -28,7 +28,7 @@ EKF::EKF(DataHandler &data) : data_(data) {
     /* Assume known prior. This is done by setting the first value of the
      * estimated values to the groundtruth. */
     robots[id].synced.states.push_back(
-        Robot::State(robots[id].synced.states.front()));
+        Robot::State(robots[id].groundtruth.states.front()));
 
     /* Initial state: 3x1 Matrix. */
     initial_parameters.state_estimate << robots[id].synced.states.front().x,
@@ -63,7 +63,7 @@ EKF::EKF(DataHandler &data) : data_(data) {
      * corresponding error covariances are used for the measurement update. */
     initial_parameters.error_covariance.diagonal().topRows(total_states - 1)
         << landmarks[id].x_std_dev * landmarks[id].x_std_dev,
-        landmarks[id].y_std_dev * landmarks[id].y_std_dev, 0.0;
+        landmarks[id].y_std_dev * landmarks[id].y_std_dev;
 
     landmark_parameters.push_back(initial_parameters);
   }
@@ -81,6 +81,7 @@ EKF::~EKF() {}
 void EKF::peformInference() {
   std::vector<Robot> &robots = this->data_.getRobots();
 
+  /* Loop through each timestep and perform inference.  */
   size_t measurement_index = 0;
   for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
     /* Perform prediction for each robot using odometry values. */
@@ -88,11 +89,11 @@ void EKF::peformInference() {
       prediction(robots[id].synced.odometry[k], robot_parameters[id]);
 
       /* Update the robot state data structure. */
-      robots[id].synced.states[k].time = robots[id].groundtruth.states[k].time;
-      robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
-      robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
-      robots[id].synced.states[k].orientation =
-          robot_parameters[id].state_estimate(ORIENTATION);
+      robots[id].synced.states.push_back(
+          Robot::State(robots[id].groundtruth.states[k].time,
+                       robot_parameters[id].state_estimate(X),
+                       robot_parameters[id].state_estimate(Y),
+                       robot_parameters[id].state_estimate(ORIENTATION)));
     }
 
     /* If a measurements are available, loop through each measurement
@@ -157,6 +158,12 @@ void EKF::peformInference() {
         measurement_index++;
       }
     }
+  }
+  std::cout << "Inference: " << std::endl;
+  for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
+    std::cout << "Robot " << id + 1 << ": c"
+              << data_.getNumberOfSyncedDatapoints()
+              << robots[0].synced.states.size() << std::endl;
   }
 }
 
