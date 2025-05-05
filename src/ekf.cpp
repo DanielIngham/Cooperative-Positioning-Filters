@@ -304,8 +304,7 @@ void EKF::correction(EstimationParameters &estimation_parameters,
   while (measurement_residual(BEARING) < -M_PI)
     measurement_residual(BEARING) += 2.0 * M_PI;
 
-  estimated_state = estimated_state +
-                    estimation_parameters.kalman_gain * measurement_residual;
+  estimated_state += estimation_parameters.kalman_gain * measurement_residual;
 
   /* Resize matrices back to normal */
   /* NOTE: The resize means all information regarding the observed robots states
@@ -314,8 +313,6 @@ void EKF::correction(EstimationParameters &estimation_parameters,
    * estimates. */
 
   estimation_parameters.state_estimate = estimated_state.head<total_states>();
-  estimation_parameters.error_covariance =
-      error_covariance.topLeftCorner<total_states, total_states>();
 
   /* Normalise the orientation estimate between -180 and 180. */
   while (estimation_parameters.state_estimate(ORIENTATION) >= M_PI)
@@ -323,4 +320,12 @@ void EKF::correction(EstimationParameters &estimation_parameters,
 
   while (estimation_parameters.state_estimate(ORIENTATION) < -M_PI)
     estimation_parameters.state_estimate(ORIENTATION) += 2.0 * M_PI;
+
+  estimation_parameters.error_covariance =
+      error_covariance.topLeftCorner<total_states, total_states>() -
+      error_covariance.topRightCorner<total_states, total_measurements>() *
+          error_covariance
+              .bottomRightCorner<total_measurements, total_measurements>()
+              .inverse() *
+          error_covariance.bottomLeftCorner<total_measurements, total_states>();
 }
