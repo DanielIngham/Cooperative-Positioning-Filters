@@ -225,14 +225,14 @@ void EKF::prediction(const Robot::Odometry &odometry,
  * \f$i\f$ and the observed robot \f$j\f$ respectively.
  */
 void EKF::correction(EstimationParameters &estimation_parameters,
-                     const EstimationParameters &other_robot) {
+                     const EstimationParameters &other_object) {
 
   /* Calculate measurement Jacobian */
   double x_difference =
-      other_robot.state_estimate(X) - estimation_parameters.state_estimate(X);
+      other_object.state_estimate(X) - estimation_parameters.state_estimate(X);
 
   double y_difference =
-      other_robot.state_estimate(Y) - estimation_parameters.state_estimate(Y);
+      other_object.state_estimate(Y) - estimation_parameters.state_estimate(Y);
 
   double denominator =
       std::sqrt(x_difference * x_difference + y_difference * y_difference);
@@ -258,7 +258,7 @@ void EKF::correction(EstimationParameters &estimation_parameters,
       estimation_parameters.error_covariance;
 
   error_covariance.bottomRightCorner<2, 2>() =
-      other_robot.error_covariance.topLeftCorner<2, 2>();
+      other_object.error_covariance.topLeftCorner<2, 2>();
 
   /* Calculate Covariance Innovation: */
   estimation_parameters.innovation =
@@ -278,13 +278,13 @@ void EKF::correction(EstimationParameters &estimation_parameters,
                              estimation_parameters.innovation *
                              estimation_parameters.kalman_gain.transpose();
 
-  /* Create the state matrix for both robot: 6x1 matrix. */
+  /* Create the state matrix for both robot: 5x1 matrix. */
   Eigen::Matrix<double, 2 + total_states, 1> estimated_state;
   estimated_state.setZero();
 
   estimated_state.head<total_states>() = estimation_parameters.state_estimate;
   estimated_state.tail<total_states - 1>() =
-      other_robot.state_estimate.head<total_states - 1>();
+      other_object.state_estimate.head<total_states - 1>();
 
   /* Populate the predicted measurement matrix. */
   Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
@@ -294,6 +294,9 @@ void EKF::correction(EstimationParameters &estimation_parameters,
       std::atan2(y_difference, x_difference) -
           estimation_parameters.state_estimate[ORIENTATION];
 
+  /* Calculate the measurement residual: the difference between the measurement
+   * and the calculate measurement based on the estimated states of both robots.
+   */
   Eigen::Matrix<double, total_measurements, 1> measurement_residual =
       (estimation_parameters.measurement - predicted_measurement);
 
@@ -321,11 +324,15 @@ void EKF::correction(EstimationParameters &estimation_parameters,
   while (estimation_parameters.state_estimate(ORIENTATION) < -M_PI)
     estimation_parameters.state_estimate(ORIENTATION) += 2.0 * M_PI;
 
+  /* Schur complement-based error covariance marginalisation. This is used to
+   * marginalise the 5x5 matrix to a 3x3 matrix by incorporating the
+   * marginalising the contributions of the error covariance from the other
+   * robot states into the covariance of the ego robot. */
   estimation_parameters.error_covariance =
       error_covariance.topLeftCorner<total_states, total_states>() -
-      error_covariance.topRightCorner<total_states, total_measurements>() *
+      error_covariance.topRightCorner<total_states, total_states - 1>() *
           error_covariance
-              .bottomRightCorner<total_measurements, total_measurements>()
+              .bottomRightCorner<total_states - 1, total_states - 1>()
               .inverse() *
-          error_covariance.bottomLeftCorner<total_measurements, total_states>();
+          error_covariance.bottomLeftCorner<total_states - 1, total_states>();
 }

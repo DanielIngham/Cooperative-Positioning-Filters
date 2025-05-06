@@ -148,6 +148,31 @@ protected:
     Eigen::Matrix<double, total_measurements, 2 + total_states>
         measurement_jacobian =
             Eigen::Matrix<double, total_measurements, 2 + total_states>::Zero();
+
+    /**
+     * @brief Information vector: 3x1 matrix.
+     * @details Used by the information form of the (Extended) Kalman Filter.
+     * The expression of the information vector take the form:
+     * \f[\begin{align}\nabla &= \Sigma^{-1}\mathbf{x} \\ &= \Lambda
+     * \mathbf{x}\end{align}\f], where \f$\Sigma\f$ denotes the estimation error
+     * covariance matrix (Filter::EstimationParameters.error_covariance);
+     * \f$\Lambda\f$ denotes the information matrix
+     * (Filter::EstimationParameters.information_vector)
+     * \f$\mathbf{x}\f$ denotes the state of the system
+     * (Filter::EstimationParameters.state_estimate).
+     */
+    Eigen::Matrix<double, total_states, 1> information_vector =
+        Eigen::Matrix<double, total_states, 1>::Zero();
+
+    /**
+     * @brief Information matrix: 3x3 matrix.
+     * @details Used by the information form of the (Extended) Kalman Filter.
+     * The expression for the information matrix takes the form \f[\Lambda =
+     * \Sigma^{-1}\f], where \f$\Sigma\f$ denotes the estimation error
+     * covariance matrix (Filter::EstimationParameters.error_covariance).
+     */
+    Eigen::Matrix<double, total_states, total_states> information_matrix =
+        error_covariance.inverse();
   };
 
   /**
