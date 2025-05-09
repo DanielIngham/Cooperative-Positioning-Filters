@@ -87,12 +87,13 @@ void InformationFilter::performInference() {
         }
 
         correction(robot_parameters[id], measured_object);
-        robot_parameters[id].state_estimate =
-            robot_parameters[id].information_matrix.inverse() *
-            robot_parameters[id].information_vector;
       }
+
       /* TODO: Recover the state estimate and covariance from the infomation
        * form. */
+      robot_parameters[id].state_estimate =
+          robot_parameters[id].information_matrix.inverse() *
+          robot_parameters[id].information_vector;
 
       robot_parameters[id].error_covariance =
           robot_parameters[id].information_matrix.inverse();
@@ -224,8 +225,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   estimated_state.setZero();
 
   estimated_state.head<total_states>() = ego_robot.state_estimate;
-  estimated_state.tail<total_states>() =
-      other_object.state_estimate.head<total_states>();
+  estimated_state.tail<total_states>() = other_object.state_estimate;
 
   /* Calculate the Information contribution */
   Eigen::Matrix<double, 2 * total_states, 2 * total_states>
@@ -242,21 +242,18 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   Eigen::Matrix<double, 2 * total_states, 2 * total_states> information_matrix;
 
   information_matrix.topLeftCorner<total_states, total_states>() =
-      ego_robot.information_matrix;
+      ego_robot.error_covariance;
 
   information_matrix.bottomRightCorner<total_states, total_states>() =
-      other_object.information_matrix
-          .topLeftCorner<total_states, total_states>();
+      other_object.error_covariance.topLeftCorner<total_states, total_states>();
+
+  information_matrix = information_matrix.inverse();
 
   /* Create a temporary augmented vector containing the information vector of
    * both objects. */
   Eigen::Matrix<double, 2 * total_states, 1> information_vector;
 
-  information_vector.head<total_states>() =
-      ego_robot.information_vector.head<total_states>();
-
-  information_vector.tail<total_states>() =
-      other_object.information_vector.head<total_states>();
+  information_vector = information_matrix * estimated_state;
 
   /* Add the information contribution. */
   information_matrix += information_matrix_contribution;
