@@ -92,11 +92,11 @@ void InformationFilter::performInference() {
       /* TODO: Recover the state estimate and covariance from the infomation
        * form. */
       robot_parameters[id].state_estimate =
-          robot_parameters[id].information_matrix.inverse() *
+          robot_parameters[id].precision_matrix.inverse() *
           robot_parameters[id].information_vector;
 
       robot_parameters[id].error_covariance =
-          robot_parameters[id].information_matrix.inverse();
+          robot_parameters[id].precision_matrix.inverse();
       /* Normalise the orientation estimate between -180 and 180. */
 
       while (robot_parameters[id].state_estimate(ORIENTATION) >= M_PI)
@@ -164,10 +164,10 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
   /* Update the information form:
    * NOTE: this is the only place where the information filter differs from the
    * Kalman filter in the prediction step.*/
-  ego_robot.information_matrix = ego_robot.error_covariance.inverse();
+  ego_robot.precision_matrix = ego_robot.error_covariance.inverse();
 
   ego_robot.information_vector =
-      ego_robot.information_matrix * ego_robot.state_estimate;
+      ego_robot.precision_matrix * ego_robot.state_estimate;
 }
 
 void InformationFilter::correction(EstimationParameters &ego_robot,
@@ -229,7 +229,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 
   /* Calculate the Information contribution */
   Eigen::Matrix<double, 2 * total_states, 2 * total_states>
-      information_matrix_contribution =
+      precision_matrix_contribution =
           measurement_jacobian.transpose() *
           ego_robot.measurement_noise.inverse() * measurement_jacobian;
 
@@ -239,37 +239,37 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 
   /* Create a temporary augmented matrix  containing the information matrix of
    * both objects. */
-  Eigen::Matrix<double, 2 * total_states, 2 * total_states> information_matrix;
+  Eigen::Matrix<double, 2 * total_states, 2 * total_states> precision_matrix;
 
-  information_matrix.topLeftCorner<total_states, total_states>() =
-      ego_robot.information_matrix;
+  precision_matrix.topLeftCorner<total_states, total_states>() =
+      ego_robot.precision_matrix;
 
-  information_matrix.bottomRightCorner<total_states, total_states>() =
-      other_object.information_matrix;
+  precision_matrix.bottomRightCorner<total_states, total_states>() =
+      other_object.precision_matrix;
 
   /* Create a temporary augmented vector containing the information vector of
    * both objects. */
   Eigen::Matrix<double, 2 * total_states, 1> information_vector;
 
-  information_vector = information_matrix * estimated_state;
+  information_vector = precision_matrix * estimated_state;
 
   /* Add the information contribution. */
-  information_matrix += information_matrix_contribution;
+  precision_matrix += precision_matrix_contribution;
   information_vector += information_vector_contribution;
 
   /* Schur complement-based error covariance marginalisation. This is used to
    * marginalise the 5x5 matrix to a 3x3 matrix */
-  ego_robot.information_matrix =
-      information_matrix.topLeftCorner<total_states, total_states>() -
-      information_matrix.topRightCorner<total_states, total_states>() *
-          information_matrix.bottomRightCorner<total_states, total_states>()
+  ego_robot.precision_matrix =
+      precision_matrix.topLeftCorner<total_states, total_states>() -
+      precision_matrix.topRightCorner<total_states, total_states>() *
+          precision_matrix.bottomRightCorner<total_states, total_states>()
               .inverse() *
-          information_matrix.bottomLeftCorner<total_states, total_states>();
+          precision_matrix.bottomLeftCorner<total_states, total_states>();
 
   ego_robot.information_vector =
       information_vector.head<total_states>() -
-      information_matrix.topRightCorner<total_states, total_states>() *
-          information_matrix.bottomRightCorner<total_states, total_states>()
+      precision_matrix.topRightCorner<total_states, total_states>() *
+          precision_matrix.bottomRightCorner<total_states, total_states>()
               .inverse() *
           information_vector.tail<total_states>();
 }

@@ -34,6 +34,10 @@ Filter::Filter(DataHandler &data) : data_(data) {
         << robots[id].range_error.variance,
         robots[id].bearing_error.variance;
 
+    /* Populate the Initial information vector */
+    initial_parameters.information_vector =
+        initial_parameters.precision_matrix * initial_parameters.state_estimate;
+
     robot_parameters.push_back(initial_parameters);
   }
 

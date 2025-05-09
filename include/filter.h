@@ -165,13 +165,13 @@ protected:
         Eigen::Matrix<double, total_states, 1>::Zero();
 
     /**
-     * @brief Information matrix: 3x3 matrix.
+     * @brief Precision matrix: 3x3 matrix.
      * @details Used by the information form of the (Extended) Kalman Filter.
      * The expression for the information matrix takes the form \f[\Lambda =
      * \Sigma^{-1}\f], where \f$\Sigma\f$ denotes the estimation error
      * covariance matrix (Filter::EstimationParameters.error_covariance).
      */
-    Eigen::Matrix<double, total_states, total_states> information_matrix =
+    Eigen::Matrix<double, total_states, total_states> precision_matrix =
         error_covariance.inverse();
   };
 
