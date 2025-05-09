@@ -242,12 +242,10 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   Eigen::Matrix<double, 2 * total_states, 2 * total_states> information_matrix;
 
   information_matrix.topLeftCorner<total_states, total_states>() =
-      ego_robot.error_covariance;
+      ego_robot.information_matrix;
 
   information_matrix.bottomRightCorner<total_states, total_states>() =
-      other_object.error_covariance.topLeftCorner<total_states, total_states>();
-
-  information_matrix = information_matrix.inverse();
+      other_object.information_matrix;
 
   /* Create a temporary augmented vector containing the information vector of
    * both objects. */
