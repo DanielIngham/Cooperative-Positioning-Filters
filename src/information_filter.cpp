@@ -30,7 +30,6 @@ void InformationFilter::performInference() {
                        robot_parameters[id].state_estimate(ORIENTATION)));
     }
 
-#if 1
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
@@ -95,10 +94,7 @@ void InformationFilter::performInference() {
           robot_parameters[id].precision_matrix.inverse() *
           robot_parameters[id].information_vector;
 
-      robot_parameters[id].error_covariance =
-          robot_parameters[id].precision_matrix.inverse();
       /* Normalise the orientation estimate between -180 and 180. */
-
       while (robot_parameters[id].state_estimate(ORIENTATION) >= M_PI)
         robot_parameters[id].state_estimate(ORIENTATION) -= 2.0 * M_PI;
 
@@ -112,7 +108,6 @@ void InformationFilter::performInference() {
           robot_parameters[id].state_estimate(ORIENTATION);
       measurement_index[id] += 1;
     }
-#endif // 0
   }
 }
 
@@ -155,16 +150,12 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
       sample_period;
 
   /* Propagate the estimation error covariance: 3x3 matrix. */
-  ego_robot.error_covariance =
-      ego_robot.motion_jacobian * ego_robot.error_covariance *
-          ego_robot.motion_jacobian.transpose() +
-      ego_robot.process_jacobian * ego_robot.process_noise *
-          ego_robot.process_jacobian.transpose();
-
-  /* Update the information form:
-   * NOTE: this is the only place where the information filter differs from the
-   * Kalman filter in the prediction step.*/
-  ego_robot.precision_matrix = ego_robot.error_covariance.inverse();
+  ego_robot.precision_matrix =
+      (ego_robot.motion_jacobian * ego_robot.precision_matrix.inverse() *
+           ego_robot.motion_jacobian.transpose() +
+       ego_robot.process_jacobian * ego_robot.process_noise *
+           ego_robot.process_jacobian.transpose())
+          .inverse();
 
   ego_robot.information_vector =
       ego_robot.precision_matrix * ego_robot.state_estimate;
