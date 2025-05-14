@@ -1,12 +1,12 @@
 PROJECT_DIR =$(CURDIR)
 # Directories
-BUILD_DIR :=build
-INCLUDE_DIR :=include
-SRC_DIR :=src
+BUILD_DIR :=$(PROJECT_DIR)/build
+INCLUDE_DIR :=$(PROJECT_DIR)/include
+SRC_DIR :=$(PROJECT_DIR)/src
 
 # Library
 LIBRARY :=data_handler
-LIB :=lib
+LIB :=$(PROJECT_DIR)/lib
 LIB_DIR :=$(LIB)/DataHandler
 LIB_BUILD :=$(LIB_DIR)/lib
 
