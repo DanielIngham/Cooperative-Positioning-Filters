@@ -1,14 +1,14 @@
+PROJECT := filter
 PROJECT_DIR =$(CURDIR)
+
 # Directories
 BUILD_DIR :=$(PROJECT_DIR)/build
 INCLUDE_DIR :=$(PROJECT_DIR)/include
 SRC_DIR :=$(PROJECT_DIR)/src
 
 # Library
-LIBRARY :=data_handler
-LIB :=$(PROJECT_DIR)/lib
-LIB_DIR :=$(LIB)/DataHandler
-LIB_BUILD :=$(LIB_DIR)/lib
+LIB_DIR :=$(PROJECT_DIR)/lib
+LIBRARIES :=$(LIB_DIR)/DataHandler/lib/libdata_handler.a
 
 # Compiler
 CXX := g++
@@ -16,9 +16,9 @@ CXX := g++
 # Flags
 WFLAGS := -Wall -Wextra -Werror -Wshadow 
 MFLAGS := -ffloat-store -fno-fast-math
-CFLAGS := $(WFLAGS) $(MFLAGS) -I$(INCLUDE_DIR) -I$(LIB)
+CFLAGS := $(WFLAGS) $(MFLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR)
+
 # Files
-PROJECT := filter
 TARGET := $(BUILD_DIR)/$(PROJECT)
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
@@ -26,18 +26,18 @@ OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 # Static C++ Code Analyser
 CPPCHECK := cppcheck
 
-.PHONEY: all clean run cppcheck
+.PHONY: all clean run cppcheck
 
 # Linking
 $(TARGET): $(OBJECTS)
+	# Make the DataHandler Library
+	$(MAKE) -C $(LIB_DIR)/DataHandler
 	# Linking
 	@mkdir -p $(dir $@)
-	$(CXX) $^ -L$(LIB_BUILD) -l$(LIBRARY) -o $@ 
+	$(CXX) $^  $(LIBRARIES) -o $@ 
 
 # Compiling 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	# Make the DataHandler Library
-	$(MAKE) -C $(LIB_DIR)
 	# Compile the project
 	@mkdir -p $(dir $@)
 	$(CXX) -g $(CFLAGS) -c $^ -o $@ 
@@ -45,7 +45,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 all: $(TARGET)
 	
 clean:
-	$(MAKE) -C $(LIB_DIR) clean
+	$(MAKE) -C $(LIB_DIR)/DataHandler clean
 	rm -rf $(BUILD_DIR)
 
 
