@@ -1,0 +1,7 @@
+services:
+  filter:
+    build: .
+    volumes:
+      - ./output:/app/output
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
