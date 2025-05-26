@@ -9,6 +9,7 @@
 #include <DataHandler/Landmark.h>
 #include <DataHandler/Robot.h>
 #include <cmath>
+#include <iostream>
 
 /**
  * @brief EKF class constructor.
@@ -224,15 +225,15 @@ void EKF::prediction(const Robot::Odometry &odometry,
  * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot
  * \f$i\f$ and the observed robot \f$j\f$ respectively.
  */
-void EKF::correction(EstimationParameters &estimation_parameters,
+void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_object) {
 
   /* Calculate measurement Jacobian */
   double x_difference =
-      other_object.state_estimate(X) - estimation_parameters.state_estimate(X);
+      other_object.state_estimate(X) - ego_robot.state_estimate(X);
 
   double y_difference =
-      other_object.state_estimate(Y) - estimation_parameters.state_estimate(Y);
+      other_object.state_estimate(Y) - ego_robot.state_estimate(Y);
 
   double denominator =
       std::sqrt(x_difference * x_difference + y_difference * y_difference);
@@ -242,7 +243,7 @@ void EKF::correction(EstimationParameters &estimation_parameters,
     denominator = MIN_DISTANCE;
   }
 
-  estimation_parameters.measurement_jacobian << -x_difference / denominator,
+  ego_robot.measurement_jacobian << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
       y_difference / denominator, y_difference / (denominator * denominator),
       -x_difference / (denominator * denominator), -1,
@@ -254,35 +255,30 @@ void EKF::correction(EstimationParameters &estimation_parameters,
   Eigen::Matrix<double, 2 + total_states, 2 + total_states> error_covariance;
   error_covariance.setZero();
 
-  error_covariance.topLeftCorner<3, 3>() =
-      estimation_parameters.error_covariance;
+  error_covariance.topLeftCorner<3, 3>() = ego_robot.error_covariance;
 
   error_covariance.bottomRightCorner<2, 2>() =
       other_object.error_covariance.topLeftCorner<2, 2>();
 
   /* Calculate Covariance Innovation: */
-  estimation_parameters.innovation =
-      estimation_parameters.measurement_jacobian * error_covariance *
-          estimation_parameters.measurement_jacobian.transpose() +
-      estimation_parameters.measurement_noise;
+  ego_robot.innovation = ego_robot.measurement_jacobian * error_covariance *
+                             ego_robot.measurement_jacobian.transpose() +
+                         ego_robot.measurement_noise;
 
   /* Calculate Kalman Gain */
-  estimation_parameters.kalman_gain =
-      error_covariance *
-      estimation_parameters.measurement_jacobian.transpose() *
-      estimation_parameters.innovation.inverse();
+  ego_robot.kalman_gain = error_covariance *
+                          ego_robot.measurement_jacobian.transpose() *
+                          ego_robot.innovation.inverse();
 
   /* Update estimation error covariance */
-  error_covariance =
-      error_covariance - estimation_parameters.kalman_gain *
-                             estimation_parameters.innovation *
-                             estimation_parameters.kalman_gain.transpose();
+  error_covariance -= ego_robot.kalman_gain * ego_robot.innovation *
+                      ego_robot.kalman_gain.transpose();
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   Eigen::Matrix<double, 2 + total_states, 1> estimated_state;
   estimated_state.setZero();
 
-  estimated_state.head<total_states>() = estimation_parameters.state_estimate;
+  estimated_state.head<total_states>() = ego_robot.state_estimate;
   estimated_state.tail<total_states - 1>() =
       other_object.state_estimate.head<total_states - 1>();
 
@@ -292,13 +288,13 @@ void EKF::correction(EstimationParameters &estimation_parameters,
   predicted_measurement << std::sqrt((x_difference * x_difference) +
                                      (y_difference * y_difference)),
       std::atan2(y_difference, x_difference) -
-          estimation_parameters.state_estimate[ORIENTATION];
+          ego_robot.state_estimate[ORIENTATION];
 
   /* Calculate the measurement residual: the difference between the measurement
    * and the calculate measurement based on the estimated states of both robots.
    */
   Eigen::Matrix<double, total_measurements, 1> measurement_residual =
-      (estimation_parameters.measurement - predicted_measurement);
+      (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the angle residual */
   while (measurement_residual(BEARING) >= M_PI)
@@ -307,7 +303,7 @@ void EKF::correction(EstimationParameters &estimation_parameters,
   while (measurement_residual(BEARING) < -M_PI)
     measurement_residual(BEARING) += 2.0 * M_PI;
 
-  estimated_state += estimation_parameters.kalman_gain * measurement_residual;
+  estimated_state += ego_robot.kalman_gain * measurement_residual;
 
   /* Resize matrices back to normal */
   /* NOTE: The resize means all information regarding the observed robots states
@@ -315,20 +311,20 @@ void EKF::correction(EstimationParameters &estimation_parameters,
    * uncorrelated, which may lead to the estimator being over confident in bad
    * estimates. */
 
-  estimation_parameters.state_estimate = estimated_state.head<total_states>();
+  ego_robot.state_estimate = estimated_state.head<total_states>();
 
   /* Normalise the orientation estimate between -180 and 180. */
-  while (estimation_parameters.state_estimate(ORIENTATION) >= M_PI)
-    estimation_parameters.state_estimate(ORIENTATION) -= 2.0 * M_PI;
+  while (ego_robot.state_estimate(ORIENTATION) >= M_PI)
+    ego_robot.state_estimate(ORIENTATION) -= 2.0 * M_PI;
 
-  while (estimation_parameters.state_estimate(ORIENTATION) < -M_PI)
-    estimation_parameters.state_estimate(ORIENTATION) += 2.0 * M_PI;
+  while (ego_robot.state_estimate(ORIENTATION) < -M_PI)
+    ego_robot.state_estimate(ORIENTATION) += 2.0 * M_PI;
 
   /* Schur complement-based error covariance marginalisation. This is used to
    * marginalise the 5x5 matrix to a 3x3 matrix by incorporating the
    * marginalising the contributions of the error covariance from the other
    * robot states into the covariance of the ego robot. */
-  estimation_parameters.error_covariance =
+  ego_robot.error_covariance =
       error_covariance.topLeftCorner<total_states, total_states>() -
       error_covariance.topRightCorner<total_states, total_states - 1>() *
           error_covariance
