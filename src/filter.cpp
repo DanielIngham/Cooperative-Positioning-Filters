@@ -59,6 +59,12 @@ Filter::Filter(DataHandler &data) : data_(data) {
         << landmarks[id].x_std_dev * landmarks[id].x_std_dev,
         landmarks[id].y_std_dev * landmarks[id].y_std_dev;
 
+    /* NOTE: The landmarks don't have an estimate for thier orientation. So the
+     * third diagonal element in the precsion matrix is never used. It is kept
+     * for the generality of the implementation of the measurement update step:
+     * both robot and landmarks use the same data structure, so they can be used
+     * in the same measurement correction function.
+     */
     initial_parameters.precision_matrix =
         initial_parameters.error_covariance.inverse();
 
