@@ -1,5 +1,6 @@
 #include "filter.h"
 #include <DataHandler/DataHandler.h>
+#include <iostream>
 
 /**
  * @brief Assigns fields data based on datahandler input.
@@ -57,6 +58,9 @@ Filter::Filter(DataHandler &data) : data_(data) {
     initial_parameters.error_covariance.diagonal().topRows(total_states - 1)
         << landmarks[id].x_std_dev * landmarks[id].x_std_dev,
         landmarks[id].y_std_dev * landmarks[id].y_std_dev;
+
+    initial_parameters.precision_matrix =
+        initial_parameters.error_covariance.inverse();
 
     landmark_parameters.push_back(initial_parameters);
   }
