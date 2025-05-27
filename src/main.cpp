@@ -1,16 +1,79 @@
 #include "ekf.h"
+#include "gbp.h"
+#include "iekf.h"
+#include "information_filter.h"
 
 #include <DataHandler/DataHandler.h>
+#include <algorithm>
+#include <cctype>
 #include <iostream>
+#include <string>
 
 int main() {
-  std::cout << "Hello World" << std::endl;
-  DataHandler data(7000U, 0.02, 5U, 15U);
-  data.saveExtractedData();
-  data.plotExtractedData();
+  /* Extract the filter environment variable */
+  const char *filter_ptr = std::getenv("Filter");
 
-  EKF ekf(data);
-  ekf.peformInference();
+  if (filter_ptr == nullptr) {
+    std::cerr
+        << "Filter not set.\n Please set the filter using make run Filter=EKF."
+        << std::endl;
+    return 1;
+  }
+
+  /* Convert the string to upper case, to allow for variations input filter
+   * name. */
+  std::string filter(filter_ptr);
+  std::transform(filter.begin(), filter.end(), filter.begin(), ::toupper);
+
+  /* Creating an instance of the DataHandler class whose output directory will
+   * will be set by the respective filter.*/
+  DataHandler data;
+
+  /* Check which type of filter was requested by the user and run that specific
+   * one */
+  if ("EKF" == filter) {
+    data.setDataSet("MRCLAM_Dataset1", "EKF");
+
+    EKF ekf(data);
+
+    ekf.performInference();
+
+  } else if ("IEKF" == filter) {
+
+    data.setDataSet("MRCLAM_Dataset1", "IEKF");
+
+    IEKF iekf(data);
+
+    iekf.performInference();
+
+  } else if ("INFO" == filter) {
+
+    data.setDataSet("MRCLAM_Dataset1", "Information_Filter");
+
+    InformationFilter info(data);
+
+    info.performInference();
+
+  } else {
+    std::cerr
+        << "Filter specified does not exist. Here is a list of all filters:\n"
+           "\tEKF, IEKF, INFO \n"
+           "Type: make run Filter=EKF"
+        << std::endl;
+    return 1;
+  }
+
+  /* Check for environment variable IN that determines if the input data should
+   * be plot.*/
+  const char *plot_input = std::getenv("IN");
+  if (plot_input != nullptr) {
+    if (std::strcmp(plot_input, "1")) {
+      data.saveExtractedData();
+      data.plotExtractedData();
+    }
+  }
+
+  /* The Inference plots are always saved.  */
   data.saveStateError();
   data.plotInferenceError();
 
