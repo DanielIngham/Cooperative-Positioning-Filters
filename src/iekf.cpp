@@ -242,7 +242,10 @@ void IEKF::correction(EstimationParameters &ego_robot,
   error_covariance.bottomRightCorner<2, 2>() =
       other_object.error_covariance.topLeftCorner<2, 2>();
 
-  for (int i = 0; i < 50; i++) {
+  /* Perform the iterative update.  */
+  const unsigned short max_iterations = 50;
+
+  for (int i = 0; i < max_iterations; i++) {
     /* Calculate measurement Jacobian */
     double x_difference = iterative_state_estimate(X + total_states) -
                           iterative_state_estimate(X);
@@ -297,11 +300,6 @@ void IEKF::correction(EstimationParameters &ego_robot,
     Eigen::Matrix<double, 2 + total_states, 1> old_estimate =
         iterative_state_estimate;
 
-    auto delta_x = ego_robot.kalman_gain *
-                   (measurement_residual -
-                    ego_robot.measurement_jacobian *
-                        (intial_state_estimate - iterative_state_estimate));
-
     iterative_state_estimate =
         intial_state_estimate +
         ego_robot.kalman_gain *
@@ -309,11 +307,9 @@ void IEKF::correction(EstimationParameters &ego_robot,
              ego_robot.measurement_jacobian *
                  (intial_state_estimate - iterative_state_estimate));
 
+    /* Break if the change between iterations converges */
     double change = (iterative_state_estimate - old_estimate).norm();
-    std::cout << "Iteration " << i << ", state change: " << change << std::endl;
-
     if (change < 1e-8) {
-      std::cout << "Converged after " << i + 1 << " iterations" << std::endl;
       break;
     }
   }
@@ -345,26 +341,11 @@ void IEKF::correction(EstimationParameters &ego_robot,
           error_covariance.bottomLeftCorner<total_states - 1, total_states>();
 }
 
-double IEKF::computeCost(const Eigen::VectorXd &state,
-                         const Eigen::VectorXd &measurement) {
-
-  Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
-  predicted_measurement << std::sqrt((x_difference * x_difference) +
-                                     (y_difference * y_difference)),
-      std::atan2(y_difference, x_difference) - state(ORIENTATION);
-  auto residual = measurement - predicted_measurement;
-
-  // Handle angle wrapping for bearing measurements
-  normaliseAngle(residual);
-
-  return 0.5 * residual.transpose() * R_inverse * residual;
-}
-
 /**
  * @brief Normalise an angle between \f$\pi\f$ and \f$-\pi\f$.
  * @param[inout] angle angle in radians.
  */
-void normaliseAngle(double &angle) {
+void IEKF::normaliseAngle(double &angle) {
   while (angle >= M_PI)
     angle -= 2.0 * M_PI;
 
