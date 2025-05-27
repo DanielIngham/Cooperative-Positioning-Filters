@@ -14,6 +14,8 @@ Filter::Filter(DataHandler &data) : data_(data) {
   for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
 
     EstimationParameters initial_parameters;
+    initial_parameters.id = robots[id].id;
+    initial_parameters.barcode = robots[id].barcode;
 
     /* Assume known prior. This is done by setting the first value of the
      * estimated values to the groundtruth. */
@@ -47,6 +49,9 @@ Filter::Filter(DataHandler &data) : data_(data) {
 
   for (unsigned short id = 0; id < data_.getNumberOfLandmarks(); id++) {
     EstimationParameters initial_parameters;
+
+    initial_parameters.id = landmarks[id].id;
+    initial_parameters.barcode = landmarks[id].barcode;
 
     initial_parameters.state_estimate << landmarks[id].x, landmarks[id].y, 0.0;
 

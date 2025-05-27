@@ -37,6 +37,8 @@ protected:
    * @brief Houses the parameters required for performing Bayesian filtering.
    */
   struct EstimationParameters {
+    unsigned short id;
+    unsigned short barcode;
 
     /**
      * @brief Estimated robot state - x coordinate [m], y-coordinate [m], and
