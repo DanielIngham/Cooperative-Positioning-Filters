@@ -57,6 +57,12 @@ protected:
         Eigen::Matrix<double, total_measurements, 1>::Zero();
 
     /**
+     * @brief The difference between the measurement recieved by the sensor and
+     * the predicted measurement based on the vehicles' states.
+     */
+    Eigen::Matrix<double, total_measurements, 1> measurement_residual;
+
+    /**
      * @brief Estimation Error Covariance: 3x3 matrix.
      * @details There is a high certainty in the prior value of system state,
      * therefore the prior estimation error covariance is initialised to a small
@@ -68,8 +74,9 @@ protected:
     /**
      * @brief Measurement correction innovation matrix: 2x2 matrix.
      */
-    Eigen::Matrix<double, total_measurements, total_measurements> innovation =
-        Eigen::Matrix<double, total_measurements, total_measurements>::Zero();
+    Eigen::Matrix<double, total_measurements, total_measurements>
+        innovation_covariance = Eigen::Matrix<double, total_measurements,
+                                              total_measurements>::Zero();
 
     /**
      * @brief Kalman gain: 5x2 matrix.
