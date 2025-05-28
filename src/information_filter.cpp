@@ -29,7 +29,6 @@ void InformationFilter::performInference() {
                        robot_parameters[id].state_estimate(ORIENTATION)));
     }
 
-    /* If a measurements are available, loop through each measurement
     /* If measurements are available, loop through each measurement
      * and update the estimate. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
@@ -57,33 +56,62 @@ void InformationFilter::performInference() {
       const Robot::Measurement &current_measurement =
           robots[id].synced.measurements[measurement_index[id]];
 
+      for (unsigned short j = 0; j < current_measurement.subjects.size(); j++) {
+        /* Find the subject for whom the barcode belongs to. */
+        int subject_id = data_.getID(current_measurement.subjects[j]);
 
+        if (-1 == subject_id) {
+          continue;
+        }
+        /* Populate the measurement matrix required for the correction step.
+         * Remove any noise bias from the measurement.
+         */
+        robot_parameters[id].measurement << current_measurement.ranges[j],
+            current_measurement.bearings[j];
 
+        /* The datahandler first assigns the ID to the robots then the
+         * landmarks. Therefore if the ID is less than or equal to the number
+         * of robots, then it belongs to a robot, otherwise it belong to a
+         * landmark. */
+        EstimationParameters measured_object;
 
+        if (subject_id <= data_.getNumberOfRobots()) {
+          unsigned short index = subject_id - 1;
+          measured_object = robot_parameters[index];
 
+        } else {
+          unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
+          measured_object = landmark_parameters[index];
+        }
 
+        correction(robot_parameters[id], measured_object);
+
+        /* TODO: Recover the state estimate and covariance from the infomation
+         * form. */
+        robot_parameters[id].state_estimate =
+            robot_parameters[id].precision_matrix.inverse() *
+            robot_parameters[id].information_vector;
+
+        /* Normalise the orientation estimate between -180 and 180. */
+        while (robot_parameters[id].state_estimate(ORIENTATION) >= M_PI)
+          robot_parameters[id].state_estimate(ORIENTATION) -= 2.0 * M_PI;
+
+        while (robot_parameters[id].state_estimate(ORIENTATION) < -M_PI)
+          robot_parameters[id].state_estimate(ORIENTATION) += 2.0 * M_PI;
+
+        /* Update the robot state data structure. */
+        robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
+        robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
+        robots[id].synced.states[k].orientation =
+            robot_parameters[id].state_estimate(ORIENTATION);
       }
-
-      /* TODO: Recover the state estimate and covariance from the infomation
-       * form. */
-      robot_parameters[id].state_estimate =
-          robot_parameters[id].precision_matrix.inverse() *
-          robot_parameters[id].information_vector;
-
-      /* Normalise the orientation estimate between -180 and 180. */
-      while (robot_parameters[id].state_estimate(ORIENTATION) >= M_PI)
-        robot_parameters[id].state_estimate(ORIENTATION) -= 2.0 * M_PI;
-
-      while (robot_parameters[id].state_estimate(ORIENTATION) < -M_PI)
-        robot_parameters[id].state_estimate(ORIENTATION) += 2.0 * M_PI;
-
-      /* Update the robot state data structure. */
-      robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
-      robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
-      robots[id].synced.states[k].orientation =
-          robot_parameters[id].state_estimate(ORIENTATION);
       measurement_index[id] += 1;
     }
+  }
+
+  /* Calculate the inference error. */
+  for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
+    robots[id].calculateStateError();
   }
 }
 
