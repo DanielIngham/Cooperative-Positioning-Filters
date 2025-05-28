@@ -32,6 +32,7 @@ private:
   void prediction(const Robot::Odometry &, EstimationParameters &);
 
   void correction(EstimationParameters &, const EstimationParameters &);
+
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 
   Eigen::Matrix<double, total_measurements, total_measurements>

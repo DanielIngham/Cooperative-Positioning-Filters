@@ -294,14 +294,15 @@ void IEKF::correction(EstimationParameters &ego_robot,
     /* NOTE: Measurement noise Jacobian is identity. No need to calculate. */
 
     /* Calculate Covariance Innovation: */
-    ego_robot.innovation = ego_robot.measurement_jacobian * error_covariance *
-                               ego_robot.measurement_jacobian.transpose() +
-                           ego_robot.measurement_noise;
+    ego_robot.innovation_covariance =
+        ego_robot.measurement_jacobian * error_covariance *
+            ego_robot.measurement_jacobian.transpose() +
+        ego_robot.measurement_noise;
 
     /* Calculate Kalman Gain */
     ego_robot.kalman_gain = error_covariance *
                             ego_robot.measurement_jacobian.transpose() *
-                            ego_robot.innovation.inverse();
+                            ego_robot.innovation_covariance.inverse();
 
     /* Populate the predicted measurement matrix. */
     Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
@@ -315,11 +316,11 @@ void IEKF::correction(EstimationParameters &ego_robot,
      * measurement and the calculate measurement based on the estimated states
      * of both robots.
      */
-    Eigen::Matrix<double, total_measurements, 1> measurement_residual =
+    ego_robot.measurement_residual =
         (ego_robot.measurement - predicted_measurement);
 
     /* Normalise the bearing residual */
-    normaliseAngle(measurement_residual(BEARING));
+    normaliseAngle(ego_robot.measurement_residual(BEARING));
 
     // double nis = measurement_residual.transpose() *
     //              ego_robot.innovation.inverse() * measurement_residual;
@@ -333,7 +334,7 @@ void IEKF::correction(EstimationParameters &ego_robot,
     iterative_state_estimate =
         intial_state_estimate +
         ego_robot.kalman_gain *
-            (measurement_residual -
+            (ego_robot.measurement_residual -
              ego_robot.measurement_jacobian *
                  (intial_state_estimate - iterative_state_estimate));
 
@@ -359,7 +360,7 @@ void IEKF::correction(EstimationParameters &ego_robot,
    * marginalising the contributions of the error covariance from the other
    * robot states into the covariance of the ego robot. */
   /* Update estimation error covariance */
-  error_covariance -= ego_robot.kalman_gain * ego_robot.innovation *
+  error_covariance -= ego_robot.kalman_gain * ego_robot.innovation_covariance *
                       ego_robot.kalman_gain.transpose();
 
   ego_robot.error_covariance =
@@ -455,11 +456,11 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
      * measurement and the calculate measurement based on the estimated states
      * of both robots.
      */
-    Eigen::Matrix<double, total_measurements, 1> measurement_residual =
+    ego_robot.measurement_residual =
         (ego_robot.measurement - predicted_measurement);
 
     /* Normalise the bearing residual */
-    normaliseAngle(measurement_residual(BEARING));
+    normaliseAngle(ego_robot.measurement_residual(BEARING));
 
     /* TODO: Calculate the new robust estimation error covariance. */
     Eigen::Matrix<double, 2 + total_states, 2 + total_states>
@@ -473,19 +474,19 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
     Eigen::Matrix<double, total_measurements, total_measurements>
         reweighted_measurement_covariance =
             measurement_cholesky_matrix *
-            HuberMeasurement(measurement_residual).inverse() *
+            HuberMeasurement(ego_robot.measurement_residual).inverse() *
             measurement_cholesky_matrix.transpose();
 
     /* Calculate Covariance Innovation: */
-    ego_robot.innovation = ego_robot.measurement_jacobian *
-                               reweighted_error_covariance *
-                               ego_robot.measurement_jacobian.transpose() +
-                           reweighted_measurement_covariance;
+    ego_robot.innovation_covariance =
+        ego_robot.measurement_jacobian * reweighted_error_covariance *
+            ego_robot.measurement_jacobian.transpose() +
+        reweighted_measurement_covariance;
 
     /* Calculate Kalman Gain */
     ego_robot.kalman_gain = reweighted_error_covariance *
                             ego_robot.measurement_jacobian.transpose() *
-                            ego_robot.innovation.inverse();
+                            ego_robot.innovation_covariance.inverse();
 
     Eigen::Matrix<double, 2 + total_states, 1> old_estimate =
         iterative_state_estimate;
@@ -493,7 +494,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
     iterative_state_estimate =
         intial_state_estimate +
         ego_robot.kalman_gain *
-            (measurement_residual -
+            (ego_robot.measurement_residual -
              ego_robot.measurement_jacobian *
                  (intial_state_estimate - iterative_state_estimate));
 
