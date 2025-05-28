@@ -7,7 +7,6 @@ InformationFilter::~InformationFilter() {}
 void InformationFilter::performInference() {
 
   std::vector<Robot> &robots = this->data_.getRobots();
-  std::vector<Landmark> landmarks = data_.getLandmarks();
 
   /* Loop through each timestep and perform inference.  */
   std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 1);
@@ -31,6 +30,7 @@ void InformationFilter::performInference() {
     }
 
     /* If a measurements are available, loop through each measurement
+    /* If measurements are available, loop through each measurement
      * and update the estimate. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
 
@@ -57,35 +57,11 @@ void InformationFilter::performInference() {
       const Robot::Measurement &current_measurement =
           robots[id].synced.measurements[measurement_index[id]];
 
-      for (unsigned short j = 0; j < current_measurement.subjects.size(); j++) {
-        /* Find the subject for whom the barcode belongs to. */
-        int subject_id = data_.getID(current_measurement.subjects[j]);
 
-        if (-1 == subject_id) {
-          continue;
-        }
-        /* Populate the measurement matrix required for the correction step.
-         * Remove any noise bias from the measurement.
-         */
-        robot_parameters[id].measurement << current_measurement.ranges[j],
-            current_measurement.bearings[j];
 
-        /* The datahandler first assigns the ID to the robots then the
-         * landmarks. Therefore if the ID is less than or equal to the number
-         * of robots, then it belongs to a robot, otherwise it belong to a
-         * landmark. */
-        EstimationParameters measured_object;
 
-        if (subject_id <= data_.getNumberOfRobots()) {
-          unsigned short index = subject_id - 1;
-          measured_object = robot_parameters[index];
 
-        } else {
-          unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
-          measured_object = landmark_parameters[index];
-        }
 
-        correction(robot_parameters[id], measured_object);
       }
 
       /* TODO: Recover the state estimate and covariance from the infomation
