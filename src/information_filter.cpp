@@ -205,15 +205,15 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Calculate the measurement residual: the difference between the measurement
    * and the calculate measurement based on the estimated states of both robots.
    */
-  Eigen::Matrix<double, total_measurements, 1> measurement_residual =
+  ego_robot.measurement_residual =
       (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the angle residual */
-  while (measurement_residual(BEARING) >= M_PI)
-    measurement_residual(BEARING) -= 2.0 * M_PI;
+  while (ego_robot.measurement_residual(BEARING) >= M_PI)
+    ego_robot.measurement_residual(BEARING) -= 2.0 * M_PI;
 
-  while (measurement_residual(BEARING) < -M_PI)
-    measurement_residual(BEARING) += 2.0 * M_PI;
+  while (ego_robot.measurement_residual(BEARING) < -M_PI)
+    ego_robot.measurement_residual(BEARING) += 2.0 * M_PI;
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   Eigen::Matrix<double, 2 * total_states, 1> estimated_state;
@@ -230,7 +230,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 
   Eigen::Matrix<double, 2 * total_states, 1> information_vector_contribution =
       measurement_jacobian.transpose() * ego_robot.measurement_noise.inverse() *
-      (measurement_residual + measurement_jacobian * estimated_state);
+      (ego_robot.measurement_residual + measurement_jacobian * estimated_state);
 
   /* Create a temporary augmented matrix  containing the information matrix of
    * both objects. */
