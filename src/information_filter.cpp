@@ -86,18 +86,14 @@ void InformationFilter::performInference() {
 
         correction(robot_parameters[id], measured_object);
 
-        /* TODO: Recover the state estimate and covariance from the infomation
-         * form. */
+        /* Recover the state estimate and covariance from the infomation form.
+         */
         robot_parameters[id].state_estimate =
             robot_parameters[id].precision_matrix.inverse() *
             robot_parameters[id].information_vector;
 
         /* Normalise the orientation estimate between -180 and 180. */
-        while (robot_parameters[id].state_estimate(ORIENTATION) >= M_PI)
-          robot_parameters[id].state_estimate(ORIENTATION) -= 2.0 * M_PI;
-
-        while (robot_parameters[id].state_estimate(ORIENTATION) < -M_PI)
-          robot_parameters[id].state_estimate(ORIENTATION) += 2.0 * M_PI;
+        normaliseAngle(robot_parameters[id].state_estimate(ORIENTATION));
 
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
@@ -132,12 +128,7 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
           odometry.angular_velocity * sample_period;
 
   /* Normalise the orientation estimate between -180 and 180. */
-  while (ego_robot.state_estimate(ORIENTATION) >= M_PI)
-    ego_robot.state_estimate(ORIENTATION) -= 2.0 * M_PI;
-
-  while (ego_robot.state_estimate(ORIENTATION) < -M_PI)
-    ego_robot.state_estimate(ORIENTATION) += 2.0 * M_PI;
-
+  normaliseAngle(ego_robot.state_estimate(ORIENTATION));
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   ego_robot.motion_jacobian << 1, 0,
       -odometry.forward_velocity * sample_period *
@@ -209,11 +200,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
       (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the angle residual */
-  while (ego_robot.measurement_residual(BEARING) >= M_PI)
-    ego_robot.measurement_residual(BEARING) -= 2.0 * M_PI;
-
-  while (ego_robot.measurement_residual(BEARING) < -M_PI)
-    ego_robot.measurement_residual(BEARING) += 2.0 * M_PI;
+  normaliseAngle(ego_robot.measurement_residual(BEARING));
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   Eigen::Matrix<double, 2 * total_states, 1> estimated_state;

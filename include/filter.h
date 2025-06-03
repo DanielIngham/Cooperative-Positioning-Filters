@@ -190,6 +190,8 @@ protected:
   std::vector<EstimationParameters> robot_parameters;
   std::vector<EstimationParameters> landmark_parameters;
 
+  void normaliseAngle(double &);
+
 public:
   explicit Filter(DataHandler &data);
   virtual ~Filter();

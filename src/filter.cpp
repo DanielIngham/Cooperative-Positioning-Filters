@@ -78,3 +78,15 @@ Filter::Filter(DataHandler &data) : data_(data) {
 }
 
 Filter::~Filter() = default;
+
+/**
+ * @brief Normalise an angle between \f$\pi\f$ and \f$-\pi\f$.
+ * @param[inout] angle angle in radians.
+ */
+void Filter::normaliseAngle(double &angle) {
+  while (angle >= M_PI)
+    angle -= 2.0 * M_PI;
+
+  while (angle < -M_PI)
+    angle += 2.0 * M_PI;
+}

@@ -487,7 +487,6 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
 Eigen::Matrix<double, Filter::total_measurements, Filter::total_measurements>
 EKF::HuberMeasurement(
     const Eigen::Matrix<double, total_measurements, 1> &measurement_residual) {
-  // std::cout << "TEST" << std::endl;
 
   /* Tunable parameter tau that is used to determin if the residual is too large
    * to be an inlier. */
@@ -499,16 +498,11 @@ EKF::HuberMeasurement(
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
-  bool changed = false;
   for (unsigned short i = 0; i < total_measurements; i++) {
 
     if (std::abs(measurement_residual(i)) >= tau) {
-      changed = true;
       weight_matrix(i, i) = std::abs(tau / measurement_residual(i));
     }
-  }
-  if (changed) {
-    // std::cout << weight_matrix << "\n" << std::endl;
   }
 
   return weight_matrix;
@@ -528,31 +522,11 @@ EKF::HuberState(
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
-  bool changed = false;
   for (unsigned short i = 0; i < total_states + 2; i++) {
-
     if (std::abs(error_residual(i)) >= tau) {
-      changed = true;
       weight_matrix(i, i) = std::abs(tau / error_residual(i));
     }
   }
 
-  if (changed) {
-    // std::cout << "Weight Matrix After" << std::endl;
-    // std::cout << weight_matrix << std::endl;
-  }
-
   return weight_matrix;
-}
-
-/**
- * @brief Normalise an angle between \f$\pi\f$ and \f$-\pi\f$.
- * @param[inout] angle angle in radians.
- */
-void EKF::normaliseAngle(double &angle) {
-  while (angle >= M_PI)
-    angle -= 2.0 * M_PI;
-
-  while (angle < -M_PI)
-    angle += 2.0 * M_PI;
 }
