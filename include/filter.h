@@ -59,8 +59,20 @@ protected:
     /**
      * @brief The difference between the measurement recieved by the sensor and
      * the predicted measurement based on the vehicles' states.
+     * @details The measurement residual is defined by the expression:
+     * \f[ \tilde{\mathbf{y}}_k = \mathbf{z}_k - h(\hat{\mathbf{x}}_{k\mid
+     * k-1})\f], where \f$\mathbf{z}\f$ is the measurement taken, and
+     * \f$x_{k\mid k-1}\f$ is the estimated state of the robot.
      */
     Eigen::Matrix<double, total_measurements, 1> measurement_residual;
+
+    /**
+     * @brief The difference between the prior and posterior state estimtes.
+     * @details The estimation residual is defined by the expresssion:
+     * \f[\delta \mathbf{x}_k = \mathbf{x}_{k\mid k-1} - \mathbf{x}_{k\mid k}
+     * \f].
+     */
+    Eigen::Matrix<double, 2 + total_states, 1> estimation_residual;
 
     /**
      * @brief Estimation Error Covariance: 3x3 matrix.

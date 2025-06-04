@@ -30,16 +30,44 @@ public:
   void performInference();
 
 private:
+  unsigned long total_observations = 0;
+
+  Eigen::Matrix<double, total_measurements, 1> accumulative_innovation =
+      Eigen::Matrix<double, total_measurements, 1>::Zero();
+
+  Eigen::Matrix<double, total_measurements, 1>
+      accumulative_innovation_covariance =
+          Eigen::Matrix<double, total_measurements, 1>::Zero();
+
+  Eigen::Matrix<double, 2 + total_states, 1> accumulative_estimation_error =
+      Eigen::Matrix<double, 2 + total_states, 1>::Zero();
+
+  Eigen::Matrix<double, 2 + total_states, 1>
+      accummulative_estimation_covariance =
+          Eigen::Matrix<double, 2 + total_states, 1>::Zero();
+
   void prediction(const Robot::Odometry &, EstimationParameters &);
 
-  void correction(EstimationParameters &, const EstimationParameters &);
-  void robustCorrection(EstimationParameters &, const EstimationParameters &);
+  void correction(EstimationParameters &, const EstimationParameters &,
+                  const bool);
+
+  void robustCorrection(EstimationParameters &, const EstimationParameters &,
+                        Eigen::Matrix<double, total_measurements, 1> &,
+                        Eigen::Matrix<double, 2 + total_states, 1> &);
+
+  Eigen::Matrix<double, total_measurements, 1>
+  computeMeasurementTau(const EstimationParameters &);
+
+  Eigen::Matrix<double, 2 + total_states, 1>
+  computeStateTau(const EstimationParameters &);
 
   Eigen::Matrix<double, total_measurements, total_measurements>
-  HuberMeasurement(const Eigen::Matrix<double, total_measurements, 1> &);
+  HuberMeasurement(const Eigen::Matrix<double, total_measurements, 1> &,
+                   const Eigen::Matrix<double, total_measurements, 1> &);
 
-  Eigen::Matrix<double, total_states + 2, total_states + 2>
-  HuberState(const Eigen::Matrix<double, total_states + 2, 1> &);
+  Eigen::Matrix<double, 2 + total_states, total_states + 2>
+  HuberState(const Eigen::Matrix<double, 2 + total_states, 1> &,
+             const Eigen::Matrix<double, 2 + total_states, 1> &);
 };
 
 #endif // INCLUDE_INCLUDE_EKF_H_
