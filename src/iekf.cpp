@@ -11,6 +11,7 @@
 #include <DataHandler/Robot.h>
 #include <Eigen/Cholesky>
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 
@@ -37,6 +38,16 @@ void IEKF::performInference() {
 
   /* Loop through each timestep and perform inference.  */
   std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 1);
+
+  std::ofstream file("output/normalised_innovation.dat");
+  if (!file.is_open()) {
+    throw std::runtime_error("Unable to create normalised_innovation.dat");
+  }
+  std::ofstream file2("output/normalised_estimation.dat");
+
+  if (!file2.is_open()) {
+    throw std::runtime_error("Unable to create normalised_innovation.dat");
+  }
 
   for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
 
@@ -111,8 +122,34 @@ void IEKF::performInference() {
           measured_object = landmark_parameters[index];
         }
 
-        // correction(robot_parameters[id], measured_object);
-        robustCorrection(robot_parameters[id], measured_object);
+        bool robust = true;
+
+        if (robust) {
+
+          Eigen::Matrix<double, total_measurements, 1> measurement_tau;
+          measurement_tau << 0.2, 0.01;
+
+          Eigen::Matrix<double, 2 + total_states, 1> state_tau;
+          state_tau << 0.055, 0.054, 0.255, 0.104, 0.104;
+
+          robustCorrection(robot_parameters[id], measured_object,
+                           measurement_tau, state_tau);
+
+        } else {
+
+          correction(robot_parameters[id], measured_object);
+        }
+
+        Eigen::Matrix<double, total_measurements, 1> measurement =
+            calculateNormalisedMeasurementResidual(robot_parameters[id]);
+
+        file << measurement(RANGE) << '\t' << measurement(BEARING) << '\n';
+
+        Eigen::Matrix<double, 2 + total_states, 1> estimation =
+            calculateNormalisedEstimationResidual(robot_parameters[id]);
+
+        file2 << estimation(X) << '\t' << estimation(Y) << '\t'
+              << estimation(ORIENTATION) << '\n';
 
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
@@ -124,20 +161,6 @@ void IEKF::performInference() {
                        robots[id].groundtruth.states[k].orientation;
 
         normaliseAngle(error);
-
-        if (std::abs(error) > 1.5) {
-          std::cout << id + 1 << "(" << measured_object.barcode << ")"
-                    << ": " << k << "( " << robots[id].synced.states[k].time
-                    << ") : " << robots[id].synced.states[k].orientation
-                    << " - " << robots[id].groundtruth.states[k].orientation
-                    << '\t' << robots[id].synced.states[k - 1].orientation
-                    << " - " << robots[id].groundtruth.states[k - 1].orientation
-                    << std::endl;
-
-          std::cout << robots[id].synced.odometry[k - 1].forward_velocity << " "
-                    << robots[id].synced.odometry[k - 1].angular_velocity
-                    << std::endl;
-        }
       }
       measurement_index[id] += 1;
     }
@@ -268,7 +291,6 @@ void IEKF::correction(EstimationParameters &ego_robot,
   /* Perform the iterative update.  */
   const unsigned short max_iterations = 50;
 
-  // std::cout << "New Sensor" << std::endl;
   for (int i = 0; i < max_iterations; i++) {
     /* Calculate measurement Jacobian */
     double x_difference = iterative_state_estimate(X + total_states) -
@@ -322,12 +344,6 @@ void IEKF::correction(EstimationParameters &ego_robot,
     /* Normalise the bearing residual */
     normaliseAngle(ego_robot.measurement_residual(BEARING));
 
-    // double nis = measurement_residual.transpose() *
-    //              ego_robot.innovation.inverse() * measurement_residual;
-
-    // if (nis > 9.21)
-    //   std::cout << nis << std::endl;
-
     Eigen::Matrix<double, 2 + total_states, 1> old_estimate =
         iterative_state_estimate;
 
@@ -372,8 +388,10 @@ void IEKF::correction(EstimationParameters &ego_robot,
           error_covariance.bottomLeftCorner<total_states - 1, total_states>();
 }
 
-void IEKF::robustCorrection(EstimationParameters &ego_robot,
-                            const EstimationParameters &other_object) {
+void IEKF::robustCorrection(
+    EstimationParameters &ego_robot, const EstimationParameters &other_object,
+    Eigen::Matrix<double, total_measurements, 1> &measurement_tau,
+    Eigen::Matrix<double, 2 + total_states, 1> &state_tau) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   Eigen::Matrix<double, 2 + total_states, 1> intial_state_estimate;
@@ -381,10 +399,14 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
   intial_state_estimate.tail<total_states - 1>() =
       other_object.state_estimate.head<total_states - 1>();
 
+  /* Create the iterative state estimate matrix. */
   Eigen::Matrix<double, 2 + total_states, 1> iterative_state_estimate =
       intial_state_estimate.head<total_states + 2>();
 
-  /* Create and populate new 5x5 error covariance matrix. */
+  /* Reset the esimtation residual. */
+  ego_robot.estimation_residual.setZero();
+
+  /* Create and populate 5x5 error covariance matrix. */
   Eigen::Matrix<double, 2 + total_states, 2 + total_states> error_covariance;
   error_covariance.setZero();
 
@@ -393,8 +415,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
   error_covariance.bottomRightCorner<2, 2>() =
       other_object.error_covariance.topLeftCorner<2, 2>();
 
-  /* TODO: Calculate the Cholesky Decomposition of the estimation error
-   * covariance */
+  /* Calculate the Cholesky Decomposition of the estimation error covariance */
   Eigen::LLT<Eigen::Matrix<double, 5, 5>> error_cholesky(error_covariance);
 
   if (error_cholesky.info() != Eigen::Success) {
@@ -404,8 +425,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
   }
   Eigen::Matrix<double, 5, 5> error_cholesky_matrix = error_cholesky.matrixL();
 
-  /* TODO: Calculate the Cholesky Decomposition of the sensor error
-   * covariance */
+  /* Calculate the Cholesky Decomposition of the sensor error covariance */
   Eigen::LLT<Eigen::Matrix<double, 2, 2>> measurement_cholesky(
       ego_robot.measurement_noise);
 
@@ -419,7 +439,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
       measurement_cholesky.matrixL();
 
   /* Perform the iterative update.  */
-  const unsigned short max_iterations = 50;
+  const unsigned short max_iterations = 2;
 
   for (int i = 0; i < max_iterations; i++) {
     /* Calculate measurement Jacobian */
@@ -443,6 +463,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
         -x_difference / (denominator * denominator), -1,
         -y_difference / (denominator * denominator),
         x_difference / (denominator * denominator);
+
     /* NOTE: Measurement noise Jacobian is identity. No need to calculate. */
 
     /* Populate the predicted measurement matrix. */
@@ -466,15 +487,15 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
     Eigen::Matrix<double, 2 + total_states, 2 + total_states>
         reweighted_error_covariance =
             error_cholesky_matrix *
-            HuberState(intial_state_estimate - iterative_state_estimate)
-                .inverse() *
+            HuberState(ego_robot.estimation_residual, state_tau).inverse() *
             error_cholesky_matrix.transpose();
 
     /* TODO: Calculate the new robust sensor error covariance. */
     Eigen::Matrix<double, total_measurements, total_measurements>
         reweighted_measurement_covariance =
             measurement_cholesky_matrix *
-            HuberMeasurement(ego_robot.measurement_residual).inverse() *
+            HuberMeasurement(ego_robot.measurement_residual, measurement_tau)
+                .inverse() *
             measurement_cholesky_matrix.transpose();
 
     /* Calculate Covariance Innovation: */
@@ -497,6 +518,12 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
             (ego_robot.measurement_residual -
              ego_robot.measurement_jacobian *
                  (intial_state_estimate - iterative_state_estimate));
+
+    /* Calculate the new estimation residual. */
+    ego_robot.estimation_residual =
+        intial_state_estimate - iterative_state_estimate;
+
+    normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
 
     /* Break if the change between iterations converges */
     double change = (iterative_state_estimate - old_estimate).norm();
@@ -524,7 +551,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
       (Eigen::Matrix<double, 5, 5>::Identity() -
        ego_robot.kalman_gain * ego_robot.measurement_jacobian) *
       error_cholesky_matrix *
-      HuberState(intial_state_estimate - iterative_state_estimate).inverse() *
+      HuberState(ego_robot.estimation_residual, state_tau).inverse() *
       error_cholesky_matrix.transpose();
 
   ego_robot.error_covariance =
@@ -534,65 +561,4 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
               .bottomRightCorner<total_states - 1, total_states - 1>()
               .inverse() *
           error_covariance.bottomLeftCorner<total_states - 1, total_states>();
-}
-
-Eigen::Matrix<double, Filter::total_measurements, Filter::total_measurements>
-IEKF::HuberMeasurement(
-    const Eigen::Matrix<double, total_measurements, 1> &measurement_residual) {
-  // std::cout << "TEST" << std::endl;
-
-  /* Tunable parameter tau that is used to determin if the residual is too large
-   * to be an inlier. */
-  double tau = 0.5;
-
-  /* Reweight matrix that is used to adjust the covariance of outliers. */
-  Eigen::Matrix<double, 2, 2> weight_matrix;
-  weight_matrix.setIdentity();
-
-  /* Loop through each of the measurements and perform the huber reweighting if
-   * the residual is larger than the parameter tau. */
-  bool changed = false;
-  for (unsigned short i = 0; i < total_measurements; i++) {
-
-    if (std::abs(measurement_residual(i)) >= tau) {
-      changed = true;
-      weight_matrix(i, i) = std::abs(tau / measurement_residual(i));
-    }
-  }
-  if (changed) {
-    // std::cout << weight_matrix << "\n" << std::endl;
-  }
-
-  return weight_matrix;
-}
-
-Eigen::Matrix<double, Filter::total_states + 2, Filter::total_states + 2>
-IEKF::HuberState(
-    const Eigen::Matrix<double, total_states + 2, 1> &error_residual) {
-
-  /* Tunable parameter tau that is used to determine if the residual is too
-   * large to be an inlier. */
-  double tau = 0.5;
-
-  /* Reweight matrix that is used to adjust the covariance of outliers. */
-  Eigen::Matrix<double, total_states + 2, total_states + 2> weight_matrix;
-  weight_matrix.setIdentity();
-
-  /* Loop through each of the measurements and perform the huber reweighting if
-   * the residual is larger than the parameter tau. */
-  bool changed = false;
-  for (unsigned short i = 0; i < total_states + 2; i++) {
-
-    if (std::abs(error_residual(i)) >= tau) {
-      changed = true;
-      weight_matrix(i, i) = std::abs(tau / error_residual(i));
-    }
-  }
-
-  if (changed) {
-    // std::cout << "Weight Matrix After" << std::endl;
-    // std::cout << weight_matrix << std::endl;
-  }
-
-  return weight_matrix;
 }

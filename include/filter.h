@@ -204,6 +204,20 @@ protected:
 
   void normaliseAngle(double &);
 
+  Eigen::Matrix<double, total_measurements, total_measurements>
+  HuberMeasurement(const Eigen::Matrix<double, total_measurements, 1> &,
+                   const Eigen::Matrix<double, total_measurements, 1> &);
+
+  Eigen::Matrix<double, 2 + total_states, total_states + 2>
+  HuberState(const Eigen::Matrix<double, 2 + total_states, 1> &,
+             const Eigen::Matrix<double, 2 + total_states, 1> &);
+
+  Eigen::Matrix<double, total_measurements, 1>
+  calculateNormalisedMeasurementResidual(const EstimationParameters &);
+
+  Eigen::Matrix<double, 2 + total_states, 1>
+  calculateNormalisedEstimationResidual(const EstimationParameters &);
+
 public:
   explicit Filter(DataHandler &data);
   virtual ~Filter();

@@ -48,8 +48,7 @@ private:
 
   void prediction(const Robot::Odometry &, EstimationParameters &);
 
-  void correction(EstimationParameters &, const EstimationParameters &,
-                  const bool);
+  void correction(EstimationParameters &, const EstimationParameters &);
 
   void robustCorrection(EstimationParameters &, const EstimationParameters &,
                         Eigen::Matrix<double, total_measurements, 1> &,
@@ -60,25 +59,6 @@ private:
 
   Eigen::Matrix<double, 2 + total_states, 1>
   computeStateTau(const EstimationParameters &);
-
-  Eigen::Matrix<double, total_measurements, total_measurements>
-  HuberMeasurement(const Eigen::Matrix<double, total_measurements, 1> &,
-                   const Eigen::Matrix<double, total_measurements, 1> &);
-
-  Eigen::Matrix<double, 2 + total_states, total_states + 2>
-  HuberState(const Eigen::Matrix<double, 2 + total_states, 1> &,
-             const Eigen::Matrix<double, 2 + total_states, 1> &);
-
-  Eigen::Matrix<double, total_measurements, 1>
-  calculateNormalisedMeasurementResidual(
-      const Eigen::Matrix<double, total_measurements, total_measurements> &,
-      const Eigen::Matrix<double, total_measurements, 1> &);
-
-  Eigen::Matrix<double, 2 + total_states, 1>
-  calculateNormalisedEstimationResidual(
-      const Eigen::Matrix<double, 2 + total_states, total_measurements> &,
-      const Eigen::Matrix<double, total_measurements, total_measurements> &,
-      const Eigen::Matrix<double, 2 + total_states, 1> &);
 };
 
 #endif // INCLUDE_INCLUDE_EKF_H_
