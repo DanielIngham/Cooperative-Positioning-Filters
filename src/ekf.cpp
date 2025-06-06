@@ -123,6 +123,7 @@ void EKF::performInference() {
         }
 
         total_observations++;
+
         bool robust = true;
 
         if (robust) {
@@ -130,7 +131,7 @@ void EKF::performInference() {
           measurement_tau << 0.2, 0.01;
 
           Eigen::Matrix<double, 2 + total_states, 1> state_tau;
-          state_tau << 0.15, 0.154, 0.255, 0.104, 0.104;
+          state_tau << 0.15, 0.154, 0.255, 0.0104, 0.0104;
 
           robustCorrection(robot_parameters[id], measured_object,
                            measurement_tau, state_tau);
@@ -147,7 +148,8 @@ void EKF::performInference() {
             calculateNormalisedEstimationResidual(robot_parameters[id]);
 
         file2 << estimation(X) << '\t' << estimation(Y) << '\t'
-              << estimation(ORIENTATION) << '\n';
+              << estimation(ORIENTATION) << '\t' << estimation(X + 2) << '\t'
+              << estimation(Y + 2) << '\n';
 
         // Eigen::Matrix<double, total_measurements, 1> measurement_tau =
         //     computeMeasurementTau(robot_parameters[id]);

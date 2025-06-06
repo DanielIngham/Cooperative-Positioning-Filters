@@ -127,10 +127,10 @@ void IEKF::performInference() {
         if (robust) {
 
           Eigen::Matrix<double, total_measurements, 1> measurement_tau;
-          measurement_tau << 0.2, 0.01;
+          measurement_tau << 10.2, 0.01;
 
           Eigen::Matrix<double, 2 + total_states, 1> state_tau;
-          state_tau << 0.055, 0.054, 0.255, 0.104, 0.104;
+          state_tau << 0.155, 0.154, 0.255, 10.0051104, 10.001104;
 
           robustCorrection(robot_parameters[id], measured_object,
                            measurement_tau, state_tau);
@@ -149,7 +149,8 @@ void IEKF::performInference() {
             calculateNormalisedEstimationResidual(robot_parameters[id]);
 
         file2 << estimation(X) << '\t' << estimation(Y) << '\t'
-              << estimation(ORIENTATION) << '\n';
+              << estimation(ORIENTATION) << '\t' << estimation(X + 2) << '\t'
+              << estimation(Y + 2) << '\n';
 
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
@@ -276,6 +277,7 @@ void IEKF::correction(EstimationParameters &ego_robot,
   intial_state_estimate.tail<total_states - 1>() =
       other_object.state_estimate.head<total_states - 1>();
 
+  /* Create a vector to hold the iterative state estimate. */
   Eigen::Matrix<double, 2 + total_states, 1> iterative_state_estimate =
       intial_state_estimate.head<total_states + 2>();
 
@@ -289,7 +291,6 @@ void IEKF::correction(EstimationParameters &ego_robot,
       other_object.error_covariance.topLeftCorner<2, 2>();
 
   /* Perform the iterative update.  */
-  const unsigned short max_iterations = 50;
 
   for (int i = 0; i < max_iterations; i++) {
     /* Calculate measurement Jacobian */
@@ -347,12 +348,17 @@ void IEKF::correction(EstimationParameters &ego_robot,
     Eigen::Matrix<double, 2 + total_states, 1> old_estimate =
         iterative_state_estimate;
 
+    ego_robot.estimation_residual =
+        intial_state_estimate - iterative_state_estimate;
+
+    normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
+
+    /* Update the iterative state estimate. */
     iterative_state_estimate =
         intial_state_estimate +
         ego_robot.kalman_gain *
             (ego_robot.measurement_residual -
-             ego_robot.measurement_jacobian *
-                 (intial_state_estimate - iterative_state_estimate));
+             ego_robot.measurement_jacobian * (ego_robot.estimation_residual));
 
     /* Break if the change between iterations converges */
     double change = (iterative_state_estimate - old_estimate).norm();
@@ -394,17 +400,14 @@ void IEKF::robustCorrection(
     Eigen::Matrix<double, 2 + total_states, 1> &state_tau) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  Eigen::Matrix<double, 2 + total_states, 1> intial_state_estimate;
-  intial_state_estimate.head<total_states>() = ego_robot.state_estimate;
-  intial_state_estimate.tail<total_states - 1>() =
+  Eigen::Matrix<double, 2 + total_states, 1> initial_state_estimate;
+  initial_state_estimate.head<total_states>() = ego_robot.state_estimate;
+  initial_state_estimate.tail<total_states - 1>() =
       other_object.state_estimate.head<total_states - 1>();
 
   /* Create the iterative state estimate matrix. */
   Eigen::Matrix<double, 2 + total_states, 1> iterative_state_estimate =
-      intial_state_estimate.head<total_states + 2>();
-
-  /* Reset the esimtation residual. */
-  ego_robot.estimation_residual.setZero();
+      initial_state_estimate.head<total_states + 2>();
 
   /* Create and populate 5x5 error covariance matrix. */
   Eigen::Matrix<double, 2 + total_states, 2 + total_states> error_covariance;
@@ -439,8 +442,6 @@ void IEKF::robustCorrection(
       measurement_cholesky.matrixL();
 
   /* Perform the iterative update.  */
-  const unsigned short max_iterations = 2;
-
   for (int i = 0; i < max_iterations; i++) {
     /* Calculate measurement Jacobian */
     double x_difference = iterative_state_estimate(X + total_states) -
@@ -483,14 +484,23 @@ void IEKF::robustCorrection(
     /* Normalise the bearing residual */
     normaliseAngle(ego_robot.measurement_residual(BEARING));
 
-    /* TODO: Calculate the new robust estimation error covariance. */
+    /* Calculate the new estimation residual. */
+    ego_robot.estimation_residual =
+        initial_state_estimate - iterative_state_estimate;
+
+    normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
+
+    /* Calculate the new robust estimation error covariance. */
     Eigen::Matrix<double, 2 + total_states, 2 + total_states>
         reweighted_error_covariance =
             error_cholesky_matrix *
             HuberState(ego_robot.estimation_residual, state_tau).inverse() *
             error_cholesky_matrix.transpose();
 
-    /* TODO: Calculate the new robust sensor error covariance. */
+    std::cout << " Error Cholesky " << std::endl;
+    std::cout << reweighted_error_covariance << std::endl;
+    std::cout << " " << std::endl;
+    /* Calculate the new robust sensor error covariance. */
     Eigen::Matrix<double, total_measurements, total_measurements>
         reweighted_measurement_covariance =
             measurement_cholesky_matrix *
@@ -513,17 +523,10 @@ void IEKF::robustCorrection(
         iterative_state_estimate;
 
     iterative_state_estimate =
-        intial_state_estimate +
+        initial_state_estimate +
         ego_robot.kalman_gain *
             (ego_robot.measurement_residual -
-             ego_robot.measurement_jacobian *
-                 (intial_state_estimate - iterative_state_estimate));
-
-    /* Calculate the new estimation residual. */
-    ego_robot.estimation_residual =
-        intial_state_estimate - iterative_state_estimate;
-
-    normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
+             ego_robot.measurement_jacobian * (ego_robot.estimation_residual));
 
     /* Break if the change between iterations converges */
     double change = (iterative_state_estimate - old_estimate).norm();
@@ -551,7 +554,8 @@ void IEKF::robustCorrection(
       (Eigen::Matrix<double, 5, 5>::Identity() -
        ego_robot.kalman_gain * ego_robot.measurement_jacobian) *
       error_cholesky_matrix *
-      HuberState(ego_robot.estimation_residual, state_tau).inverse() *
+      HuberState(initial_state_estimate - iterative_state_estimate, state_tau)
+          .inverse() *
       error_cholesky_matrix.transpose();
 
   ego_robot.error_covariance =

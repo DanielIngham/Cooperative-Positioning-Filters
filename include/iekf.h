@@ -29,6 +29,8 @@ public:
   void performInference();
 
 private:
+  const unsigned short max_iterations = 2;
+
   void prediction(const Robot::Odometry &, EstimationParameters &);
 
   void correction(EstimationParameters &, const EstimationParameters &);

@@ -28,15 +28,9 @@ Filter::Filter(DataHandler &data) : data_(data) {
         robots[id].synced.states.front().orientation;
 
     /* Populate odometry error covariance matrix: 2x2 matrix. */
-    // initial_parameters.process_noise.diagonal().topRows(total_inputs)
-    //     << robots[id].forward_velocity_error.variance,
-    //     robots[id].angular_velocity_error.variance;
-
-    initial_parameters.process_noise.diagonal().topRows(total_inputs) << 0.0001,
-        0.0001;
-    std::cout << " Process Noise " << std::endl;
-    std::cout << initial_parameters.process_noise << std::endl;
-    std::cout << " " << std::endl;
+    initial_parameters.process_noise.diagonal().topRows(total_inputs)
+        << robots[id].forward_velocity_error.variance,
+        robots[id].angular_velocity_error.variance;
 
     /* Populate measurement error covariance matrix: 2x2 matrix. */
     initial_parameters.measurement_noise.diagonal().topRows(total_measurements)
