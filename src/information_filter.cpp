@@ -9,7 +9,7 @@ void InformationFilter::performInference() {
   std::vector<Robot> &robots = this->data_.getRobots();
 
   /* Loop through each timestep and perform inference.  */
-  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 1);
+  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
 
   for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
 

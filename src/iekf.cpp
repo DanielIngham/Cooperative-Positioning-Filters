@@ -37,7 +37,7 @@ void IEKF::performInference() {
   std::vector<Landmark> landmarks = data_.getLandmarks();
 
   /* Loop through each timestep and perform inference.  */
-  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 1);
+  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
 
   std::ofstream file("output/normalised_innovation.dat");
   if (!file.is_open()) {
