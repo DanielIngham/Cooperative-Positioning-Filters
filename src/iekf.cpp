@@ -127,7 +127,7 @@ void IEKF::performInference() {
         if (robust) {
 
           Eigen::Matrix<double, total_measurements, 1> measurement_tau;
-          measurement_tau << 10.2, 0.01;
+          measurement_tau << 0.2, 0.01;
 
           Eigen::Matrix<double, 2 + total_states, 1> state_tau;
           state_tau << 0.155, 0.154, 0.255, 10.0051104, 10.001104;
@@ -497,9 +497,6 @@ void IEKF::robustCorrection(
             HuberState(ego_robot.estimation_residual, state_tau).inverse() *
             error_cholesky_matrix.transpose();
 
-    std::cout << " Error Cholesky " << std::endl;
-    std::cout << reweighted_error_covariance << std::endl;
-    std::cout << " " << std::endl;
     /* Calculate the new robust sensor error covariance. */
     Eigen::Matrix<double, total_measurements, total_measurements>
         reweighted_measurement_covariance =
