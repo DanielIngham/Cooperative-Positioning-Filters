@@ -1,5 +1,4 @@
 #include "ekf.h"
-#include "gbp.h"
 #include "iekf.h"
 #include "information_filter.h"
 
