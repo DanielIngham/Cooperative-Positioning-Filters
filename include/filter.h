@@ -200,6 +200,10 @@ protected:
    * @brief Houses all estimation parameters for all robots.
    */
   std::vector<EstimationParameters> robot_parameters;
+
+  /**
+   * @brief Houses all estimation parameters for all landmarks.
+   */
   std::vector<EstimationParameters> landmark_parameters;
 
   void normaliseAngle(double &);

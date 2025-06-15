@@ -1,6 +1,5 @@
 #include "filter.h"
 #include <DataHandler/DataHandler.h>
-#include <iostream>
 
 /**
  * @brief Assigns fields data based on datahandler input.
