@@ -129,6 +129,7 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
 
   /* Normalise the orientation estimate between -180 and 180. */
   normaliseAngle(ego_robot.state_estimate(ORIENTATION));
+
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   ego_robot.motion_jacobian << 1, 0,
       -odometry.forward_velocity * sample_period *
@@ -196,11 +197,10 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Calculate the measurement residual: the difference between the measurement
    * and the calculate measurement based on the estimated states of both robots.
    */
-  ego_robot.measurement_residual =
-      (ego_robot.measurement - predicted_measurement);
+  ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the angle residual */
-  normaliseAngle(ego_robot.measurement_residual(BEARING));
+  normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   Eigen::Matrix<double, 2 * total_states, 1> estimated_state;
@@ -217,7 +217,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 
   Eigen::Matrix<double, 2 * total_states, 1> information_vector_contribution =
       measurement_jacobian.transpose() * ego_robot.measurement_noise.inverse() *
-      (ego_robot.measurement_residual + measurement_jacobian * estimated_state);
+      (ego_robot.innovation + measurement_jacobian * estimated_state);
 
   /* Create a temporary augmented matrix  containing the information matrix of
    * both objects. */
