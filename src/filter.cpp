@@ -134,6 +134,155 @@ Filter::HuberState(
   return weight_matrix;
 }
 
+void Filter::motionModel(const Robot::Odometry &odometry,
+                         EstimationParameters &estimation_parameters,
+                         const double sample_period) {
+
+  estimation_parameters.state_estimate
+      << estimation_parameters.state_estimate(X) +
+             odometry.forward_velocity * sample_period *
+                 std::cos(estimation_parameters.state_estimate(ORIENTATION)),
+      estimation_parameters.state_estimate(Y) +
+          odometry.forward_velocity * sample_period *
+              std::sin(estimation_parameters.state_estimate(ORIENTATION)),
+      estimation_parameters.state_estimate(ORIENTATION) +
+          odometry.angular_velocity * sample_period;
+
+  /* Normalise the orientation estimate between -180 and 180. */
+  normaliseAngle(estimation_parameters.state_estimate(ORIENTATION));
+}
+
+void Filter::motionJacobian(const Robot::Odometry &odometry,
+                            EstimationParameters &estimation_parameters,
+                            const double sample_period) {
+
+  estimation_parameters.motion_jacobian << 1, 0,
+      -odometry.forward_velocity * sample_period *
+          std::sin(estimation_parameters.state_estimate(ORIENTATION)),
+      0, 1,
+      odometry.forward_velocity * sample_period *
+          std::cos(estimation_parameters.state_estimate(ORIENTATION)),
+      0, 0, 1;
+}
+
+void Filter::processJacobian(EstimationParameters &estimation_parameters,
+                             const double sample_period) {
+
+  estimation_parameters.process_jacobian
+      << sample_period *
+             std::cos(estimation_parameters.state_estimate(ORIENTATION)),
+      0,
+      sample_period *
+          std::sin(estimation_parameters.state_estimate(ORIENTATION)),
+      0, 0, sample_period;
+}
+
+Eigen::Matrix<double, Filter::total_measurements, 1>
+Filter::measurementModel(EstimationParameters &ego_robot,
+                         const EstimationParameters &other_object) {
+
+  const double x_difference =
+      other_object.state_estimate(X) - ego_robot.state_estimate(X);
+
+  const double y_difference =
+      other_object.state_estimate(Y) - ego_robot.state_estimate(Y);
+
+  double denominator =
+      std::sqrt(x_difference * x_difference + y_difference * y_difference);
+
+  const double MIN_DISTANCE = 1e-6;
+  if (denominator < MIN_DISTANCE) {
+    denominator = MIN_DISTANCE;
+  }
+
+  Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
+
+  predicted_measurement << std::sqrt((x_difference * x_difference) +
+                                     (y_difference * y_difference)),
+      std::atan2(y_difference, x_difference) -
+          ego_robot.state_estimate[ORIENTATION];
+
+  normaliseAngle(predicted_measurement(BEARING));
+
+  return predicted_measurement;
+}
+
+void Filter::calculateMeasurementJacobian(
+    EstimationParameters &ego_robot, const EstimationParameters &other_object) {
+
+  const double x_difference =
+      other_object.state_estimate(X) - ego_robot.state_estimate(X);
+
+  const double y_difference =
+      other_object.state_estimate(Y) - ego_robot.state_estimate(Y);
+
+  double denominator =
+      std::sqrt(x_difference * x_difference + y_difference * y_difference);
+
+  const double MIN_DISTANCE = 1e-6;
+  if (denominator < MIN_DISTANCE) {
+    denominator = MIN_DISTANCE;
+  }
+
+  ego_robot.measurement_jacobian << -x_difference / denominator,
+      -y_difference / denominator, 0, x_difference / denominator,
+      y_difference / denominator, y_difference / (denominator * denominator),
+      -x_difference / (denominator * denominator), -1,
+      -y_difference / (denominator * denominator),
+      x_difference / (denominator * denominator);
+}
+
+/**
+ * @brief Schur complement-based error covariance marginalisation.
+ * @details This is used to marginalise the 5x5 matrix to a 3x3 matrix by
+ * incorporating the marginalising the contributions of the error covariance
+ * from the other robot states into the covariance of the ego robot.
+ */
+Eigen::Matrix<double, Filter::total_states, Filter::total_states>
+Filter::marginalise(
+    Eigen::Matrix<double, 2 + Filter::total_states, 2 + Filter::total_states>
+        matrix_5d) {
+
+  Eigen::Matrix<double, total_states, total_states> matrix_3d =
+      matrix_5d.topLeftCorner<total_states, total_states>() -
+      matrix_5d.topRightCorner<total_states, total_states - 1>() *
+          matrix_5d.bottomRightCorner<total_states - 1, total_states - 1>()
+              .inverse() *
+          matrix_5d.bottomLeftCorner<total_states - 1, total_states>();
+
+  return matrix_3d;
+}
+
+Eigen::Matrix<double, 2 + Filter::total_states, 1>
+Filter::createAugmentedState(const EstimationParameters &ego_robot,
+                             const EstimationParameters &other_object) {
+
+  Eigen::Matrix<double, 2 + Filter::total_states, 1> state_estimate =
+      Eigen::Matrix<double, 2 + Filter::total_states, 1>::Zero();
+
+  state_estimate.head<total_states>() = ego_robot.state_estimate;
+  state_estimate.tail<total_states - 1>() =
+      other_object.state_estimate.head<total_states - 1>();
+
+  return state_estimate;
+}
+
+Eigen::Matrix<double, 2 + Filter::total_states, 2 + Filter::total_states>
+Filter::createAugmentedCovariance(const EstimationParameters &ego_robot,
+                                  const EstimationParameters &other_object) {
+  Eigen::Matrix<double, 2 + Filter::total_states, 2 + Filter::total_states>
+      matrix;
+
+  matrix.setZero();
+
+  matrix.topLeftCorner<3, 3>() = ego_robot.error_covariance;
+
+  matrix.bottomRightCorner<2, 2>() =
+      other_object.error_covariance.topLeftCorner<2, 2>();
+
+  return matrix;
+}
+
 /**
  * @brief Normalise an angle between \f$\pi\f$ and \f$-\pi\f$.
  * @param[inout] angle angle in radians.
@@ -164,7 +313,7 @@ Filter::calculateNormalisedMeasurementResidual(
       innovatation_cholesky_matrix = innovatation_cholesky.matrixL();
 
   Eigen::Matrix<double, total_measurements, 1> normalised_measurement_residual =
-      innovatation_cholesky_matrix.inverse() * filter.measurement_residual;
+      innovatation_cholesky_matrix.inverse() * filter.innovation;
 
   return normalised_measurement_residual;
 }

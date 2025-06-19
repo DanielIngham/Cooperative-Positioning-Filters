@@ -64,7 +64,14 @@ protected:
      * k-1})\f], where \f$\mathbf{z}\f$ is the measurement taken, and
      * \f$x_{k\mid k-1}\f$ is the estimated state of the robot.
      */
-    Eigen::Matrix<double, total_measurements, 1> measurement_residual;
+    Eigen::Matrix<double, total_measurements, 1> innovation;
+
+    /**
+     * @brief Measurement innovation covariance matrix: 2x2 matrix.
+     */
+    Eigen::Matrix<double, total_measurements, total_measurements>
+        innovation_covariance = Eigen::Matrix<double, total_measurements,
+                                              total_measurements>::Zero();
 
     /**
      * @brief The difference between the prior and posterior state estimtes.
@@ -82,13 +89,6 @@ protected:
      */
     Eigen::Matrix<double, total_states, total_states> error_covariance =
         Eigen::Matrix<double, total_states, total_states>::Identity() * 0.001;
-
-    /**
-     * @brief Measurement correction innovation matrix: 2x2 matrix.
-     */
-    Eigen::Matrix<double, total_measurements, total_measurements>
-        innovation_covariance = Eigen::Matrix<double, total_measurements,
-                                              total_measurements>::Zero();
 
     /**
      * @brief Kalman gain: 5x2 matrix.
@@ -205,6 +205,31 @@ protected:
    * @brief Houses all estimation parameters for all landmarks.
    */
   std::vector<EstimationParameters> landmark_parameters;
+
+  void motionModel(const Robot::Odometry &, EstimationParameters &,
+                   const double);
+
+  void motionJacobian(const Robot::Odometry &, EstimationParameters &,
+                      const double);
+
+  void processJacobian(EstimationParameters &, const double);
+
+  Eigen::Matrix<double, total_measurements, 1>
+  measurementModel(EstimationParameters &, const EstimationParameters &);
+
+  void calculateMeasurementJacobian(EstimationParameters &,
+                                    const EstimationParameters &);
+
+  Eigen::Matrix<double, total_states, total_states>
+      marginalise(Eigen::Matrix<double, 2 + total_states, 2 + total_states>);
+
+  Eigen::Matrix<double, 2 + total_states, 1>
+  createAugmentedState(const EstimationParameters &,
+                       const EstimationParameters &);
+
+  Eigen::Matrix<double, 2 + total_states, 2 + total_states>
+  createAugmentedCovariance(const EstimationParameters &,
+                            const EstimationParameters &);
 
   void normaliseAngle(double &);
 
