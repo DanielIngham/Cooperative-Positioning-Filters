@@ -38,16 +38,6 @@ void EKF::performInference() {
   /* Loop through each timestep and perform inference.  */
   std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
 
-  std::ofstream file("output/normalised_innovation.dat");
-  if (!file.is_open()) {
-    throw std::runtime_error("Unable to create normalised_innovation.dat");
-  }
-  std::ofstream file2("output/normalised_estimation.dat");
-
-  if (!file2.is_open()) {
-    throw std::runtime_error("Unable to create normalised_innovation.dat");
-  }
-
   for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
 
     /* Perform prediction for each robot using odometry values. */
@@ -125,38 +115,22 @@ void EKF::performInference() {
 
         total_observations++;
 
+        /* Determine whether the filter should use the huber cost function for
+         * the correction. */
         bool robust = true;
-
         if (robust) {
-          Eigen::Matrix<double, total_measurements, 1> measurement_tau;
-          measurement_tau << 0.2, 0.01;
+          huberMeasurementThresholds_t measurement_tau =
+              (huberMeasurementThresholds_t() << 0.2, 0.01).finished();
 
-          Eigen::Matrix<double, 2 + total_states, 1> state_tau;
-          state_tau << 0.15, 0.154, 0.255, 0.0104, 0.0104;
+          huberStateThresholds_t state_tau =
+              (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104)
+                  .finished();
 
           robustCorrection(robot_parameters[id], measured_object,
                            measurement_tau, state_tau);
         } else {
           correction(robot_parameters[id], measured_object);
         }
-
-        Eigen::Matrix<double, total_measurements, 1> measurement =
-            calculateNormalisedMeasurementResidual(robot_parameters[id]);
-
-        file << measurement(RANGE) << '\t' << measurement(BEARING) << '\n';
-
-        Eigen::Matrix<double, 2 + total_states, 1> estimation =
-            calculateNormalisedEstimationResidual(robot_parameters[id]);
-
-        file2 << estimation(X) << '\t' << estimation(Y) << '\t'
-              << estimation(ORIENTATION) << '\t' << estimation(X + 2) << '\t'
-              << estimation(Y + 2) << '\n';
-
-        // Eigen::Matrix<double, total_measurements, 1> measurement_tau =
-        //     computeMeasurementTau(robot_parameters[id]);
-
-        // Eigen::Matrix<double, 2 + total_states, 1> state_tau =
-        //     computeStateTau(robot_parameters[id]);
 
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
@@ -180,21 +154,6 @@ void EKF::performInference() {
  * angular velocity.
  * @param[in,out] estimation_parameters The parameters required by the Extended
  * Kalman filter to perform the prediction step.
- *
- * @details The motion model used for the extended kalman filter prediction take
- * the form
- * \f[\begin{bmatrix} x_i^{(t+1)} \\  y_i^{(t+1)}
- * \\ \theta_i^{(t+1)}\end{bmatrix} = \begin{bmatrix} x_i^{(t)} +
- * \tilde{v}_i^{(t)}\Delta t\cos(\theta_i^{(t)}) \\ y_i^{(t)} +
- * \tilde{v}_i^{(t)}\Delta t\sin(\theta_i^{(t)})\\ \theta_i^{(t)} +
- * \tilde{\omega}_i^{(t)}\Delta t. \end{bmatrix}, \f] where \f$i\f$ denotes the
- * robots ID; \f$t\f$ denotes the current timestep; \f$\Delta t\f$ denotes the
- * sample period; \f$x\f$ and \f$y\f$ are the robots coordinates; \f$\theta\f$
- * denotes the robots heading (orientation); \f$\tilde{v}_i\f$ denotes the
- * forward velocity input; and \f$\tilde{\omega}\f$ denotes the angular velocity
- * input. Both \f$\tilde{v}_i\f$ and \f$\tilde{\omega}_i\f$ are normally
- * distributed random variables \f$\mathcal{N}(0,w)\f$ (see
- * EKF::EstimationParameters::process_noise).
  */
 void EKF::prediction(const Robot::Odometry &odometry,
                      EstimationParameters &estimation_parameters) {
@@ -205,10 +164,10 @@ void EKF::prediction(const Robot::Odometry &odometry,
   motionModel(odometry, estimation_parameters, sample_period);
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  motionJacobian(odometry, estimation_parameters, sample_period);
+  calculateMotionJacobian(odometry, estimation_parameters, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  processJacobian(estimation_parameters, sample_period);
+  calculateProcessJacobian(estimation_parameters, sample_period);
 
   /* Propagate the estimation error covariance: 3x3 matrix. */
   estimation_parameters.error_covariance =
@@ -236,12 +195,12 @@ void EKF::prediction(const Robot::Odometry &odometry,
  * \f$y\f$ denote the robots coordinates; \f$\theta\f$ denotes the ego robots
  * orientation (heading); and \f$q_r\f$ and \f$q_\omega\f$ denote the Gaussian
  * distributed measurement noise (See
- * EKF::EstimationParameters.measurement_noise).
+ * Filter::EstimationParameters.measurement_noise).
  *
  * @note Cooperative Localisation (Positioning) involves robots that share thier
  * state and estimation error covariances when one robot measures the other. As
  * a result, the estimation error covariance needs to be augmented from a 3x3 to
- * a 6x6 matrix to house the error covariance of both the ego vehicle (\f$i\f$)
+ * a 5x5 matrix to house the error covariance of both the ego vehicle (\f$i\f$)
  * and the measured vehicle (\f$j\f$):
  * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
  * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
@@ -255,7 +214,7 @@ void EKF::correction(EstimationParameters &ego_robot,
   calculateMeasurementJacobian(ego_robot, other_object);
 
   /* Create and populate new 5x5 error covariance matrix. */
-  Eigen::Matrix<double, 2 + total_states, 2 + total_states> error_covariance =
+  augmentedCovariance_t error_covariance =
       createAugmentedCovariance(ego_robot, other_object);
 
   /* Calculate Covariance Innovation: */
@@ -274,11 +233,11 @@ void EKF::correction(EstimationParameters &ego_robot,
                       ego_robot.kalman_gain.transpose();
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  Eigen::Matrix<double, 2 + total_states, 1> state_estimate =
+  augmentedState_t state_estimate =
       createAugmentedState(ego_robot, other_object);
 
   /* Populate the predicted measurement matrix. */
-  Eigen::Matrix<double, total_measurements, 1> predicted_measurement =
+  measurement_t predicted_measurement =
       measurementModel(ego_robot, other_object);
 
   /* Calculate the innovation: the difference between the measurement
@@ -295,34 +254,28 @@ void EKF::correction(EstimationParameters &ego_robot,
   normaliseAngle(state_estimate(ORIENTATION));
 
   /* Resize matrices back to normal */
-  /* NOTE: The resize means all information regarding the observed robots
-   * states is lost. This operates on the assumption that the error covariance
-   * is uncorrelated, which may lead to the estimator being over confident in
-   * bad estimates. */
   ego_robot.state_estimate = state_estimate.head<total_states>();
 
   ego_robot.error_covariance = marginalise(error_covariance);
 }
 
-void EKF::robustCorrection(
-    EstimationParameters &ego_robot, const EstimationParameters &other_object,
-    Eigen::Matrix<double, total_measurements, 1> &measurement_tau,
-    Eigen::Matrix<double, 2 + total_states, 1> &state_tau) {
+void EKF::robustCorrection(EstimationParameters &ego_robot,
+                           const EstimationParameters &other_object,
+                           huberMeasurementThresholds_t &measurement_tau,
+                           huberStateThresholds_t &state_tau) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  Eigen::Matrix<double, 2 + total_states, 1> intial_state_estimate =
+  augmentedState_t intial_state_estimate =
       createAugmentedState(ego_robot, other_object);
 
-  Eigen::Matrix<double, 2 + total_states, 1> iterative_state_estimate =
-      intial_state_estimate;
+  augmentedState_t iterative_state_estimate = intial_state_estimate;
 
   /* Create and populate new 5x5 error covariance matrix. */
-  Eigen::Matrix<double, 2 + total_states, 2 + total_states> error_covariance =
+  augmentedCovariance_t error_covariance =
       createAugmentedCovariance(ego_robot, other_object);
 
   /* Calculate the Cholesky Decomposition of the estimation error covariance */
-  Eigen::LLT<Eigen::Matrix<double, 2 + total_states, 2 + total_states>>
-      error_cholesky(error_covariance);
+  Eigen::LLT<augmentedCovariance_t> error_cholesky(error_covariance);
 
   if (error_cholesky.info() != Eigen::Success) {
     throw std::runtime_error("[1] An error has occurred with calculating the "
@@ -330,12 +283,11 @@ void EKF::robustCorrection(
                              "the estimation error covariance");
   }
 
-  Eigen::Matrix<double, 2 + total_states, 2 + total_states>
-      error_cholesky_matrix = error_cholesky.matrixL();
+  augmentedCovariance_t error_cholesky_matrix = error_cholesky.matrixL();
 
   /* Calculate the Cholesky Decomposition of the sensor error covariance */
-  Eigen::LLT<Eigen::Matrix<double, total_measurements, total_measurements>>
-      measurement_cholesky(ego_robot.measurement_noise);
+  Eigen::LLT<measurementCovariance_t> measurement_cholesky(
+      ego_robot.measurement_noise);
 
   if (measurement_cholesky.info() != Eigen::Success) {
     throw std::runtime_error(
@@ -343,14 +295,14 @@ void EKF::robustCorrection(
         "the measurement error covariance");
   }
 
-  Eigen::Matrix<double, total_measurements, total_measurements>
-      measurement_cholesky_matrix = measurement_cholesky.matrixL();
+  measurementCovariance_t measurement_cholesky_matrix =
+      measurement_cholesky.matrixL();
 
   /* Calculate measurement Jacobian */
   calculateMeasurementJacobian(ego_robot, other_object);
 
   /* Populate the predicted measurement matrix. */
-  Eigen::Matrix<double, total_measurements, 1> predicted_measurement =
+  measurement_t predicted_measurement =
       measurementModel(ego_robot, other_object);
 
   /* Calculate the measurement residual: the difference between the
@@ -362,11 +314,10 @@ void EKF::robustCorrection(
   normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Calculate the new robust sensor error covariance. */
-  Eigen::Matrix<double, total_measurements, total_measurements>
-      reweighted_measurement_covariance =
-          measurement_cholesky_matrix *
-          HuberMeasurement(ego_robot.innovation, measurement_tau).inverse() *
-          measurement_cholesky_matrix.transpose();
+  measurementCovariance_t reweighted_measurement_covariance =
+      measurement_cholesky_matrix *
+      HuberMeasurement(ego_robot.innovation, measurement_tau).inverse() *
+      measurement_cholesky_matrix.transpose();
 
   /* Calculate Covariance Innovation. */
   ego_robot.innovation_covariance =
@@ -397,140 +348,14 @@ void EKF::robustCorrection(
    * bad estimates. */
   ego_robot.state_estimate = iterative_state_estimate.head<total_states>();
 
-  /* Schur complement-based error covariance marginalisation. This is used to
-   * marginalise the 5x5 matrix to a 3x3 matrix by incorporating the
-   * marginalising the contributions of the error covariance from the other
-   * robot states into the covariance of the ego robot. */
-  /* Update estimation error covariance */
+  /* Calculate the reweighted error covariance. */
   error_covariance =
-      (Eigen::Matrix<double, 5, 5>::Identity() -
+      (augmentedCovariance_t::Identity() -
        ego_robot.kalman_gain * ego_robot.measurement_jacobian) *
       error_cholesky_matrix *
       HuberState(ego_robot.estimation_residual, state_tau).inverse() *
       error_cholesky_matrix.transpose();
 
+  /* Marginalise the 5x5 back to a 3x3. */
   ego_robot.error_covariance = marginalise(error_covariance);
-}
-
-Eigen::Matrix<double, Filter::total_measurements, 1>
-EKF::computeMeasurementTau(const EstimationParameters &robot) {
-  /* If only one measurement is present, the return the large initial value
-     of tau. This is to ensure that no information is lost on the first
-     measurment. */
-  Eigen::Matrix<double, total_measurements, 1> tau =
-      Eigen::Matrix<double, total_measurements, 1>::Constant(1000000.0);
-
-  if (total_observations <= 1)
-    return tau;
-
-  /* Calculate the Cholesky of the innovation */
-  Eigen::LLT<Eigen::Matrix<double, total_measurements, total_measurements>>
-      innovatation_cholesky(robot.innovation_covariance);
-
-  if (innovatation_cholesky.info() != Eigen::Success) {
-    throw std::runtime_error(
-        "An error has occurred with calculating the Cholesky decomposition of "
-        "the innovation error covariance");
-  }
-  Eigen::Matrix<double, total_measurements, total_measurements>
-      innovatation_cholesky_matrix = innovatation_cholesky.matrixL();
-
-  Eigen::Matrix<double, total_measurements, 1> normalised_measurement_residual =
-      innovatation_cholesky_matrix.inverse() * robot.innovation;
-
-  /* Calculate the mean of the normalised measurement residual (innovation). */
-  accumulative_innovation += normalised_measurement_residual;
-
-  Eigen::Matrix<double, total_measurements, 1> innovation_sample_mean =
-      (1.0 / total_observations) * accumulative_innovation;
-
-  /* Calculate the unnormalised variance of the innovation. */
-  for (unsigned short i = 0; i < total_measurements; i++) {
-    accumulative_innovation_covariance(i) +=
-        (normalised_measurement_residual(i) - innovation_sample_mean(i)) *
-        (normalised_measurement_residual(i) - innovation_sample_mean(i));
-  }
-
-  /* Calculate the standard deviation from the innovation sample. */
-  Eigen::Matrix<double, total_measurements, 1> innovation_sample_covariance =
-      (1.0 / total_observations) * accumulative_innovation_covariance;
-
-  double scaling_factor =
-      std::sqrt(total_observations / std::log(total_observations));
-
-  tau = innovation_sample_covariance * scaling_factor;
-
-  return tau;
-}
-
-Eigen::Matrix<double, 2 + Filter::total_states, 1>
-EKF::computeStateTau(const EstimationParameters &robot) {
-
-  /* If only one measurement is present, the return the large initial value
-     of tau. This is to ensure that no information is lost on the first
-     measurment. */
-  Eigen::Matrix<double, 2 + total_states, 1> tau =
-      Eigen::Matrix<double, 2 + total_states, 1>::Constant(1000000.0);
-
-  if (total_observations <= 1)
-    return tau;
-
-  /* Calculate the mean of the estimation residual (innovation). */
-  Eigen::LLT<Eigen::Matrix<double, 2 + total_states, 2 + total_states>>
-      error_covariance_cholesky(robot.kalman_gain *
-                                    robot.innovation_covariance *
-                                    robot.kalman_gain.transpose() +
-                                Eigen::Matrix<double, 2 + total_states,
-                                              2 + total_states>::Identity() *
-                                    1e-5);
-
-  if (error_covariance_cholesky.info() != Eigen::Success) {
-
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig(
-        robot.kalman_gain * robot.innovation_covariance *
-            robot.kalman_gain.transpose() +
-        Eigen::Matrix<double, 2 + total_states, 2 + total_states>::Identity() *
-            1e-3);
-
-    if (eig.info() != Eigen::Success) {
-      std::cerr << "Eigenvalue computation failed!" << std::endl;
-    } else {
-      std::cout << "Eigenvalues:\n" << eig.eigenvalues() << std::endl;
-    }
-
-    throw std::runtime_error("[2] An error has occurred with calculating the "
-                             "Cholesky decomposition of "
-                             "the estimation error covariance");
-  }
-
-  Eigen::Matrix<double, 2 + total_states, 2 + total_states>
-      error_covariance_cholesky_matrix = error_covariance_cholesky.matrixL();
-
-  Eigen::Matrix<double, 2 + total_states, 1> normalised_error_residual =
-      error_covariance_cholesky_matrix.inverse() * robot.estimation_residual;
-
-  accumulative_estimation_error += normalised_error_residual;
-
-  Eigen::Matrix<double, 2 + total_states, 1> estimation_error_sample_mean =
-      (1.0 / total_observations) * accumulative_estimation_error;
-
-  /* Calculate the unnormalised variance of the innovation. */
-  for (unsigned short i = 0; i < 2 + total_states; i++) {
-    accummulative_estimation_covariance(i) +=
-        (normalised_error_residual(i) - estimation_error_sample_mean(i)) *
-        (normalised_error_residual(i) - estimation_error_sample_mean(i));
-  }
-
-  /* Calculate the standard deviation from the innovation sample. */
-  Eigen::Matrix<double, 2 + total_states, 1>
-      estimation_error_sample_covariance =
-          (1.0 / total_observations) * accummulative_estimation_covariance;
-
-  /* Calculate the Cholesky Decomposition of the sensor error covariance */
-  double scaling_factor =
-      std::sqrt(total_observations / std::log(total_observations));
-
-  tau = estimation_error_sample_covariance * scaling_factor;
-
-  return tau;
 }
