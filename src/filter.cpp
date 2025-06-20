@@ -288,6 +288,18 @@ Filter::matrix3D_t Filter::marginalise(const matrix5D_t &matrix_5d) {
   return matrix_3d;
 }
 
+Filter::state_t Filter::marginalise(const augmentedState_t &vector,
+                                    const matrix5D_t &matrix_5d) {
+
+  state_t new_vector =
+      vector.head<total_states>() -
+      matrix_5d.topRightCorner<total_states, total_states>() *
+          matrix_5d.bottomRightCorner<total_states, total_states>().inverse() *
+          vector.tail<total_states>();
+
+  return new_vector;
+}
+
 Filter::augmentedState_t
 Filter::createAugmentedState(const EstimationParameters &ego_robot,
                              const EstimationParameters &other_object) {
@@ -299,6 +311,19 @@ Filter::createAugmentedState(const EstimationParameters &ego_robot,
       other_object.state_estimate.head<total_states - 1>();
 
   return state_estimate;
+}
+Filter::augmentedPrecision_t
+Filter::createAugmentedPrecision(const EstimationParameters &ego_robot,
+                                 const EstimationParameters &other_object) {
+
+  augmentedPrecision_t matrix = augmentedPrecision_t::Zero();
+
+  matrix.topLeftCorner<3, 3>() = ego_robot.precision_matrix;
+
+  matrix.bottomRightCorner<2, 2>() =
+      other_object.precision_matrix.topLeftCorner<2, 2>();
+
+  return matrix;
 }
 
 Filter::augmentedCovariance_t

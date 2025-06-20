@@ -35,6 +35,7 @@ protected:
   typedef matrix3D_t covariance_t;
   typedef matrix5D_t augmentedCovariance_t;
 
+  typedef matrix3D_t precision_t;
   typedef matrix5D_t augmentedPrecision_t;
 
   typedef Eigen::Matrix<double, total_measurements, 1> measurement_t;
@@ -214,7 +215,7 @@ protected:
      * \Sigma^{-1}\f], where \f$\Sigma\f$ denotes the estimation error
      * covariance matrix (Filter::EstimationParameters.error_covariance).
      */
-    covariance_t precision_matrix = error_covariance.inverse();
+    precision_t precision_matrix = error_covariance.inverse();
   };
 
   /**
@@ -243,11 +244,16 @@ protected:
 
   matrix3D_t marginalise(const matrix5D_t &);
 
+  state_t marginalise(const augmentedState_t &, const matrix5D_t &);
+
   augmentedState_t createAugmentedState(const EstimationParameters &,
                                         const EstimationParameters &);
 
   augmentedCovariance_t createAugmentedCovariance(const EstimationParameters &,
                                                   const EstimationParameters &);
+
+  augmentedPrecision_t createAugmentedPrecision(const EstimationParameters &,
+                                                const EstimationParameters &);
 
   void normaliseAngle(double &);
 
