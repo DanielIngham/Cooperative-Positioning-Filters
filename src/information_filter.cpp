@@ -114,38 +114,18 @@ void InformationFilter::performInference() {
 void InformationFilter::prediction(const Robot::Odometry &odometry,
                                    EstimationParameters &ego_robot) {
 
-  double sample_period = data_.getSamplePeriod();
+  const double sample_period = data_.getSamplePeriod();
 
   /* Make the prediction using the motion model: 3x1 matrix. */
-  ego_robot.state_estimate << ego_robot.state_estimate(X) +
-                                  odometry.forward_velocity * sample_period *
-                                      std::cos(ego_robot.state_estimate(
-                                          ORIENTATION)),
-      ego_robot.state_estimate(Y) +
-          odometry.forward_velocity * sample_period *
-              std::sin(ego_robot.state_estimate(ORIENTATION)),
-      ego_robot.state_estimate(ORIENTATION) +
-          odometry.angular_velocity * sample_period;
-
-  /* Normalise the orientation estimate between -180 and 180. */
-  normaliseAngle(ego_robot.state_estimate(ORIENTATION));
+  motionModel(odometry, ego_robot, sample_period);
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  ego_robot.motion_jacobian << 1, 0,
-      -odometry.forward_velocity * sample_period *
-          std::sin(ego_robot.state_estimate(ORIENTATION)),
-      0, 1,
-      odometry.forward_velocity * sample_period *
-          std::cos(ego_robot.state_estimate(ORIENTATION)),
-      0, 0, 1;
+  calculateMotionJacobian(odometry, ego_robot, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  ego_robot.process_jacobian
-      << sample_period * std::cos(ego_robot.state_estimate(ORIENTATION)),
-      0, sample_period * std::sin(ego_robot.state_estimate(ORIENTATION)), 0, 0,
-      sample_period;
+  calculateProcessJacobian(ego_robot, sample_period);
 
-  /* Propagate the estimation error covariance: 3x3 matrix. */
+  /* Propagate the estimation information: 3x3 matrix. */
   ego_robot.precision_matrix =
       (ego_robot.motion_jacobian * ego_robot.precision_matrix.inverse() *
            ego_robot.motion_jacobian.transpose() +
