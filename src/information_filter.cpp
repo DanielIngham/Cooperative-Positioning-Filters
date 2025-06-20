@@ -86,15 +86,6 @@ void InformationFilter::performInference() {
 
         correction(robot_parameters[id], measured_object);
 
-        /* Recover the state estimate and covariance from the infomation form.
-         */
-        robot_parameters[id].state_estimate =
-            robot_parameters[id].precision_matrix.inverse() *
-            robot_parameters[id].information_vector;
-
-        /* Normalise the orientation estimate between -180 and 180. */
-        normaliseAngle(robot_parameters[id].state_estimate(ORIENTATION));
-
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
         robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
@@ -167,12 +158,8 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* NOTE: Measurement noise Jacobian is identity. No need to calculate. */
 
   /* Populate the predicted measurement matrix. */
-  Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
-
-  predicted_measurement << std::sqrt((x_difference * x_difference) +
-                                     (y_difference * y_difference)),
-      std::atan2(y_difference, x_difference) -
-          ego_robot.state_estimate[ORIENTATION];
+  measurement_t predicted_measurement =
+      measurementModel(ego_robot, other_object);
 
   /* Calculate the measurement residual: the difference between the measurement
    * and the calculate measurement based on the estimated states of both robots.
@@ -234,4 +221,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
           precision_matrix.bottomRightCorner<total_states, total_states>()
               .inverse() *
           information_vector.tail<total_states>();
+
+  ego_robot.state_estimate =
+      ego_robot.precision_matrix.inverse() * ego_robot.information_vector;
 }
