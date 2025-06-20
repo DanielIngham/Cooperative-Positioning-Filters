@@ -132,30 +132,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
                                    const EstimationParameters &other_object) {
 
   /* Calculate measurement Jacobian */
-  double x_difference =
-      other_object.state_estimate(X) - ego_robot.state_estimate(X);
-
-  double y_difference =
-      other_object.state_estimate(Y) - ego_robot.state_estimate(Y);
-
-  double denominator =
-      std::sqrt(x_difference * x_difference + y_difference * y_difference);
-
-  const double MIN_DISTANCE = 1e-6;
-  if (denominator < MIN_DISTANCE) {
-    denominator = MIN_DISTANCE;
-  }
-
-  Eigen::Matrix<double, total_measurements, 2 * total_states>
-      measurement_jacobian;
-
-  measurement_jacobian << -x_difference / denominator,
-      -y_difference / denominator, 0, x_difference / denominator,
-      y_difference / denominator, 0, y_difference / (denominator * denominator),
-      -x_difference / (denominator * denominator), -1,
-      -y_difference / (denominator * denominator),
-      x_difference / (denominator * denominator), 0;
-  /* NOTE: Measurement noise Jacobian is identity. No need to calculate. */
+  calculateMeasurementJacobian(ego_robot, other_object);
 
   /* Populate the predicted measurement matrix. */
   measurement_t predicted_measurement =
@@ -170,37 +147,27 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  Eigen::Matrix<double, 2 * total_states, 1> estimated_state;
-  estimated_state.setZero();
-
-  estimated_state.head<total_states>() = ego_robot.state_estimate;
-  estimated_state.tail<total_states>() = other_object.state_estimate;
+  augmentedState_t estimated_state =
+      createAugmentedState(ego_robot, other_object);
 
   /* Calculate the Information contribution */
-  Eigen::Matrix<double, 2 * total_states, 2 * total_states>
-      precision_matrix_contribution =
-          measurement_jacobian.transpose() *
-          ego_robot.measurement_noise.inverse() * measurement_jacobian;
+  augmentedPrecision_t precision_matrix_contribution =
+      ego_robot.measurement_jacobian.transpose() *
+      ego_robot.measurement_noise.inverse() * ego_robot.measurement_jacobian;
 
-  Eigen::Matrix<double, 2 * total_states, 1> information_vector_contribution =
-      measurement_jacobian.transpose() * ego_robot.measurement_noise.inverse() *
-      (ego_robot.innovation + measurement_jacobian * estimated_state);
+  augmentedState_t information_vector_contribution =
+      ego_robot.measurement_jacobian.transpose() *
+      ego_robot.measurement_noise.inverse() *
+      (ego_robot.innovation + ego_robot.measurement_jacobian * estimated_state);
 
   /* Create a temporary augmented matrix  containing the information matrix of
    * both objects. */
-  Eigen::Matrix<double, 2 * total_states, 2 * total_states> precision_matrix;
-
-  precision_matrix.topLeftCorner<total_states, total_states>() =
-      ego_robot.precision_matrix;
-
-  precision_matrix.bottomRightCorner<total_states, total_states>() =
-      other_object.precision_matrix;
+  augmentedPrecision_t precision_matrix =
+      createAugmentedPrecision(ego_robot, other_object);
 
   /* Create a temporary augmented vector containing the information vector of
    * both objects. */
-  Eigen::Matrix<double, 2 * total_states, 1> information_vector;
-
-  information_vector = precision_matrix * estimated_state;
+  augmentedState_t information_vector = precision_matrix * estimated_state;
 
   /* Add the information contribution. */
   precision_matrix += precision_matrix_contribution;
@@ -208,19 +175,10 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 
   /* Schur complement-based error covariance marginalisation. This is used to
    * marginalise the 5x5 matrix to a 3x3 matrix */
-  ego_robot.precision_matrix =
-      precision_matrix.topLeftCorner<total_states, total_states>() -
-      precision_matrix.topRightCorner<total_states, total_states>() *
-          precision_matrix.bottomRightCorner<total_states, total_states>()
-              .inverse() *
-          precision_matrix.bottomLeftCorner<total_states, total_states>();
+  ego_robot.precision_matrix = marginalise(precision_matrix);
 
   ego_robot.information_vector =
-      information_vector.head<total_states>() -
-      precision_matrix.topRightCorner<total_states, total_states>() *
-          precision_matrix.bottomRightCorner<total_states, total_states>()
-              .inverse() *
-          information_vector.tail<total_states>();
+      marginalise(information_vector, precision_matrix);
 
   ego_robot.state_estimate =
       ego_robot.precision_matrix.inverse() * ego_robot.information_vector;
