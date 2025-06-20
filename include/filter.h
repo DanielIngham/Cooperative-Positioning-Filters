@@ -26,6 +26,40 @@ protected:
   enum { RANGE = 0, BEARING = 1 };
   enum { X = 0, Y = 1, ORIENTATION = 2 };
 
+  typedef Eigen::Matrix<double, total_states, 1> state_t;
+  typedef Eigen::Matrix<double, 2 + total_states, 1> augmentedState_t;
+
+  typedef Eigen::Matrix<double, total_states, total_states> matrix3D_t;
+  typedef Eigen::Matrix<double, 2 + total_states, 2 + total_states> matrix5D_t;
+
+  typedef matrix3D_t covariance_t;
+  typedef matrix5D_t augmentedCovariance_t;
+
+  typedef matrix5D_t augmentedPrecision_t;
+
+  typedef Eigen::Matrix<double, total_measurements, 1> measurement_t;
+  typedef Eigen::Matrix<double, total_measurements, total_measurements>
+      measurementCovariance_t;
+
+  typedef Eigen::Matrix<double, 2 + total_states, total_measurements>
+      kalmanGain_t;
+
+  typedef Eigen::Matrix<double, total_states, total_states> motionJacobian_t;
+  typedef Eigen::Matrix<double, total_states, total_inputs> processJacobian_t;
+  typedef Eigen::Matrix<double, total_measurements, 2 + total_states>
+      measurementJacobian_t;
+
+  typedef Eigen::Matrix<double, total_inputs, total_inputs> processCovariance_t;
+
+  typedef Eigen::Matrix<double, total_measurements, 1>
+      huberMeasurementThresholds_t;
+  typedef Eigen::Matrix<double, total_measurements, total_measurements>
+      huberMeasurementWeights_t;
+
+  typedef Eigen::Matrix<double, 2 + total_states, 1> huberStateThresholds_t;
+  typedef Eigen::Matrix<double, 2 + total_states, 2 + total_states>
+      huberStateWeights_t;
+
   /**
    * @brief Data class housing all the data pertaining to cooperative
    * localisation (positioning).
@@ -47,14 +81,12 @@ protected:
      * & y & \theta \end{bmatrix}^\top, \f] where \f$x\f$ and \f$y\f$ denotes
      * the robots 2D coordinates; and \f$\theta \f$ denotes the robots heading.
      */
-    Eigen::Matrix<double, total_states, 1> state_estimate =
-        Eigen::Matrix<double, total_states, 1>::Zero();
+    state_t state_estimate = state_t::Zero();
 
     /**
      * @brief Recieved range and bearing measurement: 2x1 matrix.
      */
-    Eigen::Matrix<double, total_measurements, 1> measurement =
-        Eigen::Matrix<double, total_measurements, 1>::Zero();
+    measurement_t measurement = measurement_t::Zero();
 
     /**
      * @brief The difference between the measurement recieved by the sensor and
@@ -64,14 +96,13 @@ protected:
      * k-1})\f], where \f$\mathbf{z}\f$ is the measurement taken, and
      * \f$x_{k\mid k-1}\f$ is the estimated state of the robot.
      */
-    Eigen::Matrix<double, total_measurements, 1> innovation;
+    measurement_t innovation = measurement_t::Zero();
 
     /**
      * @brief Measurement innovation covariance matrix: 2x2 matrix.
      */
-    Eigen::Matrix<double, total_measurements, total_measurements>
-        innovation_covariance = Eigen::Matrix<double, total_measurements,
-                                              total_measurements>::Zero();
+    measurementCovariance_t innovation_covariance =
+        measurementCovariance_t::Zero();
 
     /**
      * @brief The difference between the prior and posterior state estimtes.
@@ -79,7 +110,7 @@ protected:
      * \f[\delta \mathbf{x}_k = \mathbf{x}_{k\mid k-1} - \mathbf{x}_{k\mid k}
      * \f].
      */
-    Eigen::Matrix<double, 2 + total_states, 1> estimation_residual;
+    augmentedState_t estimation_residual = augmentedState_t::Zero();
 
     /**
      * @brief Estimation Error Covariance: 3x3 matrix.
@@ -87,8 +118,7 @@ protected:
      * therefore the prior estimation error covariance is initialised to a small
      * value.
      */
-    Eigen::Matrix<double, total_states, total_states> error_covariance =
-        Eigen::Matrix<double, total_states, total_states>::Identity() * 0.001;
+    covariance_t error_covariance = covariance_t::Identity() * 0.001;
 
     /**
      * @brief Kalman gain: 5x2 matrix.
@@ -97,8 +127,7 @@ protected:
      * covariances of both the ego and measured robots position [3+2]. See
      * EKF::correction.
      */
-    Eigen::Matrix<double, 2 + total_states, total_measurements> kalman_gain =
-        Eigen::Matrix<double, 2 + total_states, total_measurements>::Zero();
+    kalmanGain_t kalman_gain = kalmanGain_t::Zero();
 
     /**
      * @brief Odometry process noise covariance matrix: 2x2 matrix.
@@ -111,8 +140,7 @@ protected:
      * covariance between the forward velocity and the angular velocity is
      * assumed to be zero.
      */
-    Eigen::Matrix<double, total_inputs, total_inputs> process_noise =
-        Eigen::Matrix<double, total_inputs, total_inputs>::Zero();
+    processCovariance_t process_noise = processCovariance_t::Zero();
 
     /**
      * @brief Measurement noise covariance matrix: 2x2 matrix.
@@ -123,9 +151,7 @@ protected:
      * @note The measurement noise is assumed to be uncorrelated and therefore
      * the covariance between the range and bearing is assumed to be zero.
      */
-    Eigen::Matrix<double, total_measurements, total_measurements>
-        measurement_noise = Eigen::Matrix<double, total_measurements,
-                                          total_measurements>::Zero();
+    measurementCovariance_t measurement_noise = measurementCovariance_t::Zero();
 
     /**
      * @brief Jacobian matrix of the motion model.
@@ -140,8 +166,7 @@ protected:
      * EKF::EstimationParameters.measurement_noise. See EKF::prediction for
      * information on the motion model from which this was derived.
      */
-    Eigen::Matrix<double, total_states, total_states> motion_jacobian =
-        Eigen::Matrix<double, total_states, total_states>::Zero();
+    motionJacobian_t motion_jacobian = motionJacobian_t::Zero();
 
     /**
      * @brief Jacobian matrix of the process noise.
@@ -153,8 +178,8 @@ protected:
      * ego robot. measurement_noise. See EKF::prediction for information on the
      * motion model from which this was derived.
      */
-    Eigen::Matrix<double, total_states, total_inputs> process_jacobian =
-        Eigen::Matrix<double, total_states, total_inputs>::Zero();
+    processJacobian_t process_jacobian = processJacobian_t::Zero();
+
     /**
      * @brief Jacobian of the measurement model: 2 x 5 matrix.
      * @details The formula used for the calculation of the Jacobian of the
@@ -166,9 +191,7 @@ protected:
      * \end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
      * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
      */
-    Eigen::Matrix<double, total_measurements, 2 + total_states>
-        measurement_jacobian =
-            Eigen::Matrix<double, total_measurements, 2 + total_states>::Zero();
+    measurementJacobian_t measurement_jacobian = measurementJacobian_t::Zero();
 
     /**
      * @brief Information vector: 3x1 matrix.
@@ -182,8 +205,7 @@ protected:
      * \f$\mathbf{x}\f$ denotes the state of the system
      * (Filter::EstimationParameters.state_estimate).
      */
-    Eigen::Matrix<double, total_states, 1> information_vector =
-        Eigen::Matrix<double, total_states, 1>::Zero();
+    state_t information_vector = state_t::Zero();
 
     /**
      * @brief Precision matrix: 3x3 matrix.
@@ -192,8 +214,7 @@ protected:
      * \Sigma^{-1}\f], where \f$\Sigma\f$ denotes the estimation error
      * covariance matrix (Filter::EstimationParameters.error_covariance).
      */
-    Eigen::Matrix<double, total_states, total_states> precision_matrix =
-        error_covariance.inverse();
+    covariance_t precision_matrix = error_covariance.inverse();
   };
 
   /**
@@ -209,42 +230,37 @@ protected:
   void motionModel(const Robot::Odometry &, EstimationParameters &,
                    const double);
 
-  void motionJacobian(const Robot::Odometry &, EstimationParameters &,
-                      const double);
+  void calculateMotionJacobian(const Robot::Odometry &, EstimationParameters &,
+                               const double);
 
-  void processJacobian(EstimationParameters &, const double);
+  void calculateProcessJacobian(EstimationParameters &, const double);
 
-  Eigen::Matrix<double, total_measurements, 1>
-  measurementModel(EstimationParameters &, const EstimationParameters &);
+  measurement_t measurementModel(EstimationParameters &,
+                                 const EstimationParameters &);
 
   void calculateMeasurementJacobian(EstimationParameters &,
                                     const EstimationParameters &);
 
-  Eigen::Matrix<double, total_states, total_states>
-      marginalise(Eigen::Matrix<double, 2 + total_states, 2 + total_states>);
+  matrix3D_t marginalise(const matrix5D_t &);
 
-  Eigen::Matrix<double, 2 + total_states, 1>
-  createAugmentedState(const EstimationParameters &,
-                       const EstimationParameters &);
+  augmentedState_t createAugmentedState(const EstimationParameters &,
+                                        const EstimationParameters &);
 
-  Eigen::Matrix<double, 2 + total_states, 2 + total_states>
-  createAugmentedCovariance(const EstimationParameters &,
-                            const EstimationParameters &);
+  augmentedCovariance_t createAugmentedCovariance(const EstimationParameters &,
+                                                  const EstimationParameters &);
 
   void normaliseAngle(double &);
 
-  Eigen::Matrix<double, total_measurements, total_measurements>
-  HuberMeasurement(const Eigen::Matrix<double, total_measurements, 1> &,
-                   const Eigen::Matrix<double, total_measurements, 1> &);
+  huberMeasurementWeights_t
+  HuberMeasurement(const measurement_t &, const huberMeasurementThresholds_t &);
 
-  Eigen::Matrix<double, 2 + total_states, total_states + 2>
-  HuberState(const Eigen::Matrix<double, 2 + total_states, 1> &,
-             const Eigen::Matrix<double, 2 + total_states, 1> &);
+  huberStateWeights_t HuberState(const augmentedState_t &,
+                                 const huberStateThresholds_t &);
 
-  Eigen::Matrix<double, total_measurements, 1>
+  measurement_t
   calculateNormalisedMeasurementResidual(const EstimationParameters &);
 
-  Eigen::Matrix<double, 2 + total_states, 1>
+  augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);
 
 public:

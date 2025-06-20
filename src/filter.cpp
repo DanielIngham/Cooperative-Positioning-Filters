@@ -85,14 +85,13 @@ Filter::~Filter() = default;
  * @param [in] tau Tunable parameter \f$\tau\f$ that is used to determine if the
  * residual is too large.
  */
-Eigen::Matrix<double, Filter::total_measurements, Filter::total_measurements>
-Filter::HuberMeasurement(
+Filter::huberMeasurementWeights_t Filter::HuberMeasurement(
     const Eigen::Matrix<double, total_measurements, 1> &measurement_residual,
     const Eigen::Matrix<double, total_measurements, 1> &tau) {
 
   /* Reweight matrix that is used to adjust the covariance of outliers. */
-  Eigen::Matrix<double, total_measurements, total_measurements> weight_matrix =
-      Eigen::Matrix<double, total_measurements, total_measurements>::Identity();
+  huberMeasurementWeights_t weight_matrix =
+      huberMeasurementWeights_t::Identity();
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
@@ -113,14 +112,12 @@ Filter::HuberMeasurement(
  * @param [in] tau Tunable parameter \f$\tau\f$ that is used to determine if the
  * residual is too large.
  */
-Eigen::Matrix<double, 2 + Filter::total_states, 2 + Filter::total_states>
-Filter::HuberState(
-    const Eigen::Matrix<double, 2 + total_states, 1> &error_residual,
-    const Eigen::Matrix<double, 2 + total_states, 1> &tau) {
+Filter::huberStateWeights_t
+Filter::HuberState(const augmentedState_t &error_residual,
+                   const huberStateThresholds_t &tau) {
 
   /* Reweight matrix that is used to adjust the covariance of outliers. */
-  Eigen::Matrix<double, 2 + total_states, 2 + total_states> weight_matrix =
-      Eigen::Matrix<double, 2 + total_states, 2 + total_states>::Identity();
+  huberStateWeights_t weight_matrix = huberStateWeights_t::Identity();
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
@@ -134,6 +131,22 @@ Filter::HuberState(
   return weight_matrix;
 }
 
+/**
+ * @details The motion model used for the extended kalman filter prediction take
+ * the form
+ * \f[\begin{bmatrix} x_i^{(t+1)} \\  y_i^{(t+1)}
+ * \\ \theta_i^{(t+1)}\end{bmatrix} = \begin{bmatrix} x_i^{(t)} +
+ * \tilde{v}_i^{(t)}\Delta t\cos(\theta_i^{(t)}) \\ y_i^{(t)} +
+ * \tilde{v}_i^{(t)}\Delta t\sin(\theta_i^{(t)})\\ \theta_i^{(t)} +
+ * \tilde{\omega}_i^{(t)}\Delta t. \end{bmatrix}, \f] where \f$i\f$ denotes the
+ * robots ID; \f$t\f$ denotes the current timestep; \f$\Delta t\f$ denotes the
+ * sample period; \f$x\f$ and \f$y\f$ are the robots coordinates; \f$\theta\f$
+ * denotes the robots heading (orientation); \f$\tilde{v}_i\f$ denotes the
+ * forward velocity input; and \f$\tilde{\omega}\f$ denotes the angular velocity
+ * input. Both \f$\tilde{v}_i\f$ and \f$\tilde{\omega}_i\f$ are normally
+ * distributed random variables \f$\mathcal{N}(0,w)\f$ (see
+ * Filter::EstimationParameters::process_noise).
+ */
 void Filter::motionModel(const Robot::Odometry &odometry,
                          EstimationParameters &estimation_parameters,
                          const double sample_period) {
@@ -152,9 +165,9 @@ void Filter::motionModel(const Robot::Odometry &odometry,
   normaliseAngle(estimation_parameters.state_estimate(ORIENTATION));
 }
 
-void Filter::motionJacobian(const Robot::Odometry &odometry,
-                            EstimationParameters &estimation_parameters,
-                            const double sample_period) {
+void Filter::calculateMotionJacobian(
+    const Robot::Odometry &odometry,
+    EstimationParameters &estimation_parameters, const double sample_period) {
 
   estimation_parameters.motion_jacobian << 1, 0,
       -odometry.forward_velocity * sample_period *
@@ -165,8 +178,8 @@ void Filter::motionJacobian(const Robot::Odometry &odometry,
       0, 0, 1;
 }
 
-void Filter::processJacobian(EstimationParameters &estimation_parameters,
-                             const double sample_period) {
+void Filter::calculateProcessJacobian(
+    EstimationParameters &estimation_parameters, const double sample_period) {
 
   estimation_parameters.process_jacobian
       << sample_period *
@@ -177,10 +190,33 @@ void Filter::processJacobian(EstimationParameters &estimation_parameters,
       0, 0, sample_period;
 }
 
-Eigen::Matrix<double, Filter::total_measurements, 1>
+/**
+ * @details The measusurement model for the measurement taken from ego vehicle
+ * \f$i\f$ to vehicle \f$j\f$ used for the correction step takes the form
+ * \f[ \begin{bmatrix} r_{ij}^{(t)} \\ \phi_{ij}^{(t)}\end{bmatrix} =
+ * \begin{bmatrix}\sqrt{(x_j^{(t)} - x_i^{(t)})^2 + (y_j^{(t)} - y_i^{(t)})^2} +
+ * q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
+ * }\right) - \theta_i^{(t)} + q_\phi\end{bmatrix}, \f] where \f$x\f$ and
+ * \f$y\f$ denote the robots coordinates; \f$\theta\f$ denotes the ego robots
+ * orientation (heading); and \f$q_r\f$ and \f$q_\omega\f$ denote the Gaussian
+ * distributed measurement noise (See
+ * EKF::EstimationParameters.measurement_noise).
+ *
+ * @note Cooperative Localisation (Positioning) involves robots that share thier
+ * state and estimation error covariances when one robot measures the other. As
+ * a result, the estimation error covariance needs to be augmented from a 3x3 to
+ * a 6x6 matrix to house the error covariance of both the ego vehicle (\f$i\f$)
+ * and the measured vehicle (\f$j\f$):
+ * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
+ * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
+ * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot
+ * \f$i\f$ and the observed robot \f$j\f$ respectively.
+ */
+Filter::measurement_t
 Filter::measurementModel(EstimationParameters &ego_robot,
                          const EstimationParameters &other_object) {
 
+  /* Calculate the terms */
   const double x_difference =
       other_object.state_estimate(X) - ego_robot.state_estimate(X);
 
@@ -190,17 +226,19 @@ Filter::measurementModel(EstimationParameters &ego_robot,
   double denominator =
       std::sqrt(x_difference * x_difference + y_difference * y_difference);
 
+  /* Prevent division by zero and floating point precision errors. */
   const double MIN_DISTANCE = 1e-6;
   if (denominator < MIN_DISTANCE) {
     denominator = MIN_DISTANCE;
   }
 
-  Eigen::Matrix<double, total_measurements, 1> predicted_measurement;
-
-  predicted_measurement << std::sqrt((x_difference * x_difference) +
-                                     (y_difference * y_difference)),
-      std::atan2(y_difference, x_difference) -
-          ego_robot.state_estimate[ORIENTATION];
+  /* Calculate the predicted measurement based on the estimated states. */
+  measurement_t predicted_measurement =
+      (measurement_t() << std::sqrt((x_difference * x_difference) +
+                                    (y_difference * y_difference)),
+       std::atan2(y_difference, x_difference) -
+           ego_robot.state_estimate(ORIENTATION))
+          .finished();
 
   normaliseAngle(predicted_measurement(BEARING));
 
@@ -238,12 +276,9 @@ void Filter::calculateMeasurementJacobian(
  * incorporating the marginalising the contributions of the error covariance
  * from the other robot states into the covariance of the ego robot.
  */
-Eigen::Matrix<double, Filter::total_states, Filter::total_states>
-Filter::marginalise(
-    Eigen::Matrix<double, 2 + Filter::total_states, 2 + Filter::total_states>
-        matrix_5d) {
+Filter::matrix3D_t Filter::marginalise(const matrix5D_t &matrix_5d) {
 
-  Eigen::Matrix<double, total_states, total_states> matrix_3d =
+  covariance_t matrix_3d =
       matrix_5d.topLeftCorner<total_states, total_states>() -
       matrix_5d.topRightCorner<total_states, total_states - 1>() *
           matrix_5d.bottomRightCorner<total_states - 1, total_states - 1>()
@@ -253,12 +288,11 @@ Filter::marginalise(
   return matrix_3d;
 }
 
-Eigen::Matrix<double, 2 + Filter::total_states, 1>
+Filter::augmentedState_t
 Filter::createAugmentedState(const EstimationParameters &ego_robot,
                              const EstimationParameters &other_object) {
 
-  Eigen::Matrix<double, 2 + Filter::total_states, 1> state_estimate =
-      Eigen::Matrix<double, 2 + Filter::total_states, 1>::Zero();
+  augmentedState_t state_estimate = augmentedState_t::Zero();
 
   state_estimate.head<total_states>() = ego_robot.state_estimate;
   state_estimate.tail<total_states - 1>() =
@@ -267,13 +301,11 @@ Filter::createAugmentedState(const EstimationParameters &ego_robot,
   return state_estimate;
 }
 
-Eigen::Matrix<double, 2 + Filter::total_states, 2 + Filter::total_states>
+Filter::augmentedCovariance_t
 Filter::createAugmentedCovariance(const EstimationParameters &ego_robot,
                                   const EstimationParameters &other_object) {
-  Eigen::Matrix<double, 2 + Filter::total_states, 2 + Filter::total_states>
-      matrix;
 
-  matrix.setZero();
+  augmentedCovariance_t matrix = augmentedCovariance_t::Zero();
 
   matrix.topLeftCorner<3, 3>() = ego_robot.error_covariance;
 
@@ -295,13 +327,12 @@ void Filter::normaliseAngle(double &angle) {
     angle += 2.0 * M_PI;
 }
 
-Eigen::Matrix<double, Filter::total_measurements, 1>
-Filter::calculateNormalisedMeasurementResidual(
+Filter::measurement_t Filter::calculateNormalisedMeasurementResidual(
     const EstimationParameters &filter) {
 
   /* Calculate the Cholesky of the innovation */
-  Eigen::LLT<Eigen::Matrix<double, total_measurements, total_measurements>>
-      innovatation_cholesky(filter.innovation_covariance);
+  Eigen::LLT<measurementCovariance_t> innovatation_cholesky(
+      filter.innovation_covariance);
 
   if (innovatation_cholesky.info() != Eigen::Success) {
     throw std::runtime_error(
@@ -309,27 +340,24 @@ Filter::calculateNormalisedMeasurementResidual(
         "the innovation error covariance");
   }
 
-  Eigen::Matrix<double, total_measurements, total_measurements>
-      innovatation_cholesky_matrix = innovatation_cholesky.matrixL();
+  measurementCovariance_t innovatation_cholesky_matrix =
+      innovatation_cholesky.matrixL();
 
-  Eigen::Matrix<double, total_measurements, 1> normalised_measurement_residual =
+  measurement_t normalised_measurement_residual =
       innovatation_cholesky_matrix.inverse() * filter.innovation;
 
   return normalised_measurement_residual;
 }
 
-Eigen::Matrix<double, 2 + Filter::total_states, 1>
-Filter::calculateNormalisedEstimationResidual(
+Filter::augmentedState_t Filter::calculateNormalisedEstimationResidual(
     const EstimationParameters &filter) {
 
   /* Calculate the mean of the estimation residual (innovation). */
-  Eigen::LLT<Eigen::Matrix<double, 2 + total_states, 2 + total_states>>
-      error_covariance_cholesky(filter.kalman_gain *
-                                    filter.innovation_covariance *
-                                    filter.kalman_gain.transpose() +
-                                Eigen::Matrix<double, 2 + total_states,
-                                              2 + total_states>::Identity() *
-                                    1e-3);
+  Eigen::LLT<augmentedCovariance_t> error_covariance_cholesky(
+      filter.kalman_gain * filter.innovation_covariance *
+          filter.kalman_gain.transpose() +
+      Eigen::Matrix<double, 2 + total_states, 2 + total_states>::Identity() *
+          1e-3);
 
   if (error_covariance_cholesky.info() != Eigen::Success) {
 
@@ -338,10 +366,10 @@ Filter::calculateNormalisedEstimationResidual(
                              "the estimation error covariance");
   }
 
-  Eigen::Matrix<double, 2 + total_states, 2 + total_states>
-      error_covariance_cholesky_matrix = error_covariance_cholesky.matrixL();
+  augmentedCovariance_t error_covariance_cholesky_matrix =
+      error_covariance_cholesky.matrixL();
 
-  Eigen::Matrix<double, 2 + total_states, 1> normalised_error_residual =
+  augmentedState_t normalised_error_residual =
       error_covariance_cholesky_matrix.inverse() * filter.estimation_residual;
 
   return normalised_error_residual;
