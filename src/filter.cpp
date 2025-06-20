@@ -293,9 +293,10 @@ Filter::state_t Filter::marginalise(const augmentedState_t &vector,
 
   state_t new_vector =
       vector.head<total_states>() -
-      matrix_5d.topRightCorner<total_states, total_states>() *
-          matrix_5d.bottomRightCorner<total_states, total_states>().inverse() *
-          vector.tail<total_states>();
+      matrix_5d.topRightCorner<total_states, total_states - 1>() *
+          matrix_5d.bottomRightCorner<total_states - 1, total_states - 1>()
+              .inverse() *
+          vector.tail<total_states - 1>();
 
   return new_vector;
 }
