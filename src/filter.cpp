@@ -160,22 +160,22 @@ void Filter::performInference() {
          * landmarks. Therefore if the ID is less than or equal to the number
          * of robots, then it belongs to a robot, otherwise it belong to a
          * landmark. */
-        EstimationParameters measured_object;
+        EstimationParameters measured_agent;
 
         if (subject_id <= data_.getNumberOfRobots()) {
           unsigned short index = subject_id - 1;
-          measured_object = robot_parameters[index];
+          measured_agent = robot_parameters[index];
 
         } else {
           unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
-          measured_object = landmark_parameters[index];
+          measured_agent = landmark_parameters[index];
         }
 
         /* Determine whether the filter should use the huber cost function for
          * the correction. */
         bool robust = true;
 
-        correction(robot_parameters[id], measured_object, robust);
+        correction(robot_parameters[id], measured_agent, robust);
 
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
@@ -247,8 +247,15 @@ Filter::HuberState(const augmentedState_t &error_residual,
 }
 
 /**
- * @details The motion model used for the extended kalman filter prediction take
- * the form
+ * @brief The unicycle motion model used to perform motion predictions.
+ *
+ * @param[in] odometry The prior inputs into the system comprising a forward and
+ * angular velocity.
+ * @param[in,out] estimation_parameters The estimation parameters of the ego
+ * robot.
+ * @param[in] sample_period The period between odometry measurements.
+ *
+ * @details The motion model used for robot takes the form:
  * \f[\begin{bmatrix} x_i^{(t+1)} \\  y_i^{(t+1)}
  * \\ \theta_i^{(t+1)}\end{bmatrix} = \begin{bmatrix} x_i^{(t)} +
  * \tilde{v}_i^{(t)}\Delta t\cos(\theta_i^{(t)}) \\ y_i^{(t)} +
@@ -280,6 +287,27 @@ void Filter::motionModel(const Robot::Odometry &odometry,
   normaliseAngle(estimation_parameters.state_estimate(ORIENTATION));
 }
 
+/**
+ * @brief Calculates the Jacobian matrix of the unicycle motion model in terms
+ * of the systems states (x,y,orientation).
+ *
+ * @param[in] odometry The prior inputs into the system comprising a forward and
+ * angular velocity.
+ * @param[in,out] estimation_parameters The estimation parameters of the ego
+ * robot.
+ * @param[in] sample_period The period between odometry measurements.
+ *
+ * @details The formula used for the calculation of the motion model
+ * Jacobian takes the form:
+ * \f[ F = \begin{bmatrix} 1 & 0 & -\tilde{v}\Delta t \sin(\theta) \\ 0 & 1
+ * & \tilde{v} \Delta t \cos(\theta) \\ 0 & 0 & 1 \end{bmatrix}, \f]
+ * where \f$\theta\f$ denotes the heading (orientation) of the ego vehicle;
+ * and \f$\tilde{v}\f$ denotes the forward velocity. The forward velocity is
+ * a random variable with Gaussian distributed noise \f$\mathcal{N}(0,w)\f$
+ * , where \f$w\f$ is defined by the covariance matrix
+ * Filter::EstimationParameters.measurement_noise. See Filter::motionModel for
+ * information on the motion model from which this was derived.
+ */
 void Filter::calculateMotionJacobian(
     const Robot::Odometry &odometry,
     EstimationParameters &estimation_parameters, const double sample_period) {
@@ -293,6 +321,22 @@ void Filter::calculateMotionJacobian(
       0, 0, 1;
 }
 
+/**
+ * @brief Calculates the Jacobian matrix of the motion model evaluated in terms
+ * of the process inputs.
+ *
+ * @param[in,out] estimation_parameters The estimation parameters of the ego
+ * robot.
+ * @param[in] sample_period The period between odometry measurements.
+ *
+ * @details The formula used for the calculation of the process noise
+ * Jacobian takes the form
+ * \f[L = \begin{bmatrix}\Delta t \cos(\theta) & 0 \\ \Delta t \sin(\theta)
+ * & 0 \\ 0 & \Delta t \end{bmatrix}, \f] where \f$\Delta t\f$ denotes the
+ * sample period; and \f$\theta\f$ denotes the heading (orientation) of the
+ * ego robot. measurement_noise. See EKF::prediction for information on the
+ * motion model from which this was derived.
+ */
 void Filter::calculateProcessJacobian(
     EstimationParameters &estimation_parameters, const double sample_period) {
 
@@ -306,6 +350,14 @@ void Filter::calculateProcessJacobian(
 }
 
 /**
+ * @brief Uses the non-linear measurement model to predict what the measurement
+ * from the system would be given the state estimates of the ego robot and
+ * measured agent.
+ *
+ * @param[in,out] ego_robot The estimation parameters of the ego robot.
+ * @param[in] other_agent The estimation parameters of the agent that was
+ * measured by the ego robot.
+ *
  * @details The measusurement model for the measurement taken from ego vehicle
  * \f$i\f$ to vehicle \f$j\f$ used for the correction step takes the form
  * \f[ \begin{bmatrix} r_{ij}^{(t)} \\ \phi_{ij}^{(t)}\end{bmatrix} =
@@ -315,19 +367,18 @@ void Filter::calculateProcessJacobian(
  * \f$y\f$ denote the robots coordinates; \f$\theta\f$ denotes the ego robots
  * orientation (heading); and \f$q_r\f$ and \f$q_\omega\f$ denote the Gaussian
  * distributed measurement noise (See
- * EKF::EstimationParameters.measurement_noise).
- *
+ * Filter::EstimationParameters.measurement_noise).
  */
 Filter::measurement_t
 Filter::measurementModel(EstimationParameters &ego_robot,
-                         const EstimationParameters &other_object) {
+                         const EstimationParameters &other_agent) {
 
   /* Calculate the terms */
   const double x_difference =
-      other_object.state_estimate(X) - ego_robot.state_estimate(X);
+      other_agent.state_estimate(X) - ego_robot.state_estimate(X);
 
   const double y_difference =
-      other_object.state_estimate(Y) - ego_robot.state_estimate(Y);
+      other_agent.state_estimate(Y) - ego_robot.state_estimate(Y);
 
   double denominator =
       std::sqrt(x_difference * x_difference + y_difference * y_difference);
@@ -351,14 +402,31 @@ Filter::measurementModel(EstimationParameters &ego_robot,
   return predicted_measurement;
 }
 
+/**
+ * @brief Jacobian of the measurement model evaluated in terms of the systems
+ * states: x,y, and heading.
+ *
+ * @param[in,out] ego_robot The estimation parameters of the ego robot.
+ * @param[in] other_agent The estimation parameters of the agent that was
+ * measured by the ego robot.
+ *
+ * @details The formula used for the calculation of the Jacobian of the
+ * measurement matrix between ego vehicle \f$i\f$ and measured vehicle
+ * \f$j\f$ take the form
+ * \f[ H = \begin{bmatrix} \frac{-\Delta x}{d} & \frac{-\Delta y}{d} & 0 &
+ * \frac{\Delta x}{d} & \frac{\Delta y}{d} \\ \frac{\Delta y}{d^2} &
+ * \frac{-\Delta x}{d^2} & -1 & \frac{-\Delta y}{d^2} & \frac{\Delta x}{d^2}
+ * \end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
+ * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
+ */
 void Filter::calculateMeasurementJacobian(
-    EstimationParameters &ego_robot, const EstimationParameters &other_object) {
+    EstimationParameters &ego_robot, const EstimationParameters &other_agent) {
 
   const double x_difference =
-      other_object.state_estimate(X) - ego_robot.state_estimate(X);
+      other_agent.state_estimate(X) - ego_robot.state_estimate(X);
 
   const double y_difference =
-      other_object.state_estimate(Y) - ego_robot.state_estimate(Y);
+      other_agent.state_estimate(Y) - ego_robot.state_estimate(Y);
 
   double denominator =
       std::sqrt(x_difference * x_difference + y_difference * y_difference);
@@ -377,10 +445,10 @@ void Filter::calculateMeasurementJacobian(
 }
 
 /**
- * @brief Schur complement-based error covariance marginalisation.
- * @details This is used to marginalise the 5x5 matrix to a 3x3 matrix by
- * incorporating the marginalising the contributions of the error covariance
- * from the other robot states into the covariance of the ego robot.
+ * @brief Schur complement-based marginalisation that marginalises a 5x5 matrix
+ * into a 3x3 matrix.
+ * @param[in] matrix_5d A 5x5 matrix.
+ * @returns A 3x3 matrix.
  */
 Filter::matrix3D_t Filter::marginalise(const matrix5D_t &matrix_5d) {
 
@@ -394,71 +462,78 @@ Filter::matrix3D_t Filter::marginalise(const matrix5D_t &matrix_5d) {
   return matrix_3d;
 }
 
-Filter::state_t Filter::marginalise(const augmentedState_t &vector,
+/**
+ * @brief Schur complement-based marginalisation that marginalises a 5x1 vector
+ * and 5x5 matrix into a 3x1 matrix.
+ * @param[in] vector3d A 5x1 vector.
+ * @param[in] matrix_5d A 5x5 matrix.
+ * @returns A 3x1 vector.
+ */
+Filter::state_t Filter::marginalise(const augmentedState_t &vector3d,
                                     const matrix5D_t &matrix_5d) {
 
   state_t new_vector =
-      vector.head<total_states>() -
+      vector3d.head<total_states>() -
       matrix_5d.topRightCorner<total_states, total_states - 1>() *
           matrix_5d.bottomRightCorner<total_states - 1, total_states - 1>()
               .inverse() *
-          vector.tail<total_states - 1>();
+          vector3d.tail<total_states - 1>();
 
   return new_vector;
 }
 
 /**
  * @brief Combines the 3 states of the ego vehicle (x,y,orientation), with the
- * position of the of the object measured to create a augmented state vector.
+ * position of the of the agent measured to create a augmented state vector.
  * @param[in] ego_robot the structure containing the estimation parameters of
  * the ego vehicle.
- * @param[in] other_object the structure containing the estimation parameters of
- * the object measured by the ego vehicle.
+ * @param[in] other_agent the structure containing the estimation parameters of
+ * the agent measured by the ego vehicle.
  * @returns A 5x1 state vector.
  */
 Filter::augmentedState_t
 Filter::createAugmentedState(const EstimationParameters &ego_robot,
-                             const EstimationParameters &other_object) {
+                             const EstimationParameters &other_agent) {
 
   augmentedState_t state_estimate = augmentedState_t::Zero();
 
   state_estimate.head<total_states>() = ego_robot.state_estimate;
   state_estimate.tail<total_states - 1>() =
-      other_object.state_estimate.head<total_states - 1>();
+      other_agent.state_estimate.head<total_states - 1>();
 
   return state_estimate;
 }
 
 /**
  * @brief Combines the 3x3 precision matrix of the ego robot with the 2x2
- * precision matrix object measured to create a 5x5 augmented precision matrix.
+ * precision matrix agent measured to create a 5x5 augmented precision matrix.
  * @param[in] ego_robot the structure containing the estimation parameters of
  * the ego vehicle.
- * @param[in] other_object the structure containing the estimation parameters of
- * the object measured by the ego vehicle.
+ * @param[in] other_agent the structure containing the estimation parameters of
+ * the agent measured by the ego vehicle.
  */
 Filter::augmentedPrecision_t
 Filter::createAugmentedPrecision(const EstimationParameters &ego_robot,
-                                 const EstimationParameters &other_object) {
+                                 const EstimationParameters &other_agent) {
 
   augmentedPrecision_t matrix = augmentedPrecision_t::Zero();
 
   matrix.topLeftCorner<3, 3>() = ego_robot.precision_matrix;
 
   matrix.bottomRightCorner<2, 2>() =
-      other_object.precision_matrix.topLeftCorner<2, 2>();
+      other_agent.precision_matrix.topLeftCorner<2, 2>();
 
   return matrix;
 }
 
 /**
  * @brief Combines the 3 states of the ego vehicle (x,y,orientation), with the
- * position of the of the object measured.
+ * position of the of the agent measured.
  *
  * @param[in] ego_robot the structure containing the estimation parameters of
  * the ego vehicle.
- * @param[in] other_object the structure containing the estimation parameters of
- * the object measured by the ego vehicle.
+ * @param[in] other_agent the structure containing the estimation parameters of
+ * the agent measured by the ego vehicle.
  *
  * @details Cooperative Localisation (Positioning) involves robots that share
  * thier state and estimation error covariances when one robot measures the
@@ -468,18 +543,18 @@ Filter::createAugmentedPrecision(const EstimationParameters &ego_robot,
  * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
  * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
  * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot
- * \f$i\f$ and the observed robot \f$j\f$ respectively.
+ * \f$i\f$ and the observed agent \f$j\f$ respectively.
  */
 Filter::augmentedCovariance_t
 Filter::createAugmentedCovariance(const EstimationParameters &ego_robot,
-                                  const EstimationParameters &other_object) {
+                                  const EstimationParameters &other_agent) {
 
   augmentedCovariance_t matrix = augmentedCovariance_t::Zero();
 
   matrix.topLeftCorner<3, 3>() = ego_robot.error_covariance;
 
   matrix.bottomRightCorner<2, 2>() =
-      other_object.error_covariance.topLeftCorner<2, 2>();
+      other_agent.error_covariance.topLeftCorner<2, 2>();
 
   return matrix;
 }
@@ -496,8 +571,15 @@ void Filter::normaliseAngle(double &angle) {
     angle += 2.0 * M_PI;
 }
 
-Filter::measurement_t Filter::calculateNormalisedMeasurementResidual(
-    const EstimationParameters &filter) {
+/**
+ * @brief Calculates the normalised residual of the value produced by the sensor
+ * measurement and the prior estimate passed through the non-linear measurement
+ * model.
+ * @param[in] filter The estimation parameters of the filter.
+ * @returns The normalised innovation.
+ */
+Filter::measurement_t
+Filter::calculateNormalisedInnovation(const EstimationParameters &filter) {
 
   /* Calculate the Cholesky of the innovation */
   Eigen::LLT<measurementCovariance_t> innovatation_cholesky(
@@ -518,6 +600,12 @@ Filter::measurement_t Filter::calculateNormalisedMeasurementResidual(
   return normalised_measurement_residual;
 }
 
+/**
+ * @brief Calculates the normalised residual of the initial estimate and updated
+ * estimate.
+ * @param[in] filter The estimation parameters of the filter.
+ * @returns The normalised estimation residual.
+ */
 Filter::augmentedState_t Filter::calculateNormalisedEstimationResidual(
     const EstimationParameters &filter) {
 

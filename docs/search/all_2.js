@@ -3,7 +3,7 @@ var searchData=
   ['calculatemeasurementjacobian_0',['calculateMeasurementJacobian',['../classFilter.html#af524f2b4f41c77c4a33f0b0740f0acea',1,'Filter']]],
   ['calculatemotionjacobian_1',['calculateMotionJacobian',['../classFilter.html#a8935f00bea104917f661880f1ba6e4bb',1,'Filter']]],
   ['calculatenormalisedestimationresidual_2',['calculateNormalisedEstimationResidual',['../classFilter.html#a9f8cd8c3c150fdc0ff98042b6dc391a0',1,'Filter']]],
-  ['calculatenormalisedmeasurementresidual_3',['calculateNormalisedMeasurementResidual',['../classFilter.html#ae3acc0cc1881c78df2e85e4d3647861b',1,'Filter']]],
+  ['calculatenormalisedinnovation_3',['calculateNormalisedInnovation',['../classFilter.html#abcc793aa365ec3ad5fec6395fd6de4c0',1,'Filter']]],
   ['calculateprocessjacobian_4',['calculateProcessJacobian',['../classFilter.html#af27ad742bcda8219bd3661837b5f783c',1,'Filter']]],
   ['computemeasurementtau_5',['computeMeasurementTau',['../classEKF.html#ad1ceefc48f8dccfbd49e93ea11107e4d',1,'EKF']]],
   ['computestatetau_6',['computeStateTau',['../classEKF.html#a342898639de2d86b016d785c4d88d07b',1,'EKF']]],

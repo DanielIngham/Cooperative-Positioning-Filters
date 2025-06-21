@@ -137,6 +137,7 @@ Private Member Functions</h2></td></tr>
 <tr class="memdesc:a61a61b784c4a89ce5364357a0e111741"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs the Extended Kalman correct step.  <br /></td></tr>
 <tr class="separator:a61a61b784c4a89ce5364357a0e111741"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a764e603ab8feede9c1d11e45af3f9b3d" id="r_a764e603ab8feede9c1d11e45af3f9b3d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEKF.html#a764e603ab8feede9c1d11e45af3f9b3d">robustCorrection</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memdesc:a764e603ab8feede9c1d11e45af3f9b3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">A robust version of the correction function that uses the Huber cost function to increase estimation error covariance of measurements that seem to be outliers.  <br /></td></tr>
 <tr class="separator:a764e603ab8feede9c1d11e45af3f9b3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1ceefc48f8dccfbd49e93ea11107e4d" id="r_ad1ceefc48f8dccfbd49e93ea11107e4d"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEKF.html#ad1ceefc48f8dccfbd49e93ea11107e4d">computeMeasurementTau</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
 <tr class="separator:ad1ceefc48f8dccfbd49e93ea11107e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -210,28 +211,34 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a98009b7c8834d1a7a99eb2d954fb5369 inherit pro_types_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classFilter"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classFilter')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classFilter.html">Filter</a></td></tr>
 <tr class="memitem:a6044b1e6f700aa6d3a4cb76cb07e990a inherit pro_methods_classFilter" id="r_a6044b1e6f700aa6d3a4cb76cb07e990a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a6044b1e6f700aa6d3a4cb76cb07e990a">motionModel</a> (const Robot::Odometry &amp;, <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const double)</td></tr>
+<tr class="memdesc:a6044b1e6f700aa6d3a4cb76cb07e990a inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">The unicycle motion model used to perform motion predictions.  <br /></td></tr>
 <tr class="separator:a6044b1e6f700aa6d3a4cb76cb07e990a inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8935f00bea104917f661880f1ba6e4bb inherit pro_methods_classFilter" id="r_a8935f00bea104917f661880f1ba6e4bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a8935f00bea104917f661880f1ba6e4bb">calculateMotionJacobian</a> (const Robot::Odometry &amp;, <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const double)</td></tr>
+<tr class="memdesc:a8935f00bea104917f661880f1ba6e4bb inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the Jacobian matrix of the unicycle motion model in terms of the systems states (x,y,orientation).  <br /></td></tr>
 <tr class="separator:a8935f00bea104917f661880f1ba6e4bb inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af27ad742bcda8219bd3661837b5f783c inherit pro_methods_classFilter" id="r_af27ad742bcda8219bd3661837b5f783c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#af27ad742bcda8219bd3661837b5f783c">calculateProcessJacobian</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const double)</td></tr>
+<tr class="memdesc:af27ad742bcda8219bd3661837b5f783c inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the Jacobian matrix of the motion model evaluated in terms of the process inputs.  <br /></td></tr>
 <tr class="separator:af27ad742bcda8219bd3661837b5f783c inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60deae2355ef47efef0d047f773e7def inherit pro_methods_classFilter" id="r_a60deae2355ef47efef0d047f773e7def"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a60deae2355ef47efef0d047f773e7def">measurementModel</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memdesc:a60deae2355ef47efef0d047f773e7def inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the non-linear measurement model to predict what the measurement from the system would be given the state estimates of the ego robot and measured agent.  <br /></td></tr>
 <tr class="separator:a60deae2355ef47efef0d047f773e7def inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af524f2b4f41c77c4a33f0b0740f0acea inherit pro_methods_classFilter" id="r_af524f2b4f41c77c4a33f0b0740f0acea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#af524f2b4f41c77c4a33f0b0740f0acea">calculateMeasurementJacobian</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memdesc:af524f2b4f41c77c4a33f0b0740f0acea inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jacobian of the measurement model evaluated in terms of the systems states: x,y, and heading.  <br /></td></tr>
 <tr class="separator:af524f2b4f41c77c4a33f0b0740f0acea inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1898000b368c27e199e1f0a55df2242c inherit pro_methods_classFilter" id="r_a1898000b368c27e199e1f0a55df2242c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a1898000b368c27e199e1f0a55df2242c">marginalise</a> (const <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> &amp;)</td></tr>
-<tr class="memdesc:a1898000b368c27e199e1f0a55df2242c inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schur complement-based error covariance marginalisation.  <br /></td></tr>
+<tr class="memdesc:a1898000b368c27e199e1f0a55df2242c inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schur complement-based marginalisation that marginalises a 5x5 matrix into a 3x3 matrix.  <br /></td></tr>
 <tr class="separator:a1898000b368c27e199e1f0a55df2242c inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c338eef230884d240532025711ad85a inherit pro_methods_classFilter" id="r_a8c338eef230884d240532025711ad85a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#acf283a126d6d70eefb18121172c5eb61">state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a8c338eef230884d240532025711ad85a">marginalise</a> (const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> &amp;)</td></tr>
+<tr class="memdesc:a8c338eef230884d240532025711ad85a inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schur complement-based marginalisation that marginalises a 5x1 vector and 5x5 matrix into a 3x1 matrix.  <br /></td></tr>
 <tr class="separator:a8c338eef230884d240532025711ad85a inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a732bead30b04ca65498c65781c42fc60 inherit pro_methods_classFilter" id="r_a732bead30b04ca65498c65781c42fc60"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a732bead30b04ca65498c65781c42fc60">createAugmentedState</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
-<tr class="memdesc:a732bead30b04ca65498c65781c42fc60 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the object measured to create a augmented state vector.  <br /></td></tr>
+<tr class="memdesc:a732bead30b04ca65498c65781c42fc60 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the agent measured to create a augmented state vector.  <br /></td></tr>
 <tr class="separator:a732bead30b04ca65498c65781c42fc60 inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeda906e5aea85f6454a2877c976ea09 inherit pro_methods_classFilter" id="r_afeda906e5aea85f6454a2877c976ea09"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a18b91f80a05f057eb4b940f894b40686">augmentedCovariance_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#afeda906e5aea85f6454a2877c976ea09">createAugmentedCovariance</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
-<tr class="memdesc:afeda906e5aea85f6454a2877c976ea09 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the object measured.  <br /></td></tr>
+<tr class="memdesc:afeda906e5aea85f6454a2877c976ea09 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the agent measured.  <br /></td></tr>
 <tr class="separator:afeda906e5aea85f6454a2877c976ea09 inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91be471f68a0b059f184a4b027fff1f4 inherit pro_methods_classFilter" id="r_a91be471f68a0b059f184a4b027fff1f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#ae6ce822c2a25bd57d0ca77fbade1f3ac">augmentedPrecision_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a91be471f68a0b059f184a4b027fff1f4">createAugmentedPrecision</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
-<tr class="memdesc:a91be471f68a0b059f184a4b027fff1f4 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3x3 precision matrix of the ego robot with the 2x2 precision matrix object measured to create a 5x5 augmented precision matrix.  <br /></td></tr>
+<tr class="memdesc:a91be471f68a0b059f184a4b027fff1f4 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3x3 precision matrix of the ego robot with the 2x2 precision matrix agent measured to create a 5x5 augmented precision matrix.  <br /></td></tr>
 <tr class="separator:a91be471f68a0b059f184a4b027fff1f4 inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09d48b8e5d7953d0bca6287957ef4280 inherit pro_methods_classFilter" id="r_a09d48b8e5d7953d0bca6287957ef4280"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a09d48b8e5d7953d0bca6287957ef4280">normaliseAngle</a> (double &amp;)</td></tr>
 <tr class="memdesc:a09d48b8e5d7953d0bca6287957ef4280 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalise an angle between \(\pi\) and \(-\pi\).  <br /></td></tr>
@@ -242,9 +249,11 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:ab14ab31c0a1875b53e4fa7373b61f2b6 inherit pro_methods_classFilter" id="r_ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a98009b7c8834d1a7a99eb2d954fb5369">huberStateWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab14ab31c0a1875b53e4fa7373b61f2b6">HuberState</a> (const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> &amp;)</td></tr>
 <tr class="memdesc:ab14ab31c0a1875b53e4fa7373b61f2b6 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber State cost function,.  <br /></td></tr>
 <tr class="separator:ab14ab31c0a1875b53e4fa7373b61f2b6 inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3acc0cc1881c78df2e85e4d3647861b inherit pro_methods_classFilter" id="r_ae3acc0cc1881c78df2e85e4d3647861b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ae3acc0cc1881c78df2e85e4d3647861b">calculateNormalisedMeasurementResidual</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
-<tr class="separator:ae3acc0cc1881c78df2e85e4d3647861b inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcc793aa365ec3ad5fec6395fd6de4c0 inherit pro_methods_classFilter" id="r_abcc793aa365ec3ad5fec6395fd6de4c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abcc793aa365ec3ad5fec6395fd6de4c0">calculateNormalisedInnovation</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memdesc:abcc793aa365ec3ad5fec6395fd6de4c0 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the normalised residual of the value produced by the sensor measurement and the prior estimate passed through the non-linear measurement model.  <br /></td></tr>
+<tr class="separator:abcc793aa365ec3ad5fec6395fd6de4c0 inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f8cd8c3c150fdc0ff98042b6dc391a0 inherit pro_methods_classFilter" id="r_a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a9f8cd8c3c150fdc0ff98042b6dc391a0">calculateNormalisedEstimationResidual</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memdesc:a9f8cd8c3c150fdc0ff98042b6dc391a0 inherit pro_methods_classFilter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the normalised residual of the initial estimate and updated estimate.  <br /></td></tr>
 <tr class="separator:a9f8cd8c3c150fdc0ff98042b6dc391a0 inherit pro_methods_classFilter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classFilter"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classFilter')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classFilter.html">Filter</a></td></tr>
 <tr class="memitem:a66f12ee7fad5d6be8bc9ad1680c2de00 inherit pro_attribs_classFilter" id="r_a66f12ee7fad5d6be8bc9ad1680c2de00"><td class="memItemLeft" align="right" valign="top">DataHandler &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a66f12ee7fad5d6be8bc9ad1680c2de00">data_</a></td></tr>
@@ -412,7 +421,7 @@ Additional Inherited Members</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>other_object</em>, </td>
+          <td class="paramname"><em>other_agent</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -437,7 +446,7 @@ Additional Inherited Members</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">ego_robot</td><td>The parameters required by the Extended Kalman filter to perform the correction step. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">other_object</td><td>The robot that was measured by the ego robot. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">other_agent</td><td>The robot that was measured by the ego robot. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">robust</td><td>Flag which determines whether the state and covariance should be updated using a robust cost function. </td></tr>
   </table>
   </dd>
@@ -513,7 +522,7 @@ Additional Inherited Members</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>other_object</em>&#160;</td>
+          <td class="paramname"><em>other_agent</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -527,6 +536,15 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>A robust version of the correction function that uses the Huber cost function to increase estimation error covariance of measurements that seem to be outliers. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">ego_robot</td><td>The estimation parameters of the ego robot. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">other_agent</td><td>The estimation parameters of the obejct that was measured by the ego robot. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

@@ -61,36 +61,36 @@ void IEKF::prediction(const Robot::Odometry &odometry,
 /**
  * @brief Performs the Iterative Extended Kalman correct step.
  * @param[in,out] ego_robot The estimation parameters of the ego robot.
- * @param[in] other_object The estimation parameters of the obejct that was
+ * @param[in] other_agent The estimation parameters of the obejct that was
  * measured by the ego robot.
  * @param[in] robust Flag which determines whether the robust version of the
  * cost function should be used.
  */
 void IEKF::correction(EstimationParameters &ego_robot,
-                      const EstimationParameters &other_object,
+                      const EstimationParameters &other_agent,
                       const bool robust) {
 
   if (robust) {
-    robustCorrection(ego_robot, other_object);
+    robustCorrection(ego_robot, other_agent);
     return;
   }
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t intial_state_estimate =
-      createAugmentedState(ego_robot, other_object);
+      createAugmentedState(ego_robot, other_agent);
 
   /* Create a vector to hold the iterative state estimate. */
   augmentedState_t iterative_state_estimate = intial_state_estimate;
 
   /* Create and populate new 5x5 error covariance matrix. */
   augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_object);
+      createAugmentedCovariance(ego_robot, other_agent);
 
   /* Perform the iterative update.  */
   for (int i = 0; i < this->max_iterations; i++) {
 
     /* Calculate measurement Jacobian */
-    calculateMeasurementJacobian(ego_robot, other_object);
+    calculateMeasurementJacobian(ego_robot, other_agent);
 
     /* Calculate Covariance Innovation: */
     ego_robot.innovation_covariance =
@@ -105,7 +105,7 @@ void IEKF::correction(EstimationParameters &ego_robot,
 
     /* Populate the predicted measurement matrix. */
     measurement_t predicted_measurement =
-        measurementModel(ego_robot, other_object);
+        measurementModel(ego_robot, other_agent);
 
     /* Calculate the measurement residual. */
     ego_robot.innovation = ego_robot.measurement - predicted_measurement;
@@ -153,22 +153,22 @@ void IEKF::correction(EstimationParameters &ego_robot,
  * function to increase estimation error covariance of measurements that seem to
  * be outliers.
  * @param[in,out] ego_robot The estimation parameters of the ego robot.
- * @param[in] other_object The estimation parameters of the obejct that was
+ * @param[in] other_agent The estimation parameters of the obejct that was
  * measured by the ego robot.
  */
 void IEKF::robustCorrection(EstimationParameters &ego_robot,
-                            const EstimationParameters &other_object) {
+                            const EstimationParameters &other_agent) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t initial_state_estimate =
-      createAugmentedState(ego_robot, other_object);
+      createAugmentedState(ego_robot, other_agent);
 
   /* Create the iterative state estimate matrix. */
   augmentedState_t iterative_state_estimate = initial_state_estimate;
 
   /* Create and populate 5x5 error covariance matrix. */
   augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_object);
+      createAugmentedCovariance(ego_robot, other_agent);
 
   /* Calculate the Cholesky Decomposition of the estimation error covariance */
   Eigen::LLT<augmentedCovariance_t> error_cholesky(error_covariance);
@@ -197,12 +197,12 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
   /* Perform the iterative update.  */
   for (int i = 0; i < max_iterations; i++) {
     /* Calculate measurement Jacobian */
-    calculateMeasurementJacobian(ego_robot, other_object);
+    calculateMeasurementJacobian(ego_robot, other_agent);
 
     /* Populate the predicted measurement matrix. */
 
     measurement_t predicted_measurement =
-        measurementModel(ego_robot, other_object);
+        measurementModel(ego_robot, other_agent);
 
     /* Calculate the measurement residual */
     ego_robot.innovation = (ego_robot.measurement - predicted_measurement);

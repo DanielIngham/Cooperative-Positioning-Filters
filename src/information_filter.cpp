@@ -59,12 +59,12 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
  * @brief Performs Information Filter correct step.
  * @param[in,out] ego_robot The parameters required by the Extended
  * Kalman filter to perform the correction step.
- * @param[in] other_object The robot that was measured by the ego robot.
+ * @param[in] other_agent The robot that was measured by the ego robot.
  * @param[in] robust Flag which determines whether the information and precision
  * should be updated using a robust cost function.
  */
 void InformationFilter::correction(EstimationParameters &ego_robot,
-                                   const EstimationParameters &other_object,
+                                   const EstimationParameters &other_agent,
                                    const bool robust) {
 
   /* WARN: Robust correction not implemented yet. */
@@ -80,11 +80,11 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   }
 
   /* Calculate measurement Jacobian. */
-  calculateMeasurementJacobian(ego_robot, other_object);
+  calculateMeasurementJacobian(ego_robot, other_agent);
 
   /* Populate the predicted measurement matrix. */
   measurement_t predicted_measurement =
-      measurementModel(ego_robot, other_object);
+      measurementModel(ego_robot, other_agent);
 
   /* Calculate the measurement residual: the difference between the measurement
    * and the calculate measurement based on the estimated states of both robots.
@@ -96,7 +96,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t estimated_state =
-      createAugmentedState(ego_robot, other_object);
+      createAugmentedState(ego_robot, other_agent);
 
   /* Calculate the Information contribution */
   augmentedPrecision_t precision_matrix_contribution =
@@ -111,7 +111,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Create a temporary augmented matrix  containing the information matrix of
    * both objects. */
   augmentedPrecision_t precision_matrix =
-      createAugmentedPrecision(ego_robot, other_object);
+      createAugmentedPrecision(ego_robot, other_agent);
 
   /* Create a temporary augmented vector containing the information vector of
    * both objects. */

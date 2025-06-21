@@ -163,42 +163,19 @@ protected:
     measurementCovariance_t measurement_noise = measurementCovariance_t::Zero();
 
     /**
-     * @brief Jacobian matrix of the motion model.
-     * @details The formula used for the calculation of the motion model
-     * Jacobian takes the form:
-     * \f[ F = \begin{bmatrix} 1 & 0 & -\tilde{v}\Delta t \sin(\theta) \\ 0 & 1
-     * & \tilde{v} \Delta t \cos(\theta) \\ 0 & 0 & 1 \end{bmatrix}, \f]
-     * where \f$\theta\f$ denotes the heading (orientation) of the ego vehicle;
-     * and \f$\tilde{v}\f$ denotes the forward velocity. The forward velocity is
-     * a random variable with Gaussian distributed noise \f$\mathcal{N}(0,w)\f$
-     * , where \f$w\f$ is defined by the covariance matrix
-     * EKF::EstimationParameters.measurement_noise. See EKF::prediction for
-     * information on the motion model from which this was derived.
+     * @brief Jacobian matrix of the motion model evaluated in terms of the
+     * systems states: x, y and orientation.
      */
     motionJacobian_t motion_jacobian = motionJacobian_t::Zero();
 
     /**
-     * @brief Jacobian matrix of the process noise.
-     * @details The formula used for the calculation of the process noise
-     * Jacobian takes the form
-     * \f[L = \begin{bmatrix}\Delta t \cos(\theta) & 0 \\ \Delta t \sin(\theta)
-     * & 0 \\ 0 & \Delta t \end{bmatrix}, \f] where \f$\Delta t\f$ denotes the
-     * sample period; and \f$\theta\f$ denotes the heading (orientation) of the
-     * ego robot. measurement_noise. See EKF::prediction for information on the
-     * motion model from which this was derived.
+     * @brief Jacobian matrix of the motion model evaluated in terms of the
+     * process inputs.
      */
     processJacobian_t process_jacobian = processJacobian_t::Zero();
 
     /**
      * @brief Jacobian of the measurement model: 2 x 5 matrix.
-     * @details The formula used for the calculation of the Jacobian of the
-     * measurement matrix between ego vehicle \f$i\f$ and measured vehicle
-     * \f$j\f$ take the form
-     * \f[ H = \begin{bmatrix} \frac{-\Delta x}{d} & \frac{-\Delta y}{d} & 0 &
-     * \frac{\Delta x}{d} & \frac{\Delta y}{d} \\ \frac{\Delta y}{d^2} &
-     * \frac{-\Delta x}{d^2} & -1 & \frac{-\Delta y}{d^2} & \frac{\Delta x}{d^2}
-     * \end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
-     * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
      */
     measurementJacobian_t measurement_jacobian = measurementJacobian_t::Zero();
 
@@ -278,8 +255,7 @@ protected:
   huberStateWeights_t HuberState(const augmentedState_t &,
                                  const huberStateThresholds_t &);
 
-  measurement_t
-  calculateNormalisedMeasurementResidual(const EstimationParameters &);
+  measurement_t calculateNormalisedInnovation(const EstimationParameters &);
 
   augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);

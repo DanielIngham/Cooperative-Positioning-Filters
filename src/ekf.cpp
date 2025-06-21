@@ -60,25 +60,25 @@ void EKF::prediction(const Robot::Odometry &odometry,
  * @brief Performs the Extended Kalman correct step.
  * @param[in,out] ego_robot The parameters required by the Extended
  * Kalman filter to perform the correction step.
- * @param[in] other_object The robot that was measured by the ego robot.
+ * @param[in] other_agent The robot that was measured by the ego robot.
  * @param[in] robust Flag which determines whether the state and covariance
  * should be updated using a robust cost function.
  */
 void EKF::correction(EstimationParameters &ego_robot,
-                     const EstimationParameters &other_object,
+                     const EstimationParameters &other_agent,
                      const bool robust) {
 
   if (robust) {
-    robustCorrection(ego_robot, other_object);
+    robustCorrection(ego_robot, other_agent);
     return;
   }
 
   /* Calculate measurement Jacobian */
-  calculateMeasurementJacobian(ego_robot, other_object);
+  calculateMeasurementJacobian(ego_robot, other_agent);
 
   /* Create and populate new 5x5 error covariance matrix. */
   augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_object);
+      createAugmentedCovariance(ego_robot, other_agent);
 
   /* Calculate Covariance Innovation: */
   ego_robot.innovation_covariance =
@@ -97,11 +97,11 @@ void EKF::correction(EstimationParameters &ego_robot,
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t state_estimate =
-      createAugmentedState(ego_robot, other_object);
+      createAugmentedState(ego_robot, other_agent);
 
   /* Populate the predicted measurement matrix. */
   measurement_t predicted_measurement =
-      measurementModel(ego_robot, other_object);
+      measurementModel(ego_robot, other_agent);
 
   /* Calculate the innovation: the difference between the measurement
    * and the predicted measurement based on the estimated states of both robots.
@@ -122,18 +122,26 @@ void EKF::correction(EstimationParameters &ego_robot,
   ego_robot.error_covariance = marginalise(error_covariance);
 }
 
+/**
+ * @brief A robust version of the correction function that uses the Huber cost
+ * function to increase estimation error covariance of measurements that seem to
+ * be outliers.
+ * @param[in,out] ego_robot The estimation parameters of the ego robot.
+ * @param[in] other_agent The estimation parameters of the obejct that was
+ * measured by the ego robot.
+ */
 void EKF::robustCorrection(EstimationParameters &ego_robot,
-                           const EstimationParameters &other_object) {
+                           const EstimationParameters &other_agent) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t intial_state_estimate =
-      createAugmentedState(ego_robot, other_object);
+      createAugmentedState(ego_robot, other_agent);
 
   augmentedState_t iterative_state_estimate = intial_state_estimate;
 
   /* Create and populate new 5x5 error covariance matrix. */
   augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_object);
+      createAugmentedCovariance(ego_robot, other_agent);
 
   /* Calculate the Cholesky Decomposition of the estimation error covariance */
   Eigen::LLT<augmentedCovariance_t> error_cholesky(error_covariance);
@@ -160,11 +168,11 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
       measurement_cholesky.matrixL();
 
   /* Calculate measurement Jacobian */
-  calculateMeasurementJacobian(ego_robot, other_object);
+  calculateMeasurementJacobian(ego_robot, other_agent);
 
   /* Populate the predicted measurement matrix. */
   measurement_t predicted_measurement =
-      measurementModel(ego_robot, other_object);
+      measurementModel(ego_robot, other_agent);
 
   /* Calculate the measurement residual: the difference between the
    * measurement and the calculate measurement based on the estimated states
