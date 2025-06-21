@@ -13,7 +13,6 @@
 
 #include <DataHandler/DataHandler.h>
 #include <Eigen/Dense>
-#include <vector>
 
 /**
  * @class EKF
@@ -27,11 +26,8 @@ class EKF : public Filter {
 public:
   explicit EKF(DataHandler &data);
   ~EKF() override;
-  void performInference();
 
 private:
-  unsigned long total_observations = 0;
-
   Eigen::Matrix<double, total_measurements, 1> accumulative_innovation =
       Eigen::Matrix<double, total_measurements, 1>::Zero();
 
@@ -46,13 +42,12 @@ private:
       accummulative_estimation_covariance =
           Eigen::Matrix<double, 2 + total_states, 1>::Zero();
 
-  void prediction(const Robot::Odometry &, EstimationParameters &);
+  void prediction(const Robot::Odometry &, EstimationParameters &) override;
 
-  void correction(EstimationParameters &, const EstimationParameters &);
+  void correction(EstimationParameters &, const EstimationParameters &,
+                  const bool) override;
 
-  void robustCorrection(EstimationParameters &, const EstimationParameters &,
-                        Eigen::Matrix<double, total_measurements, 1> &,
-                        Eigen::Matrix<double, 2 + total_states, 1> &);
+  void robustCorrection(EstimationParameters &, const EstimationParameters &);
 
   Eigen::Matrix<double, total_measurements, 1>
   computeMeasurementTau(const EstimationParameters &);

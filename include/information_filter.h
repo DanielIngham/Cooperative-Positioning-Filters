@@ -10,11 +10,10 @@ public:
   InformationFilter(DataHandler &data);
   ~InformationFilter() override;
 
-  void performInference();
-
 private:
-  void prediction(const Robot::Odometry &, EstimationParameters &);
-  void correction(EstimationParameters &, const EstimationParameters &);
+  void prediction(const Robot::Odometry &, EstimationParameters &) override;
+  void correction(EstimationParameters &, const EstimationParameters &,
+                  const bool) override;
 };
 
 #endif // INCLUDE_INCLUDE_INFORMATION_H_

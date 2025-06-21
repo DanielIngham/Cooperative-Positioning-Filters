@@ -30,151 +30,6 @@ IEKF::IEKF(DataHandler &data) : Filter(data) {}
 IEKF::~IEKF() {}
 
 /**
- * @brief Performs robot state inference using the EKF bayesian inference
- * framework for all robots provided.
- */
-void IEKF::performInference() {
-  std::vector<Robot> &robots = this->data_.getRobots();
-  std::vector<Landmark> landmarks = data_.getLandmarks();
-
-  /* Loop through each timestep and perform inference.  */
-  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
-
-  std::ofstream file("output/normalised_innovation.dat");
-  if (!file.is_open()) {
-    throw std::runtime_error("Unable to create normalised_innovation.dat");
-  }
-  std::ofstream file2("output/normalised_estimation.dat");
-
-  if (!file2.is_open()) {
-    throw std::runtime_error("Unable to create normalised_innovation.dat");
-  }
-
-  for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
-
-    /* Perform prediction for each robot using odometry values. */
-    for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-
-      Robot::Odometry odometry(robots[id].synced.odometry[k].time,
-                               robots[id].synced.odometry[k].forward_velocity,
-                               robots[id].synced.odometry[k].angular_velocity);
-      prediction(odometry, robot_parameters[id]);
-
-      /* Update the robot state data structure. */
-      robots[id].synced.states.push_back(
-          Robot::State(robots[id].groundtruth.states[k].time,
-                       robot_parameters[id].state_estimate(X),
-                       robot_parameters[id].state_estimate(Y),
-                       robot_parameters[id].state_estimate(ORIENTATION)));
-    }
-
-    /* If a measurements are available, loop through each measurement
-     * and update the estimate. */
-    for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-
-      /* Range check. */
-      if (measurement_index[id] >= robots[id].synced.measurements.size()) {
-        continue;
-      }
-
-      /* Check if a measurement is available. */
-      if (std::round(
-              (robots[id].synced.measurements[measurement_index[id]].time -
-               robots[id].synced.odometry[k].time) *
-              10000.0) /
-              10000.0 !=
-          0.0) {
-        continue;
-      }
-
-      /* Loop through the measurements taken and perform the measurement
-       * update for each robot.
-       * NOTE: This operation uses the assumption that the measurements fo the
-       * indpendent robots/landmarks are independent of one another.
-       */
-      const Robot::Measurement &current_measurement =
-          robots[id].synced.measurements[measurement_index[id]];
-
-      for (unsigned short j = 0; j < current_measurement.subjects.size(); j++) {
-        /* Find the subject for whom the barcode belongs to. */
-        int subject_id = data_.getID(current_measurement.subjects[j]);
-
-        if (-1 == subject_id) {
-          continue;
-        }
-        /* Populate the measurement matrix required for the correction step.
-         * Remove any noise bias from the measurement.
-         */
-        robot_parameters[id].measurement << current_measurement.ranges[j],
-            current_measurement.bearings[j];
-
-        /* The datahandler first assigns the ID to the robots then the
-         * landmarks. Therefore if the ID is less than or equal to the number
-         * of robots, then it belongs to a robot, otherwise it belong to a
-         * landmark. */
-        EstimationParameters measured_object;
-
-        if (subject_id <= data_.getNumberOfRobots()) {
-          unsigned short index = subject_id - 1;
-          measured_object = robot_parameters[index];
-
-        } else {
-          unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
-          measured_object = landmark_parameters[index];
-        }
-
-        bool robust = true;
-
-        if (robust) {
-
-          Eigen::Matrix<double, total_measurements, 1> measurement_tau;
-          measurement_tau << 0.2, 0.01;
-
-          Eigen::Matrix<double, 2 + total_states, 1> state_tau;
-          state_tau << 0.155, 0.154, 0.255, 10.0051104, 10.001104;
-
-          robustCorrection(robot_parameters[id], measured_object,
-                           measurement_tau, state_tau);
-
-        } else {
-
-          correction(robot_parameters[id], measured_object);
-        }
-
-        Eigen::Matrix<double, total_measurements, 1> measurement =
-            calculateNormalisedMeasurementResidual(robot_parameters[id]);
-
-        file << measurement(RANGE) << '\t' << measurement(BEARING) << '\n';
-
-        Eigen::Matrix<double, 2 + total_states, 1> estimation =
-            calculateNormalisedEstimationResidual(robot_parameters[id]);
-
-        file2 << estimation(X) << '\t' << estimation(Y) << '\t'
-              << estimation(ORIENTATION) << '\t' << estimation(X + 2) << '\t'
-              << estimation(Y + 2) << '\n';
-
-        /* Update the robot state data structure. */
-        robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
-        robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
-        robots[id].synced.states[k].orientation =
-            robot_parameters[id].state_estimate(ORIENTATION);
-
-        double error = robots[id].synced.states[k].orientation -
-                       robots[id].groundtruth.states[k].orientation;
-
-        normaliseAngle(error);
-      }
-      measurement_index[id] += 1;
-    }
-  }
-
-  /* Calculate the inference error. */
-  for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-    robots[id].calculateStateError();
-  }
-}
-
-/**
  * @brief performs the prediction step of the Extended Kalman filter.
  * @param[in] odometry The prior inputs into the system comprising a forward and
  * angular velocity.
@@ -227,7 +82,13 @@ void IEKF::prediction(const Robot::Odometry &odometry,
  * @param[in] other_object The robot that was measured by the ego robot.
  */
 void IEKF::correction(EstimationParameters &ego_robot,
-                      const EstimationParameters &other_object) {
+                      const EstimationParameters &other_object,
+                      const bool robust) {
+
+  if (robust) {
+    robustCorrection(ego_robot, other_object);
+    return;
+  }
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t intial_state_estimate =
@@ -303,9 +164,7 @@ void IEKF::correction(EstimationParameters &ego_robot,
 }
 
 void IEKF::robustCorrection(EstimationParameters &ego_robot,
-                            const EstimationParameters &other_object,
-                            huberMeasurementThresholds_t &measurement_taus,
-                            huberStateThresholds_t &state_taus) {
+                            const EstimationParameters &other_object) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t initial_state_estimate =

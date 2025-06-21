@@ -10,8 +10,6 @@
 #include <DataHandler/Landmark.h>
 #include <DataHandler/Robot.h>
 #include <cmath>
-#include <fstream>
-#include <iostream>
 #include <stdexcept>
 
 /**
@@ -28,127 +26,6 @@ EKF::EKF(DataHandler &data) : Filter(data) {}
 EKF::~EKF() {}
 
 /**
- * @brief Performs robot state inference using the EKF bayesian inference
- * framework for all robots provided.
- */
-void EKF::performInference() {
-  std::vector<Robot> &robots = this->data_.getRobots();
-  std::vector<Landmark> landmarks = data_.getLandmarks();
-
-  /* Loop through each timestep and perform inference.  */
-  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
-
-  for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
-
-    /* Perform prediction for each robot using odometry values. */
-    for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-
-      Robot::Odometry odometry(robots[id].synced.odometry[k].time,
-                               robots[id].synced.odometry[k].forward_velocity,
-                               robots[id].synced.odometry[k].angular_velocity);
-
-      prediction(odometry, robot_parameters[id]);
-
-      /* Update the robot state data structure. */
-      robots[id].synced.states.push_back(
-          Robot::State(robots[id].groundtruth.states[k].time,
-                       robot_parameters[id].state_estimate(X),
-                       robot_parameters[id].state_estimate(Y),
-                       robot_parameters[id].state_estimate(ORIENTATION)));
-    }
-
-    /* If a measurements are available, loop through each measurement
-     * and update the estimate. */
-    for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-
-      /* Range check. */
-      if (measurement_index[id] >= robots[id].synced.measurements.size()) {
-        continue;
-      }
-
-      /* Check if a measurement is not available for this time stamp, then skip.
-       */
-      if (std::round(
-              (robots[id].synced.measurements[measurement_index[id]].time -
-               robots[id].synced.odometry[k].time) *
-              10000.0) /
-              10000.0 !=
-          0.0) {
-        continue;
-      }
-
-      /* Loop through the measurements taken and perform the measurement
-       * update for each robot.
-       * NOTE: This operation uses the assumption that the measurements fo the
-       * indpendent robots/landmarks are independent of one another.
-       */
-      const Robot::Measurement &current_measurement =
-          robots[id].synced.measurements[measurement_index[id]];
-
-      for (unsigned short j = 0; j < current_measurement.subjects.size(); j++) {
-        /* Find the subject for whom the barcode belongs to. */
-        int subject_id = data_.getID(current_measurement.subjects[j]);
-
-        if (-1 == subject_id) {
-          continue;
-        }
-        /* Populate the measurement matrix required for the correction step.
-         * Remove any noise bias from the measurement.
-         */
-        robot_parameters[id].measurement << current_measurement.ranges[j],
-            current_measurement.bearings[j];
-
-        /* The datahandler first assigns the ID to the robots then the
-         * landmarks. Therefore if the ID is less than or equal to the number
-         * of robots, then it belongs to a robot, otherwise it belong to a
-         * landmark. */
-        EstimationParameters measured_object;
-
-        if (subject_id <= data_.getNumberOfRobots()) {
-          unsigned short index = subject_id - 1;
-          measured_object = robot_parameters[index];
-
-        } else {
-          unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
-          measured_object = landmark_parameters[index];
-        }
-
-        total_observations++;
-
-        /* Determine whether the filter should use the huber cost function for
-         * the correction. */
-        bool robust = true;
-        if (robust) {
-          huberMeasurementThresholds_t measurement_tau =
-              (huberMeasurementThresholds_t() << 0.2, 0.01).finished();
-
-          huberStateThresholds_t state_tau =
-              (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104)
-                  .finished();
-
-          robustCorrection(robot_parameters[id], measured_object,
-                           measurement_tau, state_tau);
-        } else {
-          correction(robot_parameters[id], measured_object);
-        }
-
-        /* Update the robot state data structure. */
-        robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
-        robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
-        robots[id].synced.states[k].orientation =
-            robot_parameters[id].state_estimate(ORIENTATION);
-      }
-      measurement_index[id] += 1;
-    }
-  }
-
-  /* Calculate the inference error. */
-  for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-    robots[id].calculateStateError();
-  }
-}
-
-/**
  * @brief performs the prediction step of the Extended Kalman filter.
  * @param[in] odometry The prior inputs into the system comprising a forward and
  * angular velocity.
@@ -158,7 +35,7 @@ void EKF::performInference() {
 void EKF::prediction(const Robot::Odometry &odometry,
                      EstimationParameters &estimation_parameters) {
 
-  double sample_period = data_.getSamplePeriod();
+  const double sample_period = data_.getSamplePeriod();
 
   /* Make the prediction using the motion model: 3x1 matrix. */
   motionModel(odometry, estimation_parameters, sample_period);
@@ -208,7 +85,13 @@ void EKF::prediction(const Robot::Odometry &odometry,
  * \f$i\f$ and the observed robot \f$j\f$ respectively.
  */
 void EKF::correction(EstimationParameters &ego_robot,
-                     const EstimationParameters &other_object) {
+                     const EstimationParameters &other_object,
+                     const bool robust) {
+
+  if (robust) {
+    robustCorrection(ego_robot, other_object);
+    return;
+  }
 
   /* Calculate measurement Jacobian */
   calculateMeasurementJacobian(ego_robot, other_object);
@@ -260,9 +143,7 @@ void EKF::correction(EstimationParameters &ego_robot,
 }
 
 void EKF::robustCorrection(EstimationParameters &ego_robot,
-                           const EstimationParameters &other_object,
-                           huberMeasurementThresholds_t &measurement_tau,
-                           huberStateThresholds_t &state_tau) {
+                           const EstimationParameters &other_object) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t intial_state_estimate =
@@ -316,7 +197,7 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
   /* Calculate the new robust sensor error covariance. */
   measurementCovariance_t reweighted_measurement_covariance =
       measurement_cholesky_matrix *
-      HuberMeasurement(ego_robot.innovation, measurement_tau).inverse() *
+      HuberMeasurement(ego_robot.innovation, measurement_taus).inverse() *
       measurement_cholesky_matrix.transpose();
 
   /* Calculate Covariance Innovation. */
@@ -342,10 +223,6 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
   normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
 
   /* Resize matrices back to normal */
-  /* NOTE: The resize means all information regarding the observed robots
-   * states is lost. This operates on the assumption that the error covariance
-   * is uncorrelated, which may lead to the estimator being over confident in
-   * bad estimates. */
   ego_robot.state_estimate = iterative_state_estimate.head<total_states>();
 
   /* Calculate the reweighted error covariance. */
@@ -353,7 +230,7 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
       (augmentedCovariance_t::Identity() -
        ego_robot.kalman_gain * ego_robot.measurement_jacobian) *
       error_cholesky_matrix *
-      HuberState(ego_robot.estimation_residual, state_tau).inverse() *
+      HuberState(ego_robot.estimation_residual, state_taus).inverse() *
       error_cholesky_matrix.transpose();
 
   /* Marginalise the 5x5 back to a 3x3. */

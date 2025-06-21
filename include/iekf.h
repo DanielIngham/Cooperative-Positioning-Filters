@@ -12,7 +12,6 @@
 
 #include <DataHandler/DataHandler.h>
 #include <Eigen/Dense>
-#include <vector>
 
 /**
  * @class EKF
@@ -26,17 +25,15 @@ class IEKF : public Filter {
 public:
   explicit IEKF(DataHandler &data);
   ~IEKF() override;
-  void performInference();
 
 private:
   const unsigned short max_iterations = 2;
 
-  void prediction(const Robot::Odometry &, EstimationParameters &);
+  void prediction(const Robot::Odometry &, EstimationParameters &) override;
 
-  void correction(EstimationParameters &, const EstimationParameters &);
+  void correction(EstimationParameters &, const EstimationParameters &,
+                  const bool) override;
 
-  void robustCorrection(EstimationParameters &, const EstimationParameters &,
-                        Eigen::Matrix<double, total_measurements, 1> &,
-                        Eigen::Matrix<double, 2 + total_states, 1> &);
+  void robustCorrection(EstimationParameters &, const EstimationParameters &);
 };
 #endif // INCLUDE_INCLUDE_IEKF_H_

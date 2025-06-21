@@ -228,6 +228,13 @@ protected:
    */
   std::vector<EstimationParameters> landmark_parameters;
 
+  const huberMeasurementThresholds_t measurement_taus =
+      (huberMeasurementThresholds_t() << 0.2, 0.01).finished();
+
+  const huberStateThresholds_t state_taus =
+      (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104)
+          .finished();
+
   void motionModel(const Robot::Odometry &, EstimationParameters &,
                    const double);
 
@@ -269,9 +276,16 @@ protected:
   augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);
 
+  virtual void prediction(const Robot::Odometry &, EstimationParameters &) = 0;
+
+  virtual void correction(EstimationParameters &, const EstimationParameters &,
+                          const bool) = 0;
+
 public:
   explicit Filter(DataHandler &data);
   virtual ~Filter();
+
+  void performInference();
 };
 
 #endif // INCLUDE_SRC_FILTER_H_
