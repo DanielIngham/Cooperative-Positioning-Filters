@@ -1,0 +1,14 @@
+<map id="/home/dan/Code/UTIAS&#45;Multi&#45;Robot/Filters/src/information_filter.cpp" name="/home/dan/Code/UTIAS&#45;Multi&#45;Robot/Filters/src/information_filter.cpp">
+<area shape="rect" id="Node000001" title="Implementation of the Extended Information Filter (information form of the Extended Kalman Filter)." alt="" coords="115,5,303,60"/>
+<area shape="rect" id="Node000002" href="$information__filter_8h.html" title=" " alt="" coords="67,108,214,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,62,161,99,156,95,186,58"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="238,108,318,133"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="232,58,262,95,258,99,228,62"/>
+<area shape="rect" id="Node000003" href="$filter_8h.html" title="Header file of the parent class containing shared functionality amoung cooperative localsiation filte..." alt="" coords="144,181,207,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="149,132,166,168,161,170,144,135"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,255,207,280"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="140,134,115,242,109,241,135,133"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="166,209,129,247,125,243,162,205"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="231,255,333,280"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="194,204,255,245,252,249,191,209"/>
+</map>

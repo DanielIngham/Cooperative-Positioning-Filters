@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['bearing_0',['BEARING',['../classEKF.html#ad14d0e959f5a05a22086b0f342f5dae4a850085b592e9c71d4d900e3d9718a874',1,'EKF']]]
+  ['bearing_0',['BEARING',['../classFilter.html#acbdaca886699c972117f94ffe51b4dc3a402b53ad6ce69c409cd0a45dd2f8f103',1,'Filter']]]
 ];

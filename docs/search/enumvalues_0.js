@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['angular_5fvelocity_0',['ANGULAR_VELOCITY',['../classEKF.html#a9be91e07dc8da506019287f923ace8fdaf657d79bd316f7994a5a32afa2a55858',1,'EKF']]]
+  ['angular_5fvelocity_0',['ANGULAR_VELOCITY',['../classFilter.html#a67b5def0caef38a7a877eed7207254a1abee4449c059b835dcc658eb2d4de9fd6',1,'Filter']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['innovation_0',['innovation',['../structEKF_1_1EstimationParameters.html#aae9222b90924123250afa659385ebd0c',1,'EKF::EstimationParameters']]]
+  ['data_5f_0',['data_',['../classFilter.html#a66f12ee7fad5d6be8bc9ad1680c2de00',1,'Filter']]]
 ];

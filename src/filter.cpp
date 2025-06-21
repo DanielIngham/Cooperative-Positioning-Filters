@@ -1,3 +1,11 @@
+/**
+ * @file filter.cpp
+ * @brief Implementation of the shared functionality across cooperative
+ * localisation filters.
+ * @author Daniel Ingham
+ * @date 2025-05-01
+ */
+
 #include "filter.h"
 #include <DataHandler/DataHandler.h>
 
@@ -214,7 +222,7 @@ Filter::huberMeasurementWeights_t Filter::HuberMeasurement(
 
 /**
  * @brief Huber State cost function,
- * @param [in] measurement_residual The difference between the measurement and
+ * @param [in] error_residual The difference between the measurement and
  * the predicted measurement based on the states of the robots.
  * @param [in] tau Tunable parameter \f$\tau\f$ that is used to determine if the
  * residual is too large.
@@ -309,15 +317,6 @@ void Filter::calculateProcessJacobian(
  * distributed measurement noise (See
  * EKF::EstimationParameters.measurement_noise).
  *
- * @note Cooperative Localisation (Positioning) involves robots that share thier
- * state and estimation error covariances when one robot measures the other. As
- * a result, the estimation error covariance needs to be augmented from a 3x3 to
- * a 6x6 matrix to house the error covariance of both the ego vehicle (\f$i\f$)
- * and the measured vehicle (\f$j\f$):
- * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
- * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
- * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot
- * \f$i\f$ and the observed robot \f$j\f$ respectively.
  */
 Filter::measurement_t
 Filter::measurementModel(EstimationParameters &ego_robot,
@@ -408,6 +407,15 @@ Filter::state_t Filter::marginalise(const augmentedState_t &vector,
   return new_vector;
 }
 
+/**
+ * @brief Combines the 3 states of the ego vehicle (x,y,orientation), with the
+ * position of the of the object measured to create a augmented state vector.
+ * @param[in] ego_robot the structure containing the estimation parameters of
+ * the ego vehicle.
+ * @param[in] other_object the structure containing the estimation parameters of
+ * the object measured by the ego vehicle.
+ * @returns A 5x1 state vector.
+ */
 Filter::augmentedState_t
 Filter::createAugmentedState(const EstimationParameters &ego_robot,
                              const EstimationParameters &other_object) {
@@ -421,6 +429,14 @@ Filter::createAugmentedState(const EstimationParameters &ego_robot,
   return state_estimate;
 }
 
+/**
+ * @brief Combines the 3x3 precision matrix of the ego robot with the 2x2
+ * precision matrix object measured to create a 5x5 augmented precision matrix.
+ * @param[in] ego_robot the structure containing the estimation parameters of
+ * the ego vehicle.
+ * @param[in] other_object the structure containing the estimation parameters of
+ * the object measured by the ego vehicle.
+ */
 Filter::augmentedPrecision_t
 Filter::createAugmentedPrecision(const EstimationParameters &ego_robot,
                                  const EstimationParameters &other_object) {
@@ -435,6 +451,25 @@ Filter::createAugmentedPrecision(const EstimationParameters &ego_robot,
   return matrix;
 }
 
+/**
+ * @brief Combines the 3 states of the ego vehicle (x,y,orientation), with the
+ * position of the of the object measured.
+ *
+ * @param[in] ego_robot the structure containing the estimation parameters of
+ * the ego vehicle.
+ * @param[in] other_object the structure containing the estimation parameters of
+ * the object measured by the ego vehicle.
+ *
+ * @details Cooperative Localisation (Positioning) involves robots that share
+ * thier state and estimation error covariances when one robot measures the
+ * other. As a result, the estimation error covariance needs to be augmented
+ * from a 3x3 to a 3x3 matrix to house the error covariance of both the ego
+ * vehicle (\f$i\f$) and the measured vehicle (\f$j\f$):
+ * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
+ * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
+ * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot
+ * \f$i\f$ and the observed robot \f$j\f$ respectively.
+ */
 Filter::augmentedCovariance_t
 Filter::createAugmentedCovariance(const EstimationParameters &ego_robot,
                                   const EstimationParameters &other_object) {
@@ -451,7 +486,7 @@ Filter::createAugmentedCovariance(const EstimationParameters &ego_robot,
 
 /**
  * @brief Normalise an angle between \f$\pi\f$ and \f$-\pi\f$.
- * @param[inout] angle angle in radians.
+ * @param[inout] angle Angle in radians.
  */
 void Filter::normaliseAngle(double &angle) {
   while (angle >= M_PI)

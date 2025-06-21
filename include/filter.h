@@ -1,3 +1,11 @@
+/**
+ * @file filter.h
+ * @brief Header file of the parent class containing shared functionality amoung
+ * cooperative localsiation filters.
+ * @author Daniel Ingham
+ * @date 2025-05-01
+ */
+
 #ifndef INCLUDE_SRC_FILTER_H_
 #define INCLUDE_SRC_FILTER_H_
 

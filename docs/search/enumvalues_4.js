@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['range_0',['RANGE',['../classEKF.html#ad14d0e959f5a05a22086b0f342f5dae4aad6bbd8618ffba875029059bbc7fdc49',1,'EKF']]]
+  ['range_0',['RANGE',['../classFilter.html#acbdaca886699c972117f94ffe51b4dc3aef5f8b26a5819ddbd50445d7a73d7a98',1,'Filter']]]
 ];

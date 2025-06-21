@@ -85,21 +85,48 @@ $(function() {
   <div class="headertitle"><div class="title">main.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;DataHandler/DataHandler.h&gt;</code><br />
-<code>#include &lt;Eigen/Dense&gt;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="ekf_8h_source.html">ekf.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="iekf_8h_source.html">iekf.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="information__filter_8h_source.html">information_filter.h</a>&quot;</code><br />
+<code>#include &lt;DataHandler/DataHandler.h&gt;</code><br />
+<code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;cctype&gt;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for main.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="main_8cpp__incl.png" border="0" usemap="#a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2src_2main_8cpp" alt=""/></div>
 <map name="a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2src_2main_8cpp" id="a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2src_2main_8cpp">
-<area shape="rect" title=" " alt="" coords="197,5,367,60"/>
-<area shape="rect" title=" " alt="" coords="5,108,207,133"/>
-<area shape="poly" title=" " alt="" coords="229,62,143,104,141,100,227,58"/>
-<area shape="rect" title=" " alt="" coords="231,108,333,133"/>
-<area shape="poly" title=" " alt="" coords="285,60,285,94,279,94,279,60"/>
-<area shape="rect" title=" " alt="" coords="358,108,438,133"/>
-<area shape="poly" title=" " alt="" coords="319,58,372,97,369,102,316,62"/>
+<area shape="rect" title=" " alt="" coords="271,5,442,60"/>
+<area shape="rect" href="ekf_8h.html" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="283,108,337,133"/>
+<area shape="poly" title=" " alt="" coords="345,61,325,97,321,95,340,59"/>
+<area shape="rect" title=" " alt="" coords="52,255,253,280"/>
+<area shape="poly" title=" " alt="" coords="271,43,198,52,122,66,58,85,34,97,19,110,9,128,10,147,18,166,33,185,75,219,119,246,116,250,72,224,29,189,14,169,5,148,4,127,15,106,31,92,56,80,121,60,197,47,271,38"/>
+<area shape="rect" href="iekf_8h.html" title="Header file of the Iterative Extended Kalman Fitler implementation for multirobot cooperative positio..." alt="" coords="199,108,258,133"/>
+<area shape="poly" title=" " alt="" coords="319,62,259,103,256,98,316,58"/>
+<area shape="rect" href="information__filter_8h.html" title=" " alt="" coords="29,108,175,133"/>
+<area shape="poly" title=" " alt="" coords="280,63,149,106,148,101,278,58"/>
+<area shape="rect" title=" " alt="" coords="362,108,447,133"/>
+<area shape="poly" title=" " alt="" coords="374,59,394,95,389,97,369,61"/>
+<area shape="rect" title=" " alt="" coords="472,108,537,133"/>
+<area shape="poly" title=" " alt="" coords="403,58,474,99,472,103,401,62"/>
+<area shape="rect" title=" " alt="" coords="562,108,642,133"/>
+<area shape="poly" title=" " alt="" coords="433,58,557,101,556,106,431,63"/>
+<area shape="rect" title=" " alt="" coords="666,108,725,133"/>
+<area shape="poly" title=" " alt="" coords="443,52,653,105,652,110,441,57"/>
+<area shape="rect" href="filter_8h.html" title="Header file of the parent class containing shared functionality amoung cooperative localsiation filte..." alt="" coords="191,181,253,207"/>
+<area shape="poly" title=" " alt="" coords="298,135,249,175,245,170,294,131"/>
+<area shape="poly" title=" " alt="" coords="309,135,294,170,283,190,268,209,236,234,201,252,198,247,233,229,264,205,278,187,290,168,304,133"/>
+<area shape="rect" title=" " alt="" coords="291,255,393,280"/>
+<area shape="poly" title=" " alt="" coords="326,132,347,152,363,180,366,197,366,213,357,243,352,241,360,212,361,197,358,182,342,156,322,135"/>
+<area shape="poly" title=" " alt="" coords="212,209,175,247,171,243,209,205"/>
+<area shape="poly" title=" " alt="" coords="243,204,312,245,309,250,240,209"/>
+<area shape="poly" title=" " alt="" coords="230,134,227,168,222,168,225,133"/>
+<area shape="poly" title=" " alt="" coords="219,135,200,157,182,183,169,213,160,242,155,240,164,211,177,180,195,153,215,132"/>
+<area shape="poly" title=" " alt="" coords="240,132,327,242,323,246,236,135"/>
+<area shape="poly" title=" " alt="" coords="123,131,192,172,189,176,120,136"/>
+<area shape="poly" title=" " alt="" coords="109,133,147,241,142,243,104,135"/>
 </map>
 </div>
 </div><table class="memberdecls">

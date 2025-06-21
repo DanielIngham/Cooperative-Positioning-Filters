@@ -88,21 +88,23 @@ $(function() {
 
 <p>Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;DataHandler/DataHandler.h&gt;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="filter_8h_source.html">filter.h</a>&quot;</code><br />
+<code>#include &lt;DataHandler/DataHandler.h&gt;</code><br />
 <code>#include &lt;Eigen/Dense&gt;</code><br />
-<code>#include &lt;vector&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for ekf.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="ekf_8h__incl.png" border="0" usemap="#a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2include_2ekf_8h" alt=""/></div>
 <map name="a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2include_2ekf_8h" id="a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2include_2ekf_8h">
-<area shape="rect" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="197,5,367,60"/>
-<area shape="rect" title=" " alt="" coords="5,108,207,133"/>
-<area shape="poly" title=" " alt="" coords="229,62,143,104,141,100,227,58"/>
-<area shape="rect" title=" " alt="" coords="231,108,333,133"/>
-<area shape="poly" title=" " alt="" coords="285,60,285,94,279,94,279,60"/>
-<area shape="rect" title=" " alt="" coords="357,108,420,133"/>
-<area shape="poly" title=" " alt="" coords="316,58,365,97,362,101,313,62"/>
+<area shape="rect" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="118,5,289,60"/>
+<area shape="rect" href="filter_8h.html" title="Header file of the parent class containing shared functionality amoung cooperative localsiation filte..." alt="" coords="172,108,235,133"/>
+<area shape="poly" title=" " alt="" coords="206,60,206,94,201,94,201,60"/>
+<area shape="rect" title=" " alt="" coords="5,181,207,207"/>
+<area shape="poly" title=" " alt="" coords="190,62,122,171,118,168,185,59"/>
+<area shape="rect" title=" " alt="" coords="231,181,333,207"/>
+<area shape="poly" title=" " alt="" coords="223,59,250,107,276,167,271,169,245,109,218,62"/>
+<area shape="poly" title=" " alt="" coords="189,136,135,175,132,171,186,131"/>
+<area shape="poly" title=" " alt="" coords="218,131,261,170,257,174,214,135"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -110,9 +112,11 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="ekf_8h__dep__incl.png" border="0" usemap="#a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2include_2ekf_8hdep" alt=""/></div>
 <map name="a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2include_2ekf_8hdep" id="a_2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2include_2ekf_8hdep">
-<area shape="rect" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="5,5,176,60"/>
+<area shape="rect" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="103,5,273,60"/>
 <area shape="rect" href="ekf_8cpp.html" title="Implementation of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="5,108,176,163"/>
-<area shape="poly" title=" " alt="" coords="93,74,93,108,88,108,88,74"/>
+<area shape="poly" title=" " alt="" coords="155,72,118,110,114,106,151,68"/>
+<area shape="rect" href="main_8cpp.html" title=" " alt="" coords="200,108,371,163"/>
+<area shape="poly" title=" " alt="" coords="225,68,262,106,258,110,221,72"/>
 </map>
 </div>
 </div>
@@ -121,10 +125,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEKF.html">EKF</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extended Kalman Filter.  <a href="classEKF.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEKF_1_1EstimationParameters.html">EKF::EstimationParameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Houses the parameters required for performing Bayesian filtering.  <a href="structEKF_1_1EstimationParameters.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extended Kalman <a class="el" href="classFilter.html">Filter</a>.  <a href="classEKF.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['data_5f_0',['data_',['../classEKF.html#adb190e00703666defe2f1fee0bfaa060',1,'EKF']]]
+  ['data_5f_0',['data_',['../classFilter.html#a66f12ee7fad5d6be8bc9ad1680c2de00',1,'Filter']]]
 ];

@@ -1,26 +1,24 @@
 /**
- * @file ekf.cpp
- * @brief Implementation of the Extended Kalman Fitler implementation for
- * multirobot cooperative positioning.
+ * @file iekf.cpp
+ * @brief Implementation of the Iterative Extended Kalman Fitler implementation
+ * for multirobot cooperative positioning.
  * @author Daniel Ingham
  * @date 2025-05-01
  */
+
 #include "iekf.h"
 #include "filter.h"
+
 #include <DataHandler/Landmark.h>
 #include <DataHandler/Robot.h>
 #include <Eigen/Cholesky>
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <locale>
 #include <stdexcept>
 
 /**
- * @brief EKF class constructor.
+ * @brief IEKF class constructor.
  * @details This constructor sets up the prior states and parameters to perform
- * Extended Kalman filtering.
- * @param[in] data Class containing all robot data.
+ * Iterative Extended Kalman filtering.
+ * @param[in] data Class containing all robot and landmark data.
  */
 IEKF::IEKF(DataHandler &data) : Filter(data) {}
 
@@ -35,21 +33,6 @@ IEKF::~IEKF() {}
  * angular velocity.
  * @param[in,out] estimation_parameters The parameters required by the Extended
  * Kalman filter to perform the prediction step.
- *
- * @details The motion model used for the extended kalman filter prediction take
- * the form
- * \f[\begin{bmatrix} x_i^{(t+1)} \\  y_i^{(t+1)}
- * \\ \theta_i^{(t+1)}\end{bmatrix} = \begin{bmatrix} x_i^{(t)} +
- * \tilde{v}_i^{(t)}\Delta t\cos(\theta_i^{(t)}) \\ y_i^{(t)} +
- * \tilde{v}_i^{(t)}\Delta t\sin(\theta_i^{(t)})\\ \theta_i^{(t)} +
- * \tilde{\omega}_i^{(t)}\Delta t. \end{bmatrix}, \f] where \f$i\f$ denotes the
- * robots ID; \f$t\f$ denotes the current timestep; \f$\Delta t\f$ denotes the
- * sample period; \f$x\f$ and \f$y\f$ are the robots coordinates; \f$\theta\f$
- * denotes the robots heading (orientation); \f$\tilde{v}_i\f$ denotes the
- * forward velocity input; and \f$\tilde{\omega}\f$ denotes the angular velocity
- * input. Both \f$\tilde{v}_i\f$ and \f$\tilde{\omega}_i\f$ are normally
- * distributed random variables \f$\mathcal{N}(0,w)\f$ (see
- * EKF::EstimationParameters::process_noise).
  */
 void IEKF::prediction(const Robot::Odometry &odometry,
                       EstimationParameters &estimation_parameters) {
@@ -76,10 +59,12 @@ void IEKF::prediction(const Robot::Odometry &odometry,
 }
 
 /**
- * @brief Performs the Extended Kalman correct step.
- * @param[in,out] ego_robot The parameters required by the Extended
- * Kalman filter to perform the correction step.
- * @param[in] other_object The robot that was measured by the ego robot.
+ * @brief Performs the Iterative Extended Kalman correct step.
+ * @param[in,out] ego_robot The estimation parameters of the ego robot.
+ * @param[in] other_object The estimation parameters of the obejct that was
+ * measured by the ego robot.
+ * @param[in] robust Flag which determines whether the robust version of the
+ * cost function should be used.
  */
 void IEKF::correction(EstimationParameters &ego_robot,
                       const EstimationParameters &other_object,
@@ -163,6 +148,14 @@ void IEKF::correction(EstimationParameters &ego_robot,
   ego_robot.error_covariance = marginalise(error_covariance);
 }
 
+/**
+ * @brief A robust version of the correction function that uses the Huber cost
+ * function to increase estimation error covariance of measurements that seem to
+ * be outliers.
+ * @param[in,out] ego_robot The estimation parameters of the ego robot.
+ * @param[in] other_object The estimation parameters of the obejct that was
+ * measured by the ego robot.
+ */
 void IEKF::robustCorrection(EstimationParameters &ego_robot,
                             const EstimationParameters &other_object) {
 
@@ -211,9 +204,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
     measurement_t predicted_measurement =
         measurementModel(ego_robot, other_object);
 
-    /* Calculate the measurement residual: the difference between the
-     * measurement and the calculate measurement based on the estimated states
-     * of both robots. */
+    /* Calculate the measurement residual */
     ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
     /* Normalise the bearing residual */
@@ -264,19 +255,11 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
   }
 
   /* Resize matrices back to normal */
-  /* NOTE: The resize means all information regarding the observed robots
-   * states is lost. This operates on the assumptoin that the error covariance
-   * is uncorrelated, which may lead to the estimator being over confident in
-   * bad estimates. */
   ego_robot.state_estimate = iterative_state_estimate.head<total_states>();
 
   /* Normalise the orientation estimate between -180 and 180. */
   normaliseAngle(ego_robot.state_estimate(ORIENTATION));
 
-  /* Schur complement-based error covariance marginalisation. This is used to
-   * marginalise the 5x5 matrix to a 3x3 matrix by incorporating the
-   * marginalising the contributions of the error covariance from the other
-   * robot states into the covariance of the ego robot. */
   /* Update estimation error covariance */
   error_covariance =
       (Eigen::Matrix<double, 5, 5>::Identity() -

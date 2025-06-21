@@ -1,9 +1,34 @@
-#include "information_filter.h"
+/**
+ * @file information_filter.cpp
+ * @brief Implementation of the Extended Information Filter (information form of
+ * the Extended Kalman Filter).
+ * @author Daniel Ingham
+ * @date 2025-06-21
+ */
 
+#include "information_filter.h"
+#include <iostream>
+
+/**
+ * @brief InformationFilter class constructor.
+ * @details This constructor sets up the prior states and parameters to perform
+ * Extended Information filtering.
+ * @param[in] data Class containing all robot and landmark data.
+ */
 InformationFilter::InformationFilter(DataHandler &data) : Filter(data) {}
 
+/**
+ * @brief Default destructor.
+ */
 InformationFilter::~InformationFilter() {}
 
+/**
+ * @brief performs the prediction step of the Information filter.
+ * @param[in] odometry The prior inputs into the system comprising a forward and
+ * angular velocity.
+ * @param[in,out] ego_robot The parameters required by the
+ * Information filter to perform the prediction step.
+ */
 void InformationFilter::prediction(const Robot::Odometry &odometry,
                                    EstimationParameters &ego_robot) {
 
@@ -30,16 +55,31 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
       ego_robot.precision_matrix * ego_robot.state_estimate;
 }
 
+/**
+ * @brief Performs Information Filter correct step.
+ * @param[in,out] ego_robot The parameters required by the Extended
+ * Kalman filter to perform the correction step.
+ * @param[in] other_object The robot that was measured by the ego robot.
+ * @param[in] robust Flag which determines whether the information and precision
+ * should be updated using a robust cost function.
+ */
 void InformationFilter::correction(EstimationParameters &ego_robot,
                                    const EstimationParameters &other_object,
                                    const bool robust) {
 
   /* WARN: Robust correction not implemented yet. */
   if (robust) {
-    return;
+    static bool first_time_called = true;
+    if (first_time_called)
+      first_time_called = false;
+
+    std::cerr
+        << "Warning: The robust version of the information filter has not been "
+           "implemented yet. The statndard correction step will be applied."
+        << std::endl;
   }
 
-  /* Calculate measurement Jacobian */
+  /* Calculate measurement Jacobian. */
   calculateMeasurementJacobian(ego_robot, other_object);
 
   /* Populate the predicted measurement matrix. */
@@ -51,7 +91,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
    */
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
-  /* Normalise the angle residual */
+  /* Normalise the angle residual. */
   normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Create the state matrix for both robot: 5x1 matrix. */
@@ -85,9 +125,11 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
    * marginalise the 5x5 matrix to a 3x3 matrix */
   ego_robot.precision_matrix = marginalise(precision_matrix);
 
+  /* Marginalise the 5x1 augmented information vector to a 3x1 state vector. */
   ego_robot.information_vector =
       marginalise(information_vector, precision_matrix);
 
+  /* Retrieve the original state estimate. */
   ego_robot.state_estimate =
       ego_robot.precision_matrix.inverse() * ego_robot.information_vector;
 }

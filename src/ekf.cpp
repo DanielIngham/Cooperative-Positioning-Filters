@@ -16,7 +16,7 @@
  * @brief EKF class constructor.
  * @details This constructor sets up the prior states and parameters to perform
  * Extended Kalman filtering.
- * @param[in] data Class containing all robot data.
+ * @param[in] data Class containing all robot and landmark data.
  */
 EKF::EKF(DataHandler &data) : Filter(data) {}
 
@@ -58,31 +58,11 @@ void EKF::prediction(const Robot::Odometry &odometry,
 
 /**
  * @brief Performs the Extended Kalman correct step.
- * @param[in,out] estimation_parameters The parameters required by the Extended
+ * @param[in,out] ego_robot The parameters required by the Extended
  * Kalman filter to perform the correction step.
- * @param[in] other_robot The robot that was measured by the ego robot.
- * @param[in] update Determines whether the state and covariance should be
- * updated.
- * @details The measusurement model for the measurement taken from ego vehicle
- * \f$i\f$ to vehicle \f$j\f$ used for the correction step takes the form
- * \f[ \begin{bmatrix} r_{ij}^{(t)} \\ \phi_{ij}^{(t)}\end{bmatrix} =
- * \begin{bmatrix}\sqrt{(x_j^{(t)} - x_i^{(t)})^2 + (y_j^{(t)} - y_i^{(t)})^2} +
- * q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
- * }\right) - \theta_i^{(t)} + q_\phi\end{bmatrix}, \f] where \f$x\f$ and
- * \f$y\f$ denote the robots coordinates; \f$\theta\f$ denotes the ego robots
- * orientation (heading); and \f$q_r\f$ and \f$q_\omega\f$ denote the Gaussian
- * distributed measurement noise (See
- * Filter::EstimationParameters.measurement_noise).
- *
- * @note Cooperative Localisation (Positioning) involves robots that share thier
- * state and estimation error covariances when one robot measures the other. As
- * a result, the estimation error covariance needs to be augmented from a 3x3 to
- * a 5x5 matrix to house the error covariance of both the ego vehicle (\f$i\f$)
- * and the measured vehicle (\f$j\f$):
- * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
- * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
- * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot
- * \f$i\f$ and the observed robot \f$j\f$ respectively.
+ * @param[in] other_object The robot that was measured by the ego robot.
+ * @param[in] robust Flag which determines whether the state and covariance
+ * should be updated using a robust cost function.
  */
 void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_object,

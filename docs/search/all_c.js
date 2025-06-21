@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['state_5festimate_0',['state_estimate',['../structEKF_1_1EstimationParameters.html#a70530931b536585cb4d65596982c4b4b',1,'EKF::EstimationParameters']]],
-  ['submodule_1',['Submodule',['../index.html#autotoc_md1',1,'']]]
+  ['orientation_0',['ORIENTATION',['../classFilter.html#a5e21eb08d103f49f82d8351cf5fdd95ea28c9af4aa5c4a0609ffcbea0ffafdb43',1,'Filter']]]
 ];

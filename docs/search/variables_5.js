@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['process_5fjacobian_0',['process_jacobian',['../structEKF_1_1EstimationParameters.html#adc85650c88046282e898063800dc9e47',1,'EKF::EstimationParameters']]],
-  ['process_5fnoise_1',['process_noise',['../structEKF_1_1EstimationParameters.html#acc26fbabb31552a0ab588ffd9935c920',1,'EKF::EstimationParameters']]]
+  ['kalman_5fgain_0',['kalman_gain',['../structFilter_1_1EstimationParameters.html#a7cc9e63a8fbe8a2d44925858a55b0973',1,'Filter::EstimationParameters']]]
 ];

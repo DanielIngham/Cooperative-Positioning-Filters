@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['total_5finputs_0',['total_inputs',['../classEKF.html#aa7223f059429231ac4d38324251a5c36',1,'EKF']]],
-  ['total_5fmeasurements_1',['total_measurements',['../classEKF.html#aa50dd0d9b81e347bb27539f516048f37',1,'EKF']]],
-  ['total_5fstates_2',['total_states',['../classEKF.html#ab04b2b1b31a37dab5eca409ce279ab7c',1,'EKF']]]
+  ['precision_5fmatrix_0',['precision_matrix',['../structFilter_1_1EstimationParameters.html#a483469057036b54b93622070ba7505ea',1,'Filter::EstimationParameters']]],
+  ['process_5fjacobian_1',['process_jacobian',['../structFilter_1_1EstimationParameters.html#a2faae595949cefcb02b66ff0c5286c3b',1,'Filter::EstimationParameters']]],
+  ['process_5fnoise_2',['process_noise',['../structFilter_1_1EstimationParameters.html#add1b912d2b15de0ac4d2be54da1510e0',1,'Filter::EstimationParameters']]]
 ];
