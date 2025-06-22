@@ -185,7 +185,7 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
   /* Calculate the new robust sensor error covariance. */
   measurementCovariance_t reweighted_measurement_covariance =
       measurement_cholesky_matrix *
-      HuberMeasurement(ego_robot.innovation, measurement_taus).inverse() *
+      HuberMeasurement(ego_robot.innovation, measurement_thresholds).inverse() *
       measurement_cholesky_matrix.transpose();
 
   /* Calculate Covariance Innovation. */
@@ -218,7 +218,7 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
       (augmentedCovariance_t::Identity() -
        ego_robot.kalman_gain * ego_robot.measurement_jacobian) *
       error_cholesky_matrix *
-      HuberState(ego_robot.estimation_residual, state_taus).inverse() *
+      HuberState(ego_robot.estimation_residual, state_thresholds).inverse() *
       error_cholesky_matrix.transpose();
 
   /* Marginalise the 5x5 back to a 3x3. */

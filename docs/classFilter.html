@@ -177,6 +177,10 @@ Protected Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
+<tr class="memitem:a54c7c98a5649166b2963469d40c6a1af" id="r_a54c7c98a5649166b2963469d40c6a1af"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a54c7c98a5649166b2963469d40c6a1af">prediction</a> (const Robot::Odometry &amp;, <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)=0</td></tr>
+<tr class="separator:a54c7c98a5649166b2963469d40c6a1af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbbac984eaa2396a82e4741c4c0ca0f9" id="r_abbbac984eaa2396a82e4741c4c0ca0f9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abbbac984eaa2396a82e4741c4c0ca0f9">correction</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const bool)=0</td></tr>
+<tr class="separator:abbbac984eaa2396a82e4741c4c0ca0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6044b1e6f700aa6d3a4cb76cb07e990a" id="r_a6044b1e6f700aa6d3a4cb76cb07e990a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a6044b1e6f700aa6d3a4cb76cb07e990a">motionModel</a> (const Robot::Odometry &amp;, <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const double)</td></tr>
 <tr class="memdesc:a6044b1e6f700aa6d3a4cb76cb07e990a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The unicycle motion model used to perform motion predictions.  <br /></td></tr>
 <tr class="separator:a6044b1e6f700aa6d3a4cb76cb07e990a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -210,22 +214,18 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a09d48b8e5d7953d0bca6287957ef4280" id="r_a09d48b8e5d7953d0bca6287957ef4280"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a09d48b8e5d7953d0bca6287957ef4280">normaliseAngle</a> (double &amp;)</td></tr>
 <tr class="memdesc:a09d48b8e5d7953d0bca6287957ef4280"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalise an angle between \(\pi\) and \(-\pi\).  <br /></td></tr>
 <tr class="separator:a09d48b8e5d7953d0bca6287957ef4280"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5e7b959c1b6757edd7662510595475e" id="r_aa5e7b959c1b6757edd7662510595475e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a85e37de92e6fa1d27af942e420efd0eb">huberMeasurementWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#aa5e7b959c1b6757edd7662510595475e">HuberMeasurement</a> (const <a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a> &amp;, const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a> &amp;)</td></tr>
-<tr class="memdesc:aa5e7b959c1b6757edd7662510595475e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber Measurement cost function,.  <br /></td></tr>
-<tr class="separator:aa5e7b959c1b6757edd7662510595475e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab14ab31c0a1875b53e4fa7373b61f2b6" id="r_ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a98009b7c8834d1a7a99eb2d954fb5369">huberStateWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab14ab31c0a1875b53e4fa7373b61f2b6">HuberState</a> (const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> &amp;)</td></tr>
-<tr class="memdesc:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber State cost function,.  <br /></td></tr>
-<tr class="separator:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abcc793aa365ec3ad5fec6395fd6de4c0" id="r_abcc793aa365ec3ad5fec6395fd6de4c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abcc793aa365ec3ad5fec6395fd6de4c0">calculateNormalisedInnovation</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
 <tr class="memdesc:abcc793aa365ec3ad5fec6395fd6de4c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the normalised residual of the value produced by the sensor measurement and the prior estimate passed through the non-linear measurement model.  <br /></td></tr>
 <tr class="separator:abcc793aa365ec3ad5fec6395fd6de4c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f8cd8c3c150fdc0ff98042b6dc391a0" id="r_a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a9f8cd8c3c150fdc0ff98042b6dc391a0">calculateNormalisedEstimationResidual</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
 <tr class="memdesc:a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the normalised residual of the initial estimate and updated estimate.  <br /></td></tr>
 <tr class="separator:a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54c7c98a5649166b2963469d40c6a1af" id="r_a54c7c98a5649166b2963469d40c6a1af"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a54c7c98a5649166b2963469d40c6a1af">prediction</a> (const Robot::Odometry &amp;, <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)=0</td></tr>
-<tr class="separator:a54c7c98a5649166b2963469d40c6a1af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbbac984eaa2396a82e4741c4c0ca0f9" id="r_abbbac984eaa2396a82e4741c4c0ca0f9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abbbac984eaa2396a82e4741c4c0ca0f9">correction</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const bool)=0</td></tr>
-<tr class="separator:abbbac984eaa2396a82e4741c4c0ca0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5e7b959c1b6757edd7662510595475e" id="r_aa5e7b959c1b6757edd7662510595475e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a85e37de92e6fa1d27af942e420efd0eb">huberMeasurementWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#aa5e7b959c1b6757edd7662510595475e">HuberMeasurement</a> (const <a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a> &amp;, const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a> &amp;)</td></tr>
+<tr class="memdesc:aa5e7b959c1b6757edd7662510595475e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber Measurement cost function,.  <br /></td></tr>
+<tr class="separator:aa5e7b959c1b6757edd7662510595475e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab14ab31c0a1875b53e4fa7373b61f2b6" id="r_ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a98009b7c8834d1a7a99eb2d954fb5369">huberStateWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab14ab31c0a1875b53e4fa7373b61f2b6">HuberState</a> (const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> &amp;)</td></tr>
+<tr class="memdesc:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber State cost function,.  <br /></td></tr>
+<tr class="separator:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -238,10 +238,12 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:af02d8d3e576427de5cd734e542c7fe86" id="r_af02d8d3e576427de5cd734e542c7fe86"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#af02d8d3e576427de5cd734e542c7fe86">landmark_parameters</a></td></tr>
 <tr class="memdesc:af02d8d3e576427de5cd734e542c7fe86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Houses all estimation parameters for all landmarks.  <br /></td></tr>
 <tr class="separator:af02d8d3e576427de5cd734e542c7fe86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1266fc9581ea033f77371c493739839" id="r_ac1266fc9581ea033f77371c493739839"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ac1266fc9581ea033f77371c493739839">measurement_taus</a></td></tr>
-<tr class="separator:ac1266fc9581ea033f77371c493739839"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2530344802f5dd0c476ab90b6ea1be0" id="r_ae2530344802f5dd0c476ab90b6ea1be0"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ae2530344802f5dd0c476ab90b6ea1be0">state_taus</a></td></tr>
-<tr class="separator:ae2530344802f5dd0c476ab90b6ea1be0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab05d261cf0b24334510c71f2dcdd0f99" id="r_ab05d261cf0b24334510c71f2dcdd0f99"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab05d261cf0b24334510c71f2dcdd0f99">measurement_thresholds</a></td></tr>
+<tr class="memdesc:ab05d261cf0b24334510c71f2dcdd0f99"><td class="mdescLeft">&#160;</td><td class="mdescRight">The thresholds for the huber measurement cost function.  <br /></td></tr>
+<tr class="separator:ab05d261cf0b24334510c71f2dcdd0f99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45b83ae354d3c5f07ad52dde42f6ebec" id="r_a45b83ae354d3c5f07ad52dde42f6ebec"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a45b83ae354d3c5f07ad52dde42f6ebec">state_thresholds</a></td></tr>
+<tr class="memdesc:a45b83ae354d3c5f07ad52dde42f6ebec"><td class="mdescLeft">&#160;</td><td class="mdescRight">The thresholds for the huber state cost function.  <br /></td></tr>
+<tr class="separator:a45b83ae354d3c5f07ad52dde42f6ebec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-attribs" name="pro-static-attribs"></a>
 Static Protected Attributes</h2></td></tr>
@@ -1653,8 +1655,8 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 
 </div>
 </div>
-<a id="ac1266fc9581ea033f77371c493739839" name="ac1266fc9581ea033f77371c493739839"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac1266fc9581ea033f77371c493739839">&#9670;&#160;</a></span>measurement_taus</h2>
+<a id="ab05d261cf0b24334510c71f2dcdd0f99" name="ab05d261cf0b24334510c71f2dcdd0f99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab05d261cf0b24334510c71f2dcdd0f99">&#9670;&#160;</a></span>measurement_thresholds</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1663,7 +1665,7 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a> Filter::measurement_taus</td>
+          <td class="memname">const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a> Filter::measurement_thresholds</td>
         </tr>
       </table>
   </td>
@@ -1674,8 +1676,11 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">      (<a class="code hl_typedef" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a>() &lt;&lt; 0.2, 0.01).finished()</div>
-<div class="ttc" id="aclassFilter_html_a0d3125c9e6187ee67c193d492286935d"><div class="ttname"><a href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">Filter::huberMeasurementThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, total_measurements, 1 &gt; huberMeasurementThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:64</div></div>
+<div class="ttc" id="aclassFilter_html_a0d3125c9e6187ee67c193d492286935d"><div class="ttname"><a href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">Filter::huberMeasurementThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, total_measurements, 1 &gt; huberMeasurementThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:75</div></div>
 </div><!-- fragment -->
+<p>The thresholds for the huber measurement cost function. </p>
+<p>The vector is of the for: range and bearing. </p>
+
 </div>
 </div>
 <a id="a368631860d1d6a93f42949c1c273a0df" name="a368631860d1d6a93f42949c1c273a0df"></a>
@@ -1702,8 +1707,8 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 
 </div>
 </div>
-<a id="ae2530344802f5dd0c476ab90b6ea1be0" name="ae2530344802f5dd0c476ab90b6ea1be0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae2530344802f5dd0c476ab90b6ea1be0">&#9670;&#160;</a></span>state_taus</h2>
+<a id="a45b83ae354d3c5f07ad52dde42f6ebec" name="a45b83ae354d3c5f07ad52dde42f6ebec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45b83ae354d3c5f07ad52dde42f6ebec">&#9670;&#160;</a></span>state_thresholds</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1712,7 +1717,7 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> Filter::state_taus</td>
+          <td class="memname">const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> Filter::state_thresholds</td>
         </tr>
       </table>
   </td>
@@ -1724,8 +1729,11 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">      (<a class="code hl_typedef" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a>() &lt;&lt; 0.15, 0.154, 0.255, 0.0104, 0.0104)</div>
 <div class="line">          .finished()</div>
-<div class="ttc" id="aclassFilter_html_a64f5d0ab584e32a2238ff2c786a00d47"><div class="ttname"><a href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">Filter::huberStateThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, 2+total_states, 1 &gt; huberStateThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:68</div></div>
+<div class="ttc" id="aclassFilter_html_a64f5d0ab584e32a2238ff2c786a00d47"><div class="ttname"><a href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">Filter::huberStateThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, 2+total_states, 1 &gt; huberStateThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:80</div></div>
 </div><!-- fragment -->
+<p>The thresholds for the huber state cost function. </p>
+<p>The vector is of the for: ego x, ego y, ego orientation, agent x, agent y. </p>
+
 </div>
 </div>
 <a id="a92b792c817ba3f8d483aeacc8372713a" name="a92b792c817ba3f8d483aeacc8372713a"></a>

@@ -30,38 +30,50 @@ protected:
    */
   static const unsigned short total_measurements = 2;
 
+  /* Enums for easier accessing of variables in arrays and vectors. */
   enum { FORWARD_VELOCITY = 0, ANGULAR_VELOCITY = 1 };
   enum { RANGE = 0, BEARING = 1 };
   enum { X = 0, Y = 1, ORIENTATION = 2 };
 
+  /* State Type Definitions. */
   typedef Eigen::Matrix<double, total_states, 1> state_t;
   typedef Eigen::Matrix<double, 2 + total_states, 1> augmentedState_t;
 
+  /* General Matrix Type Definitions. */
   typedef Eigen::Matrix<double, total_states, total_states> matrix3D_t;
   typedef Eigen::Matrix<double, 2 + total_states, 2 + total_states> matrix5D_t;
 
+  /* Covariance Type Definitions. */
   typedef matrix3D_t covariance_t;
   typedef matrix5D_t augmentedCovariance_t;
 
+  /* Precision Type Definitions. */
   typedef matrix3D_t precision_t;
   typedef matrix5D_t augmentedPrecision_t;
 
+  /* Measurement Type Definitions. */
   typedef Eigen::Matrix<double, total_measurements, 1> measurement_t;
   typedef Eigen::Matrix<double, total_measurements, total_measurements>
       measurementCovariance_t;
 
+  /* Measurement Type Definitions. */
   typedef Eigen::Matrix<double, 2 + total_states, total_measurements>
       kalmanGain_t;
 
+  /* Motion Model Type Definitions. */
   typedef Eigen::Matrix<double, total_states, total_states> motionJacobian_t;
+
   typedef Eigen::Matrix<double, total_states, total_inputs> processJacobian_t;
+
   typedef Eigen::Matrix<double, total_measurements, 2 + total_states>
       measurementJacobian_t;
 
   typedef Eigen::Matrix<double, total_inputs, total_inputs> processCovariance_t;
 
+  /* Huber Cost Function Type Definitions. */
   typedef Eigen::Matrix<double, total_measurements, 1>
       huberMeasurementThresholds_t;
+
   typedef Eigen::Matrix<double, total_measurements, total_measurements>
       huberMeasurementWeights_t;
 
@@ -213,13 +225,29 @@ protected:
    */
   std::vector<EstimationParameters> landmark_parameters;
 
-  const huberMeasurementThresholds_t measurement_taus =
+  /**
+   * @brief The thresholds for the huber measurement cost function.
+   * @details The vector is of the for: range and bearing.
+   */
+  const huberMeasurementThresholds_t measurement_thresholds =
       (huberMeasurementThresholds_t() << 0.2, 0.01).finished();
 
-  const huberStateThresholds_t state_taus =
+  /**
+   * @brief The thresholds for the huber state cost function.
+   * @details The vector is of the for: ego x, ego y, ego orientation, agent x,
+   * agent y.
+   */
+  const huberStateThresholds_t state_thresholds =
       (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104)
           .finished();
 
+  /* Filter Functionality Functions */
+  virtual void prediction(const Robot::Odometry &, EstimationParameters &) = 0;
+
+  virtual void correction(EstimationParameters &, const EstimationParameters &,
+                          const bool) = 0;
+
+  /* Motion Model Functions. */
   void motionModel(const Robot::Odometry &, EstimationParameters &,
                    const double);
 
@@ -228,12 +256,14 @@ protected:
 
   void calculateProcessJacobian(EstimationParameters &, const double);
 
+  /* Measurement Model Functions. */
   measurement_t measurementModel(EstimationParameters &,
                                  const EstimationParameters &);
 
   void calculateMeasurementJacobian(EstimationParameters &,
                                     const EstimationParameters &);
 
+  /* Filter Helper Functions. */
   matrix3D_t marginalise(const matrix5D_t &);
 
   state_t marginalise(const augmentedState_t &, const matrix5D_t &);
@@ -249,21 +279,17 @@ protected:
 
   void normaliseAngle(double &);
 
-  huberMeasurementWeights_t
-  HuberMeasurement(const measurement_t &, const huberMeasurementThresholds_t &);
-
-  huberStateWeights_t HuberState(const augmentedState_t &,
-                                 const huberStateThresholds_t &);
-
   measurement_t calculateNormalisedInnovation(const EstimationParameters &);
 
   augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);
 
-  virtual void prediction(const Robot::Odometry &, EstimationParameters &) = 0;
+  /* Huber Cost Functions. */
+  huberMeasurementWeights_t
+  HuberMeasurement(const measurement_t &, const huberMeasurementThresholds_t &);
 
-  virtual void correction(EstimationParameters &, const EstimationParameters &,
-                          const bool) = 0;
+  huberStateWeights_t HuberState(const augmentedState_t &,
+                                 const huberStateThresholds_t &);
 
 public:
   explicit Filter(DataHandler &data);

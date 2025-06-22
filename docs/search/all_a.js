@@ -10,7 +10,7 @@ var searchData=
   ['measurement_5fjacobian_7',['measurement_jacobian',['../structFilter_1_1EstimationParameters.html#a809ac17399f22aff5c0ae9147e272d7d',1,'Filter::EstimationParameters']]],
   ['measurement_5fnoise_8',['measurement_noise',['../structFilter_1_1EstimationParameters.html#a3ddfae3557aa98798126ce210464d807',1,'Filter::EstimationParameters']]],
   ['measurement_5ft_9',['measurement_t',['../classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1',1,'Filter']]],
-  ['measurement_5ftaus_10',['measurement_taus',['../classFilter.html#ac1266fc9581ea033f77371c493739839',1,'Filter']]],
+  ['measurement_5fthresholds_10',['measurement_thresholds',['../classFilter.html#ab05d261cf0b24334510c71f2dcdd0f99',1,'Filter']]],
   ['measurementcovariance_5ft_11',['measurementCovariance_t',['../classFilter.html#ab519aac7334730f59cdfb8415e84438e',1,'Filter']]],
   ['measurementjacobian_5ft_12',['measurementJacobian_t',['../classFilter.html#acabb198cd1c79a10ec55d9c7cbc34454',1,'Filter']]],
   ['measurementmodel_13',['measurementModel',['../classFilter.html#a60deae2355ef47efef0d047f773e7def',1,'Filter']]],
