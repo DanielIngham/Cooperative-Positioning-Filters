@@ -560,15 +560,11 @@ Filter::createAugmentedCovariance(const EstimationParameters &ego_robot,
 }
 
 /**
- * @brief Normalise an angle between \f$\pi\f$ and \f$-\pi\f$.
+ * @brief Normalise an angle between \f$(-\pi, \pi]\f$.
  * @param[inout] angle Angle in radians.
  */
 void Filter::normaliseAngle(double &angle) {
-  while (angle >= M_PI)
-    angle -= 2.0 * M_PI;
-
-  while (angle < -M_PI)
-    angle += 2.0 * M_PI;
+  angle -= 2.0 * M_PI * floor((angle + M_PI) / (2.0 * M_PI));
 }
 
 /**
