@@ -84,41 +84,20 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
           << std::endl;
     }
   }
-  /* Create the augmented information vector and precision matrix */
-  augmentedInformation_t information_vector = augmentedInformation_t::Zero();
-  information_vector.head<3>() = ego_robot.information_vector;
-  information_vector.tail<3>() = other_agent.information_vector;
 
-  augmentedPrecision_t precision_matrix = augmentedPrecision_t::Zero();
-  precision_matrix.topLeftCorner<3, 3>() = ego_robot.precision_matrix;
-  precision_matrix.bottomRightCorner<3, 3>() = other_agent.precision_matrix;
+  /* Create the augmented information vector and precision matrix */
+  augmentedInformation_t information_vector = createAugmentedVector(
+      ego_robot.information_vector, other_agent.information_vector);
+
+  augmentedPrecision_t precision_matrix = createAugmentedMatrix(
+      ego_robot.precision_matrix, other_agent.precision_matrix);
 
   /* Calculate the augmented estimated state of the system.  */
-  Eigen::Matrix<double, 6, 1> estimated_state =
+  augmentedState_t estimated_state =
       precision_matrix.inverse() * information_vector;
 
   /* Calculate measurement Jacobian. */
-  const double x_difference =
-      estimated_state(total_states + X) - estimated_state(X);
-
-  const double y_difference =
-      estimated_state(total_states + Y) - estimated_state(Y);
-
-  double denominator =
-      std::sqrt(x_difference * x_difference + y_difference * y_difference);
-
-  const double MIN_DISTANCE = 1e-6;
-  if (denominator < MIN_DISTANCE) {
-    denominator = MIN_DISTANCE;
-  }
-
-  Eigen::Matrix<double, 2, 6> measurement_jacobian;
-  measurement_jacobian << -x_difference / denominator,
-      -y_difference / denominator, 0, x_difference / denominator,
-      y_difference / denominator, 0, y_difference / (denominator * denominator),
-      -x_difference / (denominator * denominator), -1,
-      -y_difference / (denominator * denominator),
-      x_difference / (denominator * denominator), 0;
+  calculateMeasurementJacobian(ego_robot, other_agent);
 
   /* Populate the predicted measurement matrix. */
   measurement_t predicted_measurement =
@@ -131,22 +110,24 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Calculate the precision contribution */
-  Eigen::Matrix<double, 6, 6> precision_matrix_contribution =
-      measurement_jacobian.transpose() * ego_robot.measurement_noise.inverse() *
-      measurement_jacobian;
+  augmentedPrecision_t precision_matrix_contribution =
+      ego_robot.measurement_jacobian.transpose() *
+      ego_robot.measurement_noise.inverse() * ego_robot.measurement_jacobian;
 
   /* Calculate the information contribution */
-  Eigen::Matrix<double, 6, 1> information_vector_contribution =
-      measurement_jacobian.transpose() * ego_robot.measurement_noise.inverse() *
-      (ego_robot.innovation + measurement_jacobian * estimated_state);
+  augmentedInformation_t information_vector_contribution =
+      ego_robot.measurement_jacobian.transpose() *
+      ego_robot.measurement_noise.inverse() *
+      (ego_robot.innovation + ego_robot.measurement_jacobian * estimated_state);
 
   /* Add only the contribution of the of the other agent. */
-  precision_matrix_contribution.bottomRightCorner<3, 3>() +=
+  precision_matrix_contribution
+      .bottomRightCorner<total_states, total_states>() +=
       other_agent.precision_matrix;
 
   /* Add the information contribution. */
-  information_vector_contribution.tail<3>() +=
-      other_agent.information_vector.head<3>();
+  information_vector_contribution.tail<total_states>() +=
+      other_agent.information_vector;
 
   /* Schur complement-based error covariance marginalisation. This is used to
    * marginalise the 6x6 matrix to a 3x3 matrix */
