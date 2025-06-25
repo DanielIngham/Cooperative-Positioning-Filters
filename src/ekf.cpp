@@ -10,6 +10,7 @@
 #include <DataHandler/Landmark.h>
 #include <DataHandler/Robot.h>
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 
 /**
@@ -77,8 +78,8 @@ void EKF::correction(EstimationParameters &ego_robot,
   calculateMeasurementJacobian(ego_robot, other_agent);
 
   /* Create and populate new 5x5 error covariance matrix. */
-  augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_agent);
+  augmentedCovariance_t error_covariance = createAugmentedMatrix(
+      ego_robot.error_covariance, other_agent.error_covariance);
 
   /* Calculate Covariance Innovation: */
   ego_robot.innovation_covariance =
@@ -96,8 +97,8 @@ void EKF::correction(EstimationParameters &ego_robot,
                       ego_robot.kalman_gain.transpose();
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t state_estimate =
-      createAugmentedState(ego_robot, other_agent);
+  augmentedState_t state_estimate = createAugmentedVector(
+      ego_robot.state_estimate, other_agent.state_estimate);
 
   /* Populate the predicted measurement matrix. */
   measurement_t predicted_measurement =
@@ -119,7 +120,8 @@ void EKF::correction(EstimationParameters &ego_robot,
   /* Resize matrices back to normal */
   ego_robot.state_estimate = state_estimate.head<total_states>();
 
-  ego_robot.error_covariance = marginalise(error_covariance);
+  ego_robot.error_covariance =
+      error_covariance.topLeftCorner<total_states, total_states>();
 }
 
 /**
@@ -134,19 +136,21 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
                            const EstimationParameters &other_agent) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t intial_state_estimate =
-      createAugmentedState(ego_robot, other_agent);
+  augmentedState_t intial_state_estimate = createAugmentedVector(
+      ego_robot.state_estimate, other_agent.state_estimate);
 
   augmentedState_t iterative_state_estimate = intial_state_estimate;
 
   /* Create and populate new 5x5 error covariance matrix. */
-  augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_agent);
+  augmentedCovariance_t error_covariance = createAugmentedMatrix(
+      ego_robot.error_covariance, other_agent.error_covariance);
 
   /* Calculate the Cholesky Decomposition of the estimation error covariance */
   Eigen::LLT<augmentedCovariance_t> error_cholesky(error_covariance);
 
   if (error_cholesky.info() != Eigen::Success) {
+    std::cout << error_covariance << std::endl;
+
     throw std::runtime_error("[1] An error has occurred with calculating the "
                              "Cholesky decomposition of "
                              "the estimation error covariance");
@@ -222,5 +226,6 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
       error_cholesky_matrix.transpose();
 
   /* Marginalise the 5x5 back to a 3x3. */
-  ego_robot.error_covariance = marginalise(error_covariance);
+  ego_robot.error_covariance =
+      error_covariance.topLeftCorner<total_states, total_states>();
 }

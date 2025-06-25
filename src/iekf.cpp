@@ -76,15 +76,15 @@ void IEKF::correction(EstimationParameters &ego_robot,
   }
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t intial_state_estimate =
-      createAugmentedState(ego_robot, other_agent);
+  augmentedState_t intial_state_estimate = createAugmentedVector(
+      ego_robot.state_estimate, other_agent.state_estimate);
 
   /* Create a vector to hold the iterative state estimate. */
   augmentedState_t iterative_state_estimate = intial_state_estimate;
 
   /* Create and populate new 5x5 error covariance matrix. */
-  augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_agent);
+  augmentedCovariance_t error_covariance = createAugmentedMatrix(
+      ego_robot.error_covariance, other_agent.error_covariance);
 
   /* Perform the iterative update.  */
   for (int i = 0; i < this->max_iterations; i++) {
@@ -145,7 +145,7 @@ void IEKF::correction(EstimationParameters &ego_robot,
   error_covariance -= ego_robot.kalman_gain * ego_robot.innovation_covariance *
                       ego_robot.kalman_gain.transpose();
 
-  ego_robot.error_covariance = marginalise(error_covariance);
+  ego_robot.error_covariance = error_covariance.topLeftCorner<3, 3>();
 }
 
 /**
@@ -160,15 +160,15 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
                             const EstimationParameters &other_agent) {
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t initial_state_estimate =
-      createAugmentedState(ego_robot, other_agent);
+  augmentedState_t initial_state_estimate = createAugmentedVector(
+      ego_robot.state_estimate, other_agent.state_estimate);
 
   /* Create the iterative state estimate matrix. */
   augmentedState_t iterative_state_estimate = initial_state_estimate;
 
   /* Create and populate 5x5 error covariance matrix. */
-  augmentedCovariance_t error_covariance =
-      createAugmentedCovariance(ego_robot, other_agent);
+  augmentedCovariance_t error_covariance = createAugmentedMatrix(
+      ego_robot.error_covariance, other_agent.error_covariance);
 
   /* Calculate the Cholesky Decomposition of the estimation error covariance */
   Eigen::LLT<augmentedCovariance_t> error_cholesky(error_covariance);
@@ -263,7 +263,7 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
 
   /* Update estimation error covariance */
   error_covariance =
-      (Eigen::Matrix<double, 5, 5>::Identity() -
+      (augmentedCovariance_t::Identity() -
        ego_robot.kalman_gain * ego_robot.measurement_jacobian) *
       error_cholesky_matrix *
       HuberState(initial_state_estimate - iterative_state_estimate,
@@ -271,5 +271,5 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
           .inverse() *
       error_cholesky_matrix.transpose();
 
-  ego_robot.error_covariance = marginalise(error_covariance);
+  ego_robot.error_covariance = error_covariance.topLeftCorner<3, 3>();
 }

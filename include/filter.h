@@ -35,29 +35,38 @@ protected:
   enum { RANGE = 0, BEARING = 1 };
   enum { X = 0, Y = 1, ORIENTATION = 2 };
 
-  /* State Type Definitions. */
-  typedef Eigen::Matrix<double, total_states, 1> state_t;
-  typedef Eigen::Matrix<double, 2 + total_states, 1> augmentedState_t;
+  /* General Vector Types Definitions. */
+  typedef Eigen::Matrix<double, 2, 1> vector2D_t;
+  typedef Eigen::Matrix<double, total_states, 1> vector3D_t;
+  typedef Eigen::Matrix<double, 2 * total_states, 1> vector6D_t;
 
-  /* General Matrix Type Definitions. */
+  /* General Square Matrix Type Definitions. */
+  typedef Eigen::Matrix<double, 2, 2> matrix2D_t;
   typedef Eigen::Matrix<double, total_states, total_states> matrix3D_t;
-  typedef Eigen::Matrix<double, 2 + total_states, 2 + total_states> matrix5D_t;
+  typedef Eigen::Matrix<double, 2 * total_states, 2 * total_states> matrix6D_t;
+
+  /* State Type Definitions. */
+  typedef vector3D_t state_t;
+  typedef vector6D_t augmentedState_t;
 
   /* Covariance Type Definitions. */
   typedef matrix3D_t covariance_t;
-  typedef matrix5D_t augmentedCovariance_t;
+  typedef matrix6D_t augmentedCovariance_t;
+
+  /* Information Type Definitions. */
+  typedef vector3D_t information_t;
+  typedef vector6D_t augmentedInformation_t;
 
   /* Precision Type Definitions. */
   typedef matrix3D_t precision_t;
-  typedef matrix5D_t augmentedPrecision_t;
+  typedef matrix6D_t augmentedPrecision_t;
 
   /* Measurement Type Definitions. */
-  typedef Eigen::Matrix<double, total_measurements, 1> measurement_t;
-  typedef Eigen::Matrix<double, total_measurements, total_measurements>
-      measurementCovariance_t;
+  typedef vector2D_t measurement_t;
+  typedef matrix2D_t measurementCovariance_t;
 
   /* Measurement Type Definitions. */
-  typedef Eigen::Matrix<double, 2 + total_states, total_measurements>
+  typedef Eigen::Matrix<double, 2 * total_states, total_measurements>
       kalmanGain_t;
 
   /* Motion Model Type Definitions. */
@@ -65,7 +74,7 @@ protected:
 
   typedef Eigen::Matrix<double, total_states, total_inputs> processJacobian_t;
 
-  typedef Eigen::Matrix<double, total_measurements, 2 + total_states>
+  typedef Eigen::Matrix<double, total_measurements, 2 * total_states>
       measurementJacobian_t;
 
   typedef Eigen::Matrix<double, total_inputs, total_inputs> processCovariance_t;
@@ -77,8 +86,8 @@ protected:
   typedef Eigen::Matrix<double, total_measurements, total_measurements>
       huberMeasurementWeights_t;
 
-  typedef Eigen::Matrix<double, 2 + total_states, 1> huberStateThresholds_t;
-  typedef Eigen::Matrix<double, 2 + total_states, 2 + total_states>
+  typedef Eigen::Matrix<double, 2 * total_states, 1> huberStateThresholds_t;
+  typedef Eigen::Matrix<double, 2 * total_states, 2 * total_states>
       huberStateWeights_t;
 
   /**
@@ -187,7 +196,7 @@ protected:
     processJacobian_t process_jacobian = processJacobian_t::Zero();
 
     /**
-     * @brief Jacobian of the measurement model: 2 x 5 matrix.
+     * @brief Jacobian of the measurement model: 2 x 6 matrix.
      */
     measurementJacobian_t measurement_jacobian = measurementJacobian_t::Zero();
 
@@ -238,7 +247,7 @@ protected:
    * agent y.
    */
   const huberStateThresholds_t state_thresholds =
-      (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104)
+      (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104, 0.0)
           .finished();
 
   /* Filter Functionality Functions */
@@ -264,18 +273,14 @@ protected:
                                     const EstimationParameters &);
 
   /* Filter Helper Functions. */
-  matrix3D_t marginalise(const matrix5D_t &);
+  matrix3D_t marginalise(const matrix6D_t &);
 
-  state_t marginalise(const augmentedState_t &, const matrix5D_t &);
+  state_t marginalise(const vector6D_t &, const matrix6D_t &);
 
-  augmentedState_t createAugmentedState(const EstimationParameters &,
-                                        const EstimationParameters &);
+  augmentedState_t createAugmentedVector(const state_t &, const state_t &);
 
-  augmentedCovariance_t createAugmentedCovariance(const EstimationParameters &,
-                                                  const EstimationParameters &);
-
-  augmentedPrecision_t createAugmentedPrecision(const EstimationParameters &,
-                                                const EstimationParameters &);
+  augmentedCovariance_t createAugmentedMatrix(const covariance_t &,
+                                              const covariance_t &);
 
   void normaliseAngle(double &);
 

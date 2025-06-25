@@ -8,6 +8,7 @@
 
 #include "filter.h"
 #include <DataHandler/DataHandler.h>
+#include <iostream>
 
 /**
  * @brief Assigns fields data based on datahandler input.
@@ -79,6 +80,11 @@ Filter::Filter(DataHandler &data) : data_(data) {
      */
     initial_parameters.precision_matrix =
         initial_parameters.error_covariance.inverse();
+
+    initial_parameters.precision_matrix(ORIENTATION, ORIENTATION) = 1;
+
+    initial_parameters.information_vector =
+        initial_parameters.precision_matrix * initial_parameters.state_estimate;
 
     landmark_parameters.push_back(initial_parameters);
   }
@@ -160,22 +166,22 @@ void Filter::performInference() {
          * landmarks. Therefore if the ID is less than or equal to the number
          * of robots, then it belongs to a robot, otherwise it belong to a
          * landmark. */
-        EstimationParameters measured_agent;
+        EstimationParameters *measured_agent;
 
         if (subject_id <= data_.getNumberOfRobots()) {
           unsigned short index = subject_id - 1;
-          measured_agent = robot_parameters[index];
+          measured_agent = &robot_parameters[index];
 
         } else {
           unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
-          measured_agent = landmark_parameters[index];
+          measured_agent = &landmark_parameters[index];
         }
 
         /* Determine whether the filter should use the huber cost function for
          * the correction. */
         bool robust = true;
 
-        correction(robot_parameters[id], measured_agent, robust);
+        correction(robot_parameters[id], *measured_agent, robust);
 
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
@@ -200,9 +206,9 @@ void Filter::performInference() {
  * @param [in] tau Tunable parameter \f$\tau\f$ that is used to determine if the
  * residual is too large.
  */
-Filter::huberMeasurementWeights_t Filter::HuberMeasurement(
-    const Eigen::Matrix<double, total_measurements, 1> &measurement_residual,
-    const Eigen::Matrix<double, total_measurements, 1> &tau) {
+Filter::huberMeasurementWeights_t
+Filter::HuberMeasurement(const measurement_t &measurement_residual,
+                         const huberMeasurementThresholds_t &tau) {
 
   /* Reweight matrix that is used to adjust the covariance of outliers. */
   huberMeasurementWeights_t weight_matrix =
@@ -414,9 +420,9 @@ Filter::measurementModel(EstimationParameters &ego_robot,
  * measurement matrix between ego vehicle \f$i\f$ and measured vehicle
  * \f$j\f$ take the form
  * \f[ H = \begin{bmatrix} \frac{-\Delta x}{d} & \frac{-\Delta y}{d} & 0 &
- * \frac{\Delta x}{d} & \frac{\Delta y}{d} \\ \frac{\Delta y}{d^2} &
+ * \frac{\Delta x}{d} & \frac{\Delta y}{d} & 0\\ \frac{\Delta y}{d^2} &
  * \frac{-\Delta x}{d^2} & -1 & \frac{-\Delta y}{d^2} & \frac{\Delta x}{d^2}
- * \end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
+ * & 0\end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
  * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
  */
 void Filter::calculateMeasurementJacobian(
@@ -438,26 +444,25 @@ void Filter::calculateMeasurementJacobian(
 
   ego_robot.measurement_jacobian << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
-      y_difference / denominator, y_difference / (denominator * denominator),
+      y_difference / denominator, 0, y_difference / (denominator * denominator),
       -x_difference / (denominator * denominator), -1,
       -y_difference / (denominator * denominator),
-      x_difference / (denominator * denominator);
+      x_difference / (denominator * denominator), 0;
 }
 
 /**
  * @brief Schur complement-based marginalisation that marginalises a 5x5 matrix
  * into a 3x3 matrix.
- * @param[in] matrix_5d A 5x5 matrix.
+ * @param[in] matrix_5d A 6x6 matrix.
  * @returns A 3x3 matrix.
  */
-Filter::matrix3D_t Filter::marginalise(const matrix5D_t &matrix_5d) {
+Filter::matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
 
-  covariance_t matrix_3d =
-      matrix_5d.topLeftCorner<total_states, total_states>() -
-      matrix_5d.topRightCorner<total_states, total_states - 1>() *
-          matrix_5d.bottomRightCorner<total_states - 1, total_states - 1>()
-              .inverse() *
-          matrix_5d.bottomLeftCorner<total_states - 1, total_states>();
+  matrix3D_t matrix_3d =
+      matrix_6d.topLeftCorner<total_states, total_states>() -
+      matrix_6d.topRightCorner<total_states, total_states>() *
+          matrix_6d.bottomRightCorner<total_states, total_states>().inverse() *
+          matrix_6d.bottomLeftCorner<total_states, total_states>();
 
   return matrix_3d;
 }
@@ -465,19 +470,18 @@ Filter::matrix3D_t Filter::marginalise(const matrix5D_t &matrix_5d) {
 /**
  * @brief Schur complement-based marginalisation that marginalises a 5x1 vector
  * and 5x5 matrix into a 3x1 matrix.
- * @param[in] vector3d A 5x1 vector.
- * @param[in] matrix_5d A 5x5 matrix.
+ * @param[in] vector3d A 6x1 vector.
+ * @param[in] matrix_5d A 6x6 matrix.
  * @returns A 3x1 vector.
  */
-Filter::state_t Filter::marginalise(const augmentedState_t &vector3d,
-                                    const matrix5D_t &matrix_5d) {
+Filter::state_t Filter::marginalise(const vector6D_t &vector_6d,
+                                    const matrix6D_t &matrix_6d) {
 
   state_t new_vector =
-      vector3d.head<total_states>() -
-      matrix_5d.topRightCorner<total_states, total_states - 1>() *
-          matrix_5d.bottomRightCorner<total_states - 1, total_states - 1>()
-              .inverse() *
-          vector3d.tail<total_states - 1>();
+      vector_6d.head<total_states>() -
+      matrix_6d.topRightCorner<total_states, total_states>() *
+          matrix_6d.bottomRightCorner<total_states, total_states>().inverse() *
+          vector_6d.tail<total_states>();
 
   return new_vector;
 }
@@ -492,38 +496,15 @@ Filter::state_t Filter::marginalise(const augmentedState_t &vector3d,
  * @returns A 5x1 state vector.
  */
 Filter::augmentedState_t
-Filter::createAugmentedState(const EstimationParameters &ego_robot,
-                             const EstimationParameters &other_agent) {
+Filter::createAugmentedVector(const state_t &ego_robot,
+                              const state_t &other_agent) {
 
   augmentedState_t state_estimate = augmentedState_t::Zero();
 
-  state_estimate.head<total_states>() = ego_robot.state_estimate;
-  state_estimate.tail<total_states - 1>() =
-      other_agent.state_estimate.head<total_states - 1>();
+  state_estimate.head<total_states>() = ego_robot;
+  state_estimate.tail<total_states>() = other_agent;
 
   return state_estimate;
-}
-
-/**
- * @brief Combines the 3x3 precision matrix of the ego robot with the 2x2
- * precision matrix agent measured to create a 5x5 augmented precision matrix.
- * @param[in] ego_robot the structure containing the estimation parameters of
- * the ego vehicle.
- * @param[in] other_agent the structure containing the estimation parameters of
- * the agent measured by the ego vehicle.
- */
-Filter::augmentedPrecision_t
-Filter::createAugmentedPrecision(const EstimationParameters &ego_robot,
-                                 const EstimationParameters &other_agent) {
-
-  augmentedPrecision_t matrix = augmentedPrecision_t::Zero();
-
-  matrix.topLeftCorner<3, 3>() = ego_robot.precision_matrix;
-
-  matrix.bottomRightCorner<2, 2>() =
-      other_agent.precision_matrix.topLeftCorner<2, 2>();
-
-  return matrix;
 }
 
 /**
@@ -546,15 +527,14 @@ Filter::createAugmentedPrecision(const EstimationParameters &ego_robot,
  * \f$i\f$ and the observed agent \f$j\f$ respectively.
  */
 Filter::augmentedCovariance_t
-Filter::createAugmentedCovariance(const EstimationParameters &ego_robot,
-                                  const EstimationParameters &other_agent) {
+Filter::createAugmentedMatrix(const covariance_t &ego_robot,
+                              const covariance_t &other_agent) {
 
   augmentedCovariance_t matrix = augmentedCovariance_t::Zero();
 
-  matrix.topLeftCorner<3, 3>() = ego_robot.error_covariance;
+  matrix.topLeftCorner<3, 3>() = ego_robot;
 
-  matrix.bottomRightCorner<2, 2>() =
-      other_agent.error_covariance.topLeftCorner<2, 2>();
+  matrix.bottomRightCorner<3, 3>() = other_agent;
 
   return matrix;
 }
@@ -609,8 +589,7 @@ Filter::augmentedState_t Filter::calculateNormalisedEstimationResidual(
   Eigen::LLT<augmentedCovariance_t> error_covariance_cholesky(
       filter.kalman_gain * filter.innovation_covariance *
           filter.kalman_gain.transpose() +
-      Eigen::Matrix<double, 2 + total_states, 2 + total_states>::Identity() *
-          1e-3);
+      augmentedCovariance_t::Identity() * 1e-3);
 
   if (error_covariance_cholesky.info() != Eigen::Success) {
 
