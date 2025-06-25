@@ -532,9 +532,9 @@ Filter::createAugmentedMatrix(const covariance_t &ego_robot,
 
   augmentedCovariance_t matrix = augmentedCovariance_t::Zero();
 
-  matrix.topLeftCorner<3, 3>() = ego_robot;
+  matrix.topLeftCorner<total_states, total_states>() = ego_robot;
 
-  matrix.bottomRightCorner<3, 3>() = other_agent;
+  matrix.bottomRightCorner<total_states, total_states>() = other_agent;
 
   return matrix;
 }
