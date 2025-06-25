@@ -7,6 +7,8 @@
  */
 
 #include "information_filter.h"
+#include "filter.h"
+
 #include <iostream>
 
 /**
@@ -70,66 +72,93 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* WARN: Robust correction not implemented yet. */
   if (robust) {
     static bool first_time_called = true;
-    if (first_time_called)
+
+    if (first_time_called) {
+
       first_time_called = false;
 
-    std::cerr
-        << "Warning: The robust version of the information filter has not been "
-           "implemented yet. The statndard correction step will be applied."
-        << std::endl;
+      std::cerr
+          << "Warning: The robust version of the information filter has not "
+             "been "
+             "implemented yet. The statndard correction step will be applied."
+          << std::endl;
+    }
   }
+  /* Create the augmented information vector and precision matrix */
+  augmentedInformation_t information_vector = augmentedInformation_t::Zero();
+  information_vector.head<3>() = ego_robot.information_vector;
+  information_vector.tail<3>() = other_agent.information_vector;
+
+  augmentedPrecision_t precision_matrix = augmentedPrecision_t::Zero();
+  precision_matrix.topLeftCorner<3, 3>() = ego_robot.precision_matrix;
+  precision_matrix.bottomRightCorner<3, 3>() = other_agent.precision_matrix;
+
+  /* Calculate the augmented estimated state of the system.  */
+  Eigen::Matrix<double, 6, 1> estimated_state =
+      precision_matrix.inverse() * information_vector;
 
   /* Calculate measurement Jacobian. */
-  calculateMeasurementJacobian(ego_robot, other_agent);
+  const double x_difference =
+      estimated_state(total_states + X) - estimated_state(X);
+
+  const double y_difference =
+      estimated_state(total_states + Y) - estimated_state(Y);
+
+  double denominator =
+      std::sqrt(x_difference * x_difference + y_difference * y_difference);
+
+  const double MIN_DISTANCE = 1e-6;
+  if (denominator < MIN_DISTANCE) {
+    denominator = MIN_DISTANCE;
+  }
+
+  Eigen::Matrix<double, 2, 6> measurement_jacobian;
+  measurement_jacobian << -x_difference / denominator,
+      -y_difference / denominator, 0, x_difference / denominator,
+      y_difference / denominator, 0, y_difference / (denominator * denominator),
+      -x_difference / (denominator * denominator), -1,
+      -y_difference / (denominator * denominator),
+      x_difference / (denominator * denominator), 0;
 
   /* Populate the predicted measurement matrix. */
   measurement_t predicted_measurement =
       measurementModel(ego_robot, other_agent);
 
-  /* Calculate the measurement residual: the difference between the measurement
-   * and the calculate measurement based on the estimated states of both robots.
-   */
+  /* Calculate the measurement residual. */
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the angle residual. */
   normaliseAngle(ego_robot.innovation(BEARING));
 
-  /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t estimated_state =
-      createAugmentedState(ego_robot, other_agent);
+  /* Calculate the precision contribution */
+  Eigen::Matrix<double, 6, 6> precision_matrix_contribution =
+      measurement_jacobian.transpose() * ego_robot.measurement_noise.inverse() *
+      measurement_jacobian;
 
-  /* Calculate the Information contribution */
-  augmentedPrecision_t precision_matrix_contribution =
-      ego_robot.measurement_jacobian.transpose() *
-      ego_robot.measurement_noise.inverse() * ego_robot.measurement_jacobian;
+  /* Calculate the information contribution */
+  Eigen::Matrix<double, 6, 1> information_vector_contribution =
+      measurement_jacobian.transpose() * ego_robot.measurement_noise.inverse() *
+      (ego_robot.innovation + measurement_jacobian * estimated_state);
 
-  augmentedState_t information_vector_contribution =
-      ego_robot.measurement_jacobian.transpose() *
-      ego_robot.measurement_noise.inverse() *
-      (ego_robot.innovation + ego_robot.measurement_jacobian * estimated_state);
-
-  /* Create a temporary augmented matrix  containing the information matrix of
-   * both objects. */
-  augmentedPrecision_t precision_matrix =
-      createAugmentedPrecision(ego_robot, other_agent);
-
-  /* Create a temporary augmented vector containing the information vector of
-   * both objects. */
-  augmentedState_t information_vector = precision_matrix * estimated_state;
+  /* Add only the contribution of the of the other agent. */
+  precision_matrix_contribution.bottomRightCorner<3, 3>() +=
+      other_agent.precision_matrix;
 
   /* Add the information contribution. */
-  precision_matrix += precision_matrix_contribution;
-  information_vector += information_vector_contribution;
+  information_vector_contribution.tail<3>() +=
+      other_agent.information_vector.head<3>();
 
   /* Schur complement-based error covariance marginalisation. This is used to
-   * marginalise the 5x5 matrix to a 3x3 matrix */
-  ego_robot.precision_matrix = marginalise(precision_matrix);
+   * marginalise the 6x6 matrix to a 3x3 matrix */
+  ego_robot.precision_matrix += marginalise(precision_matrix_contribution);
 
-  /* Marginalise the 5x1 augmented information vector to a 3x1 state vector. */
-  ego_robot.information_vector =
-      marginalise(information_vector, precision_matrix);
+  /* Marginalise the 6x1 augmented information vector to a 3x1 state vector. */
+  ego_robot.information_vector += marginalise(information_vector_contribution,
+                                              precision_matrix_contribution);
 
   /* Retrieve the original state estimate. */
   ego_robot.state_estimate =
       ego_robot.precision_matrix.inverse() * ego_robot.information_vector;
+
+  normaliseAngle(ego_robot.state_estimate(ORIENTATION));
 }
