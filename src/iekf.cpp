@@ -139,9 +139,6 @@ void IEKF::correction(EstimationParameters &ego_robot,
   /* Resize matrices back to normal */
   ego_robot.state_estimate = iterative_state_estimate.head<total_states>();
 
-  /* Normalise the orientation estimate between -180 and 180. */
-  normaliseAngle(ego_robot.state_estimate(ORIENTATION));
-
   error_covariance -= ego_robot.kalman_gain * ego_robot.innovation_covariance *
                       ego_robot.kalman_gain.transpose();
 
@@ -257,9 +254,6 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
 
   /* Resize matrices back to normal */
   ego_robot.state_estimate = iterative_state_estimate.head<total_states>();
-
-  /* Normalise the orientation estimate between -180 and 180. */
-  normaliseAngle(ego_robot.state_estimate(ORIENTATION));
 
   /* Update estimation error covariance */
   error_covariance =

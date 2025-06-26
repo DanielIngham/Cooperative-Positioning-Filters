@@ -115,8 +115,6 @@ void EKF::correction(EstimationParameters &ego_robot,
   /* Update the state using the measurement. */
   state_estimate += ego_robot.kalman_gain * ego_robot.innovation;
 
-  normaliseAngle(state_estimate(ORIENTATION));
-
   /* Resize matrices back to normal */
   ego_robot.state_estimate = state_estimate.head<total_states>();
 
@@ -206,8 +204,6 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
   /* Update the inititial state estimate. */
   iterative_state_estimate =
       intial_state_estimate + ego_robot.kalman_gain * ego_robot.innovation;
-
-  normaliseAngle(iterative_state_estimate(ORIENTATION));
 
   ego_robot.estimation_residual =
       intial_state_estimate - iterative_state_estimate;

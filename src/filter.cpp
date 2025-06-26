@@ -113,12 +113,15 @@ void Filter::performInference() {
 
       prediction(odometry, robot_parameters[id]);
 
+      double normalised_angle =
+          robot_parameters[id].state_estimate(ORIENTATION);
+
+      normaliseAngle(normalised_angle);
       /* Update the robot state data structure. */
-      robots[id].synced.states.push_back(
-          Robot::State(robots[id].groundtruth.states[k].time,
-                       robot_parameters[id].state_estimate(X),
-                       robot_parameters[id].state_estimate(Y),
-                       robot_parameters[id].state_estimate(ORIENTATION)));
+      robots[id].synced.states.push_back(Robot::State(
+          robots[id].groundtruth.states[k].time,
+          robot_parameters[id].state_estimate(X),
+          robot_parameters[id].state_estimate(Y), normalised_angle));
     }
 
     /* If a measurements are available, loop through each measurement
@@ -179,15 +182,18 @@ void Filter::performInference() {
 
         /* Determine whether the filter should use the huber cost function for
          * the correction. */
-        bool robust = true;
+        bool robust = false;
 
         correction(robot_parameters[id], *measured_agent, robust);
+
+        double normalised_angle =
+            robot_parameters[id].state_estimate(ORIENTATION);
+        normaliseAngle(normalised_angle);
 
         /* Update the robot state data structure. */
         robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
         robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
-        robots[id].synced.states[k].orientation =
-            robot_parameters[id].state_estimate(ORIENTATION);
+        robots[id].synced.states[k].orientation = normalised_angle;
       }
       measurement_index[id] += 1;
     }
@@ -288,9 +294,6 @@ void Filter::motionModel(const Robot::Odometry &odometry,
               std::sin(estimation_parameters.state_estimate(ORIENTATION)),
       estimation_parameters.state_estimate(ORIENTATION) +
           odometry.angular_velocity * sample_period;
-
-  /* Normalise the orientation estimate between -180 and 180. */
-  normaliseAngle(estimation_parameters.state_estimate(ORIENTATION));
 }
 
 /**

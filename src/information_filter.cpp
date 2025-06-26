@@ -68,7 +68,6 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
 void InformationFilter::correction(EstimationParameters &ego_robot,
                                    const EstimationParameters &other_agent,
                                    const bool robust) {
-  static size_t k = 0;
 
   /* WARN: Robust correction not implemented yet. */
   if (robust) {
@@ -141,18 +140,4 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Retrieve the original state estimate. */
   ego_robot.state_estimate =
       ego_robot.precision_matrix.inverse() * ego_robot.information_vector;
-
-  normaliseAngle(ego_robot.state_estimate(ORIENTATION));
-
-  if (k == 0) {
-    std::cout << information_vector << std::endl;
-    std::cout << std::endl;
-    std::cout << precision_matrix << std::endl;
-    std::cout << std::endl;
-    std::cout << information_vector_contribution << std::endl;
-    std::cout << std::endl;
-    std::cout << precision_matrix_contribution << std::endl;
-    std::cout << std::endl;
-  }
-  k++;
 }
