@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['kalmangain_5ft_0',['kalmanGain_t',['../classFilter.html#a946cc10170a105bb8e32c80ea4e6f4ef',1,'Filter']]]
+  ['information_5ft_0',['information_t',['../classFilter.html#a85f2e4d9ff8bec4d66ed605f58499c86',1,'Filter']]]
 ];

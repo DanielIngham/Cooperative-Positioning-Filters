@@ -1,22 +1,24 @@
 <map id="/home/dan/Code/UTIAS&#45;Multi&#45;Robot/Filters/src/ekf.cpp" name="/home/dan/Code/UTIAS&#45;Multi&#45;Robot/Filters/src/ekf.cpp">
-<area shape="rect" id="Node000001" title="Implementation of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="358,5,529,60"/>
-<area shape="rect" id="Node000002" href="$ekf_8h.html" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="175,108,229,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="371,63,243,108,241,103,369,58"/>
-<area shape="rect" id="Node000003" href="$filter_8h.html" title="Header file of the parent class containing shared functionality amoung cooperative localsiation filte..." alt="" coords="103,181,165,207"/>
-<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="358,38,309,45,257,58,207,79,164,110,154,123,146,137,139,168,133,167,141,135,149,120,160,106,205,74,255,53,308,40,357,33"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="253,108,439,133"/>
-<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="415,62,371,101,368,97,412,58"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="463,108,621,133"/>
-<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="475,58,520,97,516,101,472,62"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="645,108,708,133"/>
-<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="516,58,633,101,631,106,514,63"/>
-<area shape="rect" id="Node000009" title=" " alt="" coords="732,108,819,133"/>
-<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="529,53,719,102,718,107,528,59"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="193,136,157,173,153,169,189,132"/>
+<area shape="rect" id="Node000001" title="Implementation of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="507,5,678,60"/>
+<area shape="rect" id="Node000002" href="$ekf_8h.html" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="172,108,227,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="508,54,248,111,241,112,240,107,247,105,506,49"/>
+<area shape="rect" id="Node000003" href="$filter_8h.html" title="Header file of the parent class containing shared functionality amoung cooperative localsiation filte..." alt="" coords="236,181,299,207"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="508,48,383,73,329,90,294,110,285,123,278,137,271,168,266,167,273,136,280,120,291,106,327,85,382,68,507,43"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="304,108,489,133"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="534,63,436,105,434,100,532,58"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="513,108,672,133"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="595,60,595,94,590,94,590,60"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="696,108,759,133"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="635,58,699,98,696,103,632,62"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="783,108,863,133"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="664,58,781,101,779,106,662,63"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="888,108,975,133"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="679,53,875,103,874,108,677,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="212,132,249,169,245,173,209,136"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="5,255,207,280"/>
-<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="203,134,196,169,179,208,160,231,138,249,134,245,156,227,174,205,191,167,198,133"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="194,135,123,245,119,242,189,132"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="231,255,333,280"/>
-<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="211,132,271,241,267,244,206,135"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="132,208,118,243,113,241,127,206"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="159,204,247,246,244,251,157,209"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="203,133,210,167,226,205,241,226,259,244,255,248,237,230,221,208,205,168,198,134"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="242,209,146,251,144,247,240,204"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="272,206,279,241,274,242,267,208"/>
 </map>

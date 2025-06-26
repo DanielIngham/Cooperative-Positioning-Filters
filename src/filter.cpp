@@ -453,7 +453,7 @@ void Filter::calculateMeasurementJacobian(
 /**
  * @brief Schur complement-based marginalisation that marginalises a 6x6 matrix
  * into a 3x3 matrix.
- * @param[in] matrix_5d A 6x6 matrix.
+ * @param[in] matrix_6d A 6x6 matrix.
  * @returns A 3x3 matrix.
  */
 Filter::matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
@@ -470,8 +470,8 @@ Filter::matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
 /**
  * @brief Schur complement-based marginalisation that marginalises a 6x1 vector
  * and 6x6 matrix into a 3x1 vector.
- * @param[in] vector3d A 6x1 vector.
- * @param[in] matrix_5d A 6x6 matrix.
+ * @param[in] vector_6d A 6x1 vector.
+ * @param[in] matrix_6d A 6x6 matrix.
  * @returns A 3x1 vector.
  */
 Filter::state_t Filter::marginalise(const vector6D_t &vector_6d,

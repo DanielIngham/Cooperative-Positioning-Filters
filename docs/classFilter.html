@@ -136,44 +136,56 @@ Protected Types</h2></td></tr>
 , <a class="el" href="classFilter.html#a5e21eb08d103f49f82d8351cf5fdd95ea28c9af4aa5c4a0609ffcbea0ffafdb43">ORIENTATION</a> = 2
  }</td></tr>
 <tr class="separator:a5e21eb08d103f49f82d8351cf5fdd95e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf283a126d6d70eefb18121172c5eb61" id="r_acf283a126d6d70eefb18121172c5eb61"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#acf283a126d6d70eefb18121172c5eb61">state_t</a></td></tr>
-<tr class="separator:acf283a126d6d70eefb18121172c5eb61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4de8a8598e2f0c2c70e0212381a0b9c8" id="r_a4de8a8598e2f0c2c70e0212381a0b9c8"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a></td></tr>
-<tr class="separator:a4de8a8598e2f0c2c70e0212381a0b9c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a343247d2096b5dba972b32b02c6cb775" id="r_a343247d2096b5dba972b32b02c6cb775"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a343247d2096b5dba972b32b02c6cb775">vector2D_t</a></td></tr>
+<tr class="separator:a343247d2096b5dba972b32b02c6cb775"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7621a88d049e22a7923898d5e40cb4f" id="r_ad7621a88d049e22a7923898d5e40cb4f"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ad7621a88d049e22a7923898d5e40cb4f">vector3D_t</a></td></tr>
+<tr class="separator:ad7621a88d049e22a7923898d5e40cb4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1873c8244050d608ca52ef5d9e94cdfe" id="r_a1873c8244050d608ca52ef5d9e94cdfe"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">vector6D_t</a></td></tr>
+<tr class="separator:a1873c8244050d608ca52ef5d9e94cdfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab73d9ddc87bc2b7d329d6f7a3e723d37" id="r_ab73d9ddc87bc2b7d329d6f7a3e723d37"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2, 2 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab73d9ddc87bc2b7d329d6f7a3e723d37">matrix2D_t</a></td></tr>
+<tr class="separator:ab73d9ddc87bc2b7d329d6f7a3e723d37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65f6d36c8d77dd42dfcd3cfbc8f6ae13" id="r_a65f6d36c8d77dd42dfcd3cfbc8f6ae13"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a></td></tr>
 <tr class="separator:a65f6d36c8d77dd42dfcd3cfbc8f6ae13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8c31364e4ced2d5bf10602f9304f940" id="r_ab8c31364e4ced2d5bf10602f9304f940"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a></td></tr>
-<tr class="separator:ab8c31364e4ced2d5bf10602f9304f940"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbbf56ebb0c548d58d4cbb2a212ed7cd" id="r_afbbf56ebb0c548d58d4cbb2a212ed7cd"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a></td></tr>
+<tr class="separator:afbbf56ebb0c548d58d4cbb2a212ed7cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ed1acfe6b7afad744a0fcc811dd3f34" id="r_a0ed1acfe6b7afad744a0fcc811dd3f34"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#ad7621a88d049e22a7923898d5e40cb4f">vector3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">state_t</a></td></tr>
+<tr class="separator:a0ed1acfe6b7afad744a0fcc811dd3f34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fae4d453b582218968653c80b4207ee" id="r_a3fae4d453b582218968653c80b4207ee"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">vector6D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a3fae4d453b582218968653c80b4207ee">augmentedState_t</a></td></tr>
+<tr class="separator:a3fae4d453b582218968653c80b4207ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac25881384be9656978e7977210473bce" id="r_ac25881384be9656978e7977210473bce"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ac25881384be9656978e7977210473bce">covariance_t</a></td></tr>
 <tr class="separator:ac25881384be9656978e7977210473bce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18b91f80a05f057eb4b940f894b40686" id="r_a18b91f80a05f057eb4b940f894b40686"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a18b91f80a05f057eb4b940f894b40686">augmentedCovariance_t</a></td></tr>
-<tr class="separator:a18b91f80a05f057eb4b940f894b40686"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a575b2f781eb956c4736ac0706cb3411a" id="r_a575b2f781eb956c4736ac0706cb3411a"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a575b2f781eb956c4736ac0706cb3411a">augmentedCovariance_t</a></td></tr>
+<tr class="separator:a575b2f781eb956c4736ac0706cb3411a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85f2e4d9ff8bec4d66ed605f58499c86" id="r_a85f2e4d9ff8bec4d66ed605f58499c86"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#ad7621a88d049e22a7923898d5e40cb4f">vector3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a85f2e4d9ff8bec4d66ed605f58499c86">information_t</a></td></tr>
+<tr class="separator:a85f2e4d9ff8bec4d66ed605f58499c86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35efd3894c38fcf098eb6320d793fa3a" id="r_a35efd3894c38fcf098eb6320d793fa3a"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">vector6D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a35efd3894c38fcf098eb6320d793fa3a">augmentedInformation_t</a></td></tr>
+<tr class="separator:a35efd3894c38fcf098eb6320d793fa3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e2b8610875f26a44a83958f563212ac" id="r_a3e2b8610875f26a44a83958f563212ac"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a3e2b8610875f26a44a83958f563212ac">precision_t</a></td></tr>
 <tr class="separator:a3e2b8610875f26a44a83958f563212ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6ce822c2a25bd57d0ca77fbade1f3ac" id="r_ae6ce822c2a25bd57d0ca77fbade1f3ac"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ae6ce822c2a25bd57d0ca77fbade1f3ac">augmentedPrecision_t</a></td></tr>
-<tr class="separator:ae6ce822c2a25bd57d0ca77fbade1f3ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16fe5a7a28288b349f160644b7fc5cc1" id="r_a16fe5a7a28288b349f160644b7fc5cc1"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a></td></tr>
-<tr class="separator:a16fe5a7a28288b349f160644b7fc5cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab519aac7334730f59cdfb8415e84438e" id="r_ab519aac7334730f59cdfb8415e84438e"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab519aac7334730f59cdfb8415e84438e">measurementCovariance_t</a></td></tr>
-<tr class="separator:ab519aac7334730f59cdfb8415e84438e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a946cc10170a105bb8e32c80ea4e6f4ef" id="r_a946cc10170a105bb8e32c80ea4e6f4ef"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a946cc10170a105bb8e32c80ea4e6f4ef">kalmanGain_t</a></td></tr>
-<tr class="separator:a946cc10170a105bb8e32c80ea4e6f4ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07b98b24fe0ed256d5f1ebe55090d131" id="r_a07b98b24fe0ed256d5f1ebe55090d131"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a07b98b24fe0ed256d5f1ebe55090d131">augmentedPrecision_t</a></td></tr>
+<tr class="separator:a07b98b24fe0ed256d5f1ebe55090d131"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52f3127e98e39bfc8ac10240b6bfcaba" id="r_a52f3127e98e39bfc8ac10240b6bfcaba"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#a343247d2096b5dba972b32b02c6cb775">vector2D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">measurement_t</a></td></tr>
+<tr class="separator:a52f3127e98e39bfc8ac10240b6bfcaba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb58a7c89230233e2ef76ab47201ef51" id="r_acb58a7c89230233e2ef76ab47201ef51"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classFilter.html#ab73d9ddc87bc2b7d329d6f7a3e723d37">matrix2D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#acb58a7c89230233e2ef76ab47201ef51">measurementCovariance_t</a></td></tr>
+<tr class="separator:acb58a7c89230233e2ef76ab47201ef51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1d5713152e898982911dbbeb4432074" id="r_ac1d5713152e898982911dbbeb4432074"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ac1d5713152e898982911dbbeb4432074">kalmanGain_t</a></td></tr>
+<tr class="separator:ac1d5713152e898982911dbbeb4432074"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd9b64d65dab9102bd650c3b5dcd7a00" id="r_abd9b64d65dab9102bd650c3b5dcd7a00"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abd9b64d65dab9102bd650c3b5dcd7a00">motionJacobian_t</a></td></tr>
 <tr class="separator:abd9b64d65dab9102bd650c3b5dcd7a00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1a935f87af1dc6d4a7622873c13fb5e" id="r_aa1a935f87af1dc6d4a7622873c13fb5e"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, <a class="el" href="classFilter.html#a92b792c817ba3f8d483aeacc8372713a">total_inputs</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#aa1a935f87af1dc6d4a7622873c13fb5e">processJacobian_t</a></td></tr>
 <tr class="separator:aa1a935f87af1dc6d4a7622873c13fb5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acabb198cd1c79a10ec55d9c7cbc34454" id="r_acabb198cd1c79a10ec55d9c7cbc34454"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#acabb198cd1c79a10ec55d9c7cbc34454">measurementJacobian_t</a></td></tr>
-<tr class="separator:acabb198cd1c79a10ec55d9c7cbc34454"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade5d5efb3aa4f88dd238f6a6485dacc5" id="r_ade5d5efb3aa4f88dd238f6a6485dacc5"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ade5d5efb3aa4f88dd238f6a6485dacc5">measurementJacobian_t</a></td></tr>
+<tr class="separator:ade5d5efb3aa4f88dd238f6a6485dacc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46268a9679f4c82f5286c81840c0262d" id="r_a46268a9679f4c82f5286c81840c0262d"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a92b792c817ba3f8d483aeacc8372713a">total_inputs</a>, <a class="el" href="classFilter.html#a92b792c817ba3f8d483aeacc8372713a">total_inputs</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a46268a9679f4c82f5286c81840c0262d">processCovariance_t</a></td></tr>
 <tr class="separator:a46268a9679f4c82f5286c81840c0262d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d3125c9e6187ee67c193d492286935d" id="r_a0d3125c9e6187ee67c193d492286935d"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a></td></tr>
 <tr class="separator:a0d3125c9e6187ee67c193d492286935d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85e37de92e6fa1d27af942e420efd0eb" id="r_a85e37de92e6fa1d27af942e420efd0eb"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a85e37de92e6fa1d27af942e420efd0eb">huberMeasurementWeights_t</a></td></tr>
 <tr class="separator:a85e37de92e6fa1d27af942e420efd0eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64f5d0ab584e32a2238ff2c786a00d47" id="r_a64f5d0ab584e32a2238ff2c786a00d47"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a></td></tr>
-<tr class="separator:a64f5d0ab584e32a2238ff2c786a00d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98009b7c8834d1a7a99eb2d954fb5369" id="r_a98009b7c8834d1a7a99eb2d954fb5369"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2+<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a98009b7c8834d1a7a99eb2d954fb5369">huberStateWeights_t</a></td></tr>
-<tr class="separator:a98009b7c8834d1a7a99eb2d954fb5369"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bd0607b08c685e826eb3108d2c7ea4b" id="r_a7bd0607b08c685e826eb3108d2c7ea4b"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">huberStateThresholds_t</a></td></tr>
+<tr class="separator:a7bd0607b08c685e826eb3108d2c7ea4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adeb9d24d8295291aba5739f52bb1186c" id="r_adeb9d24d8295291aba5739f52bb1186c"><td class="memItemLeft" align="right" valign="top">typedef Eigen::Matrix&lt; double, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2 *<a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#adeb9d24d8295291aba5739f52bb1186c">huberStateWeights_t</a></td></tr>
+<tr class="separator:adeb9d24d8295291aba5739f52bb1186c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -190,40 +202,37 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:af27ad742bcda8219bd3661837b5f783c" id="r_af27ad742bcda8219bd3661837b5f783c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#af27ad742bcda8219bd3661837b5f783c">calculateProcessJacobian</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const double)</td></tr>
 <tr class="memdesc:af27ad742bcda8219bd3661837b5f783c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the Jacobian matrix of the motion model evaluated in terms of the process inputs.  <br /></td></tr>
 <tr class="separator:af27ad742bcda8219bd3661837b5f783c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60deae2355ef47efef0d047f773e7def" id="r_a60deae2355ef47efef0d047f773e7def"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a60deae2355ef47efef0d047f773e7def">measurementModel</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memitem:a60deae2355ef47efef0d047f773e7def" id="r_a60deae2355ef47efef0d047f773e7def"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a60deae2355ef47efef0d047f773e7def">measurementModel</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
 <tr class="memdesc:a60deae2355ef47efef0d047f773e7def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the non-linear measurement model to predict what the measurement from the system would be given the state estimates of the ego robot and measured agent.  <br /></td></tr>
 <tr class="separator:a60deae2355ef47efef0d047f773e7def"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af524f2b4f41c77c4a33f0b0740f0acea" id="r_af524f2b4f41c77c4a33f0b0740f0acea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#af524f2b4f41c77c4a33f0b0740f0acea">calculateMeasurementJacobian</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
 <tr class="memdesc:af524f2b4f41c77c4a33f0b0740f0acea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jacobian of the measurement model evaluated in terms of the systems states: x,y, and heading.  <br /></td></tr>
 <tr class="separator:af524f2b4f41c77c4a33f0b0740f0acea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1898000b368c27e199e1f0a55df2242c" id="r_a1898000b368c27e199e1f0a55df2242c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a1898000b368c27e199e1f0a55df2242c">marginalise</a> (const <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> &amp;)</td></tr>
-<tr class="memdesc:a1898000b368c27e199e1f0a55df2242c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schur complement-based marginalisation that marginalises a 5x5 matrix into a 3x3 matrix.  <br /></td></tr>
-<tr class="separator:a1898000b368c27e199e1f0a55df2242c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c338eef230884d240532025711ad85a" id="r_a8c338eef230884d240532025711ad85a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#acf283a126d6d70eefb18121172c5eb61">state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a8c338eef230884d240532025711ad85a">marginalise</a> (const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> &amp;)</td></tr>
-<tr class="memdesc:a8c338eef230884d240532025711ad85a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schur complement-based marginalisation that marginalises a 5x1 vector and 5x5 matrix into a 3x1 matrix.  <br /></td></tr>
-<tr class="separator:a8c338eef230884d240532025711ad85a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a732bead30b04ca65498c65781c42fc60" id="r_a732bead30b04ca65498c65781c42fc60"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a732bead30b04ca65498c65781c42fc60">createAugmentedState</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
-<tr class="memdesc:a732bead30b04ca65498c65781c42fc60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the agent measured to create a augmented state vector.  <br /></td></tr>
-<tr class="separator:a732bead30b04ca65498c65781c42fc60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afeda906e5aea85f6454a2877c976ea09" id="r_afeda906e5aea85f6454a2877c976ea09"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a18b91f80a05f057eb4b940f894b40686">augmentedCovariance_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#afeda906e5aea85f6454a2877c976ea09">createAugmentedCovariance</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
-<tr class="memdesc:afeda906e5aea85f6454a2877c976ea09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the agent measured.  <br /></td></tr>
-<tr class="separator:afeda906e5aea85f6454a2877c976ea09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91be471f68a0b059f184a4b027fff1f4" id="r_a91be471f68a0b059f184a4b027fff1f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#ae6ce822c2a25bd57d0ca77fbade1f3ac">augmentedPrecision_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a91be471f68a0b059f184a4b027fff1f4">createAugmentedPrecision</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
-<tr class="memdesc:a91be471f68a0b059f184a4b027fff1f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3x3 precision matrix of the ego robot with the 2x2 precision matrix agent measured to create a 5x5 augmented precision matrix.  <br /></td></tr>
-<tr class="separator:a91be471f68a0b059f184a4b027fff1f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01d07b4c6464eaaa48bb9aaaa37ddfa0" id="r_a01d07b4c6464eaaa48bb9aaaa37ddfa0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a01d07b4c6464eaaa48bb9aaaa37ddfa0">marginalise</a> (const <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> &amp;)</td></tr>
+<tr class="memdesc:a01d07b4c6464eaaa48bb9aaaa37ddfa0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schur complement-based marginalisation that marginalises a 6x6 matrix into a 3x3 matrix.  <br /></td></tr>
+<tr class="separator:a01d07b4c6464eaaa48bb9aaaa37ddfa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cb85e454d69127456b8c7cbc70d64c7" id="r_a6cb85e454d69127456b8c7cbc70d64c7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a6cb85e454d69127456b8c7cbc70d64c7">marginalise</a> (const <a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">vector6D_t</a> &amp;, const <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> &amp;)</td></tr>
+<tr class="memdesc:a6cb85e454d69127456b8c7cbc70d64c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schur complement-based marginalisation that marginalises a 6x1 vector and 6x6 matrix into a 3x1 vector.  <br /></td></tr>
+<tr class="separator:a6cb85e454d69127456b8c7cbc70d64c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafdb90537c3a97666ba73edccaec5dea" id="r_aafdb90537c3a97666ba73edccaec5dea"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a35efd3894c38fcf098eb6320d793fa3a">augmentedInformation_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#aafdb90537c3a97666ba73edccaec5dea">createAugmentedVector</a> (const <a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">state_t</a> &amp;, const <a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">state_t</a> &amp;)</td></tr>
+<tr class="memdesc:aafdb90537c3a97666ba73edccaec5dea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the 3 states of the ego vehicle (x,y,orientation), with the state of the agent measured to create a augmented state vector.  <br /></td></tr>
+<tr class="separator:aafdb90537c3a97666ba73edccaec5dea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7df491c87f23d298b5b0c2d73d3fd741" id="r_a7df491c87f23d298b5b0c2d73d3fd741"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a575b2f781eb956c4736ac0706cb3411a">augmentedCovariance_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a7df491c87f23d298b5b0c2d73d3fd741">createAugmentedMatrix</a> (const <a class="el" href="classFilter.html#ac25881384be9656978e7977210473bce">covariance_t</a> &amp;, const <a class="el" href="classFilter.html#ac25881384be9656978e7977210473bce">covariance_t</a> &amp;)</td></tr>
+<tr class="memdesc:a7df491c87f23d298b5b0c2d73d3fd741"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines the covariance/precision matrix of the 3 states of the ego vehicle (x,y,orientation), with the covariance/precision of the of the agent measured.  <br /></td></tr>
+<tr class="separator:a7df491c87f23d298b5b0c2d73d3fd741"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09d48b8e5d7953d0bca6287957ef4280" id="r_a09d48b8e5d7953d0bca6287957ef4280"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a09d48b8e5d7953d0bca6287957ef4280">normaliseAngle</a> (double &amp;)</td></tr>
-<tr class="memdesc:a09d48b8e5d7953d0bca6287957ef4280"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalise an angle between \(\pi\) and \(-\pi\).  <br /></td></tr>
+<tr class="memdesc:a09d48b8e5d7953d0bca6287957ef4280"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalise an angle between \((-\pi, \pi]\).  <br /></td></tr>
 <tr class="separator:a09d48b8e5d7953d0bca6287957ef4280"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abcc793aa365ec3ad5fec6395fd6de4c0" id="r_abcc793aa365ec3ad5fec6395fd6de4c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abcc793aa365ec3ad5fec6395fd6de4c0">calculateNormalisedInnovation</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memitem:abcc793aa365ec3ad5fec6395fd6de4c0" id="r_abcc793aa365ec3ad5fec6395fd6de4c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">measurement_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abcc793aa365ec3ad5fec6395fd6de4c0">calculateNormalisedInnovation</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
 <tr class="memdesc:abcc793aa365ec3ad5fec6395fd6de4c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the normalised residual of the value produced by the sensor measurement and the prior estimate passed through the non-linear measurement model.  <br /></td></tr>
 <tr class="separator:abcc793aa365ec3ad5fec6395fd6de4c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f8cd8c3c150fdc0ff98042b6dc391a0" id="r_a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a9f8cd8c3c150fdc0ff98042b6dc391a0">calculateNormalisedEstimationResidual</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
+<tr class="memitem:a9f8cd8c3c150fdc0ff98042b6dc391a0" id="r_a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a3fae4d453b582218968653c80b4207ee">augmentedState_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a9f8cd8c3c150fdc0ff98042b6dc391a0">calculateNormalisedEstimationResidual</a> (const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)</td></tr>
 <tr class="memdesc:a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the normalised residual of the initial estimate and updated estimate.  <br /></td></tr>
 <tr class="separator:a9f8cd8c3c150fdc0ff98042b6dc391a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5e7b959c1b6757edd7662510595475e" id="r_aa5e7b959c1b6757edd7662510595475e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a85e37de92e6fa1d27af942e420efd0eb">huberMeasurementWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#aa5e7b959c1b6757edd7662510595475e">HuberMeasurement</a> (const <a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a> &amp;, const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a> &amp;)</td></tr>
+<tr class="memitem:aa5e7b959c1b6757edd7662510595475e" id="r_aa5e7b959c1b6757edd7662510595475e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a85e37de92e6fa1d27af942e420efd0eb">huberMeasurementWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#aa5e7b959c1b6757edd7662510595475e">HuberMeasurement</a> (const <a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">measurement_t</a> &amp;, const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a> &amp;)</td></tr>
 <tr class="memdesc:aa5e7b959c1b6757edd7662510595475e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber Measurement cost function,.  <br /></td></tr>
 <tr class="separator:aa5e7b959c1b6757edd7662510595475e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab14ab31c0a1875b53e4fa7373b61f2b6" id="r_ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a98009b7c8834d1a7a99eb2d954fb5369">huberStateWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab14ab31c0a1875b53e4fa7373b61f2b6">HuberState</a> (const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> &amp;)</td></tr>
+<tr class="memitem:ab14ab31c0a1875b53e4fa7373b61f2b6" id="r_ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#adeb9d24d8295291aba5739f52bb1186c">huberStateWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab14ab31c0a1875b53e4fa7373b61f2b6">HuberState</a> (const <a class="el" href="classFilter.html#a3fae4d453b582218968653c80b4207ee">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">huberStateThresholds_t</a> &amp;)</td></tr>
 <tr class="memdesc:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber State cost function,.  <br /></td></tr>
 <tr class="separator:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -241,7 +250,7 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:ab05d261cf0b24334510c71f2dcdd0f99" id="r_ab05d261cf0b24334510c71f2dcdd0f99"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab05d261cf0b24334510c71f2dcdd0f99">measurement_thresholds</a></td></tr>
 <tr class="memdesc:ab05d261cf0b24334510c71f2dcdd0f99"><td class="mdescLeft">&#160;</td><td class="mdescRight">The thresholds for the huber measurement cost function.  <br /></td></tr>
 <tr class="separator:ab05d261cf0b24334510c71f2dcdd0f99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45b83ae354d3c5f07ad52dde42f6ebec" id="r_a45b83ae354d3c5f07ad52dde42f6ebec"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a45b83ae354d3c5f07ad52dde42f6ebec">state_thresholds</a></td></tr>
+<tr class="memitem:a45b83ae354d3c5f07ad52dde42f6ebec" id="r_a45b83ae354d3c5f07ad52dde42f6ebec"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">huberStateThresholds_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a45b83ae354d3c5f07ad52dde42f6ebec">state_thresholds</a></td></tr>
 <tr class="memdesc:a45b83ae354d3c5f07ad52dde42f6ebec"><td class="mdescLeft">&#160;</td><td class="mdescRight">The thresholds for the huber state cost function.  <br /></td></tr>
 <tr class="separator:a45b83ae354d3c5f07ad52dde42f6ebec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -258,8 +267,8 @@ Static Protected Attributes</h2></td></tr>
 <tr class="separator:a4090cb97b06114d3e579307e1b64d355"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a18b91f80a05f057eb4b940f894b40686" name="a18b91f80a05f057eb4b940f894b40686"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18b91f80a05f057eb4b940f894b40686">&#9670;&#160;</a></span>augmentedCovariance_t</h2>
+<a id="a575b2f781eb956c4736ac0706cb3411a" name="a575b2f781eb956c4736ac0706cb3411a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a575b2f781eb956c4736ac0706cb3411a">&#9670;&#160;</a></span>augmentedCovariance_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -268,7 +277,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> <a class="el" href="classFilter.html#a18b91f80a05f057eb4b940f894b40686">Filter::augmentedCovariance_t</a></td>
+          <td class="memname">typedef <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> <a class="el" href="classFilter.html#a575b2f781eb956c4736ac0706cb3411a">Filter::augmentedCovariance_t</a></td>
         </tr>
       </table>
   </td>
@@ -280,8 +289,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ae6ce822c2a25bd57d0ca77fbade1f3ac" name="ae6ce822c2a25bd57d0ca77fbade1f3ac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae6ce822c2a25bd57d0ca77fbade1f3ac">&#9670;&#160;</a></span>augmentedPrecision_t</h2>
+<a id="a35efd3894c38fcf098eb6320d793fa3a" name="a35efd3894c38fcf098eb6320d793fa3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35efd3894c38fcf098eb6320d793fa3a">&#9670;&#160;</a></span>augmentedInformation_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -290,7 +299,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> <a class="el" href="classFilter.html#ae6ce822c2a25bd57d0ca77fbade1f3ac">Filter::augmentedPrecision_t</a></td>
+          <td class="memname">typedef <a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">vector6D_t</a> <a class="el" href="classFilter.html#a35efd3894c38fcf098eb6320d793fa3a">Filter::augmentedInformation_t</a></td>
         </tr>
       </table>
   </td>
@@ -302,8 +311,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a4de8a8598e2f0c2c70e0212381a0b9c8" name="a4de8a8598e2f0c2c70e0212381a0b9c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4de8a8598e2f0c2c70e0212381a0b9c8">&#9670;&#160;</a></span>augmentedState_t</h2>
+<a id="a07b98b24fe0ed256d5f1ebe55090d131" name="a07b98b24fe0ed256d5f1ebe55090d131"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07b98b24fe0ed256d5f1ebe55090d131">&#9670;&#160;</a></span>augmentedPrecision_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -312,7 +321,29 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1&gt; <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">Filter::augmentedState_t</a></td>
+          <td class="memname">typedef <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> <a class="el" href="classFilter.html#a07b98b24fe0ed256d5f1ebe55090d131">Filter::augmentedPrecision_t</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3fae4d453b582218968653c80b4207ee" name="a3fae4d453b582218968653c80b4207ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fae4d453b582218968653c80b4207ee">&#9670;&#160;</a></span>augmentedState_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">vector6D_t</a> <a class="el" href="classFilter.html#a3fae4d453b582218968653c80b4207ee">Filter::augmentedState_t</a></td>
         </tr>
       </table>
   </td>
@@ -390,8 +421,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a64f5d0ab584e32a2238ff2c786a00d47" name="a64f5d0ab584e32a2238ff2c786a00d47"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a64f5d0ab584e32a2238ff2c786a00d47">&#9670;&#160;</a></span>huberStateThresholds_t</h2>
+<a id="a7bd0607b08c685e826eb3108d2c7ea4b" name="a7bd0607b08c685e826eb3108d2c7ea4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bd0607b08c685e826eb3108d2c7ea4b">&#9670;&#160;</a></span>huberStateThresholds_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -400,7 +431,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1&gt; <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">Filter::huberStateThresholds_t</a></td>
+          <td class="memname">typedef Eigen::Matrix&lt;double, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1&gt; <a class="el" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">Filter::huberStateThresholds_t</a></td>
         </tr>
       </table>
   </td>
@@ -412,8 +443,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a98009b7c8834d1a7a99eb2d954fb5369" name="a98009b7c8834d1a7a99eb2d954fb5369"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a98009b7c8834d1a7a99eb2d954fb5369">&#9670;&#160;</a></span>huberStateWeights_t</h2>
+<a id="adeb9d24d8295291aba5739f52bb1186c" name="adeb9d24d8295291aba5739f52bb1186c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adeb9d24d8295291aba5739f52bb1186c">&#9670;&#160;</a></span>huberStateWeights_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -422,7 +453,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>&gt; <a class="el" href="classFilter.html#a98009b7c8834d1a7a99eb2d954fb5369">Filter::huberStateWeights_t</a></td>
+          <td class="memname">typedef Eigen::Matrix&lt;double, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>&gt; <a class="el" href="classFilter.html#adeb9d24d8295291aba5739f52bb1186c">Filter::huberStateWeights_t</a></td>
         </tr>
       </table>
   </td>
@@ -434,8 +465,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a946cc10170a105bb8e32c80ea4e6f4ef" name="a946cc10170a105bb8e32c80ea4e6f4ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a946cc10170a105bb8e32c80ea4e6f4ef">&#9670;&#160;</a></span>kalmanGain_t</h2>
+<a id="a85f2e4d9ff8bec4d66ed605f58499c86" name="a85f2e4d9ff8bec4d66ed605f58499c86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85f2e4d9ff8bec4d66ed605f58499c86">&#9670;&#160;</a></span>information_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -444,7 +475,51 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>&gt; <a class="el" href="classFilter.html#a946cc10170a105bb8e32c80ea4e6f4ef">Filter::kalmanGain_t</a></td>
+          <td class="memname">typedef <a class="el" href="classFilter.html#ad7621a88d049e22a7923898d5e40cb4f">vector3D_t</a> <a class="el" href="classFilter.html#a85f2e4d9ff8bec4d66ed605f58499c86">Filter::information_t</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac1d5713152e898982911dbbeb4432074" name="ac1d5713152e898982911dbbeb4432074"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1d5713152e898982911dbbeb4432074">&#9670;&#160;</a></span>kalmanGain_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Eigen::Matrix&lt;double, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>&gt; <a class="el" href="classFilter.html#ac1d5713152e898982911dbbeb4432074">Filter::kalmanGain_t</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab73d9ddc87bc2b7d329d6f7a3e723d37" name="ab73d9ddc87bc2b7d329d6f7a3e723d37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab73d9ddc87bc2b7d329d6f7a3e723d37">&#9670;&#160;</a></span>matrix2D_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Eigen::Matrix&lt;double, 2, 2&gt; <a class="el" href="classFilter.html#ab73d9ddc87bc2b7d329d6f7a3e723d37">Filter::matrix2D_t</a></td>
         </tr>
       </table>
   </td>
@@ -478,8 +553,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ab8c31364e4ced2d5bf10602f9304f940" name="ab8c31364e4ced2d5bf10602f9304f940"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab8c31364e4ced2d5bf10602f9304f940">&#9670;&#160;</a></span>matrix5D_t</h2>
+<a id="afbbf56ebb0c548d58d4cbb2a212ed7cd" name="afbbf56ebb0c548d58d4cbb2a212ed7cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afbbf56ebb0c548d58d4cbb2a212ed7cd">&#9670;&#160;</a></span>matrix6D_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -488,7 +563,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>&gt; <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">Filter::matrix5D_t</a></td>
+          <td class="memname">typedef Eigen::Matrix&lt;double, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>&gt; <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">Filter::matrix6D_t</a></td>
         </tr>
       </table>
   </td>
@@ -500,8 +575,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a16fe5a7a28288b349f160644b7fc5cc1" name="a16fe5a7a28288b349f160644b7fc5cc1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a16fe5a7a28288b349f160644b7fc5cc1">&#9670;&#160;</a></span>measurement_t</h2>
+<a id="a52f3127e98e39bfc8ac10240b6bfcaba" name="a52f3127e98e39bfc8ac10240b6bfcaba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52f3127e98e39bfc8ac10240b6bfcaba">&#9670;&#160;</a></span>measurement_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -510,7 +585,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 1&gt; <a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">Filter::measurement_t</a></td>
+          <td class="memname">typedef <a class="el" href="classFilter.html#a343247d2096b5dba972b32b02c6cb775">vector2D_t</a> <a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">Filter::measurement_t</a></td>
         </tr>
       </table>
   </td>
@@ -522,8 +597,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ab519aac7334730f59cdfb8415e84438e" name="ab519aac7334730f59cdfb8415e84438e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab519aac7334730f59cdfb8415e84438e">&#9670;&#160;</a></span>measurementCovariance_t</h2>
+<a id="acb58a7c89230233e2ef76ab47201ef51" name="acb58a7c89230233e2ef76ab47201ef51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb58a7c89230233e2ef76ab47201ef51">&#9670;&#160;</a></span>measurementCovariance_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -532,7 +607,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>&gt; <a class="el" href="classFilter.html#ab519aac7334730f59cdfb8415e84438e">Filter::measurementCovariance_t</a></td>
+          <td class="memname">typedef <a class="el" href="classFilter.html#ab73d9ddc87bc2b7d329d6f7a3e723d37">matrix2D_t</a> <a class="el" href="classFilter.html#acb58a7c89230233e2ef76ab47201ef51">Filter::measurementCovariance_t</a></td>
         </tr>
       </table>
   </td>
@@ -544,8 +619,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="acabb198cd1c79a10ec55d9c7cbc34454" name="acabb198cd1c79a10ec55d9c7cbc34454"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acabb198cd1c79a10ec55d9c7cbc34454">&#9670;&#160;</a></span>measurementJacobian_t</h2>
+<a id="ade5d5efb3aa4f88dd238f6a6485dacc5" name="ade5d5efb3aa4f88dd238f6a6485dacc5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ade5d5efb3aa4f88dd238f6a6485dacc5">&#9670;&#160;</a></span>measurementJacobian_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -554,7 +629,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 2 + <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>&gt; <a class="el" href="classFilter.html#acabb198cd1c79a10ec55d9c7cbc34454">Filter::measurementJacobian_t</a></td>
+          <td class="memname">typedef Eigen::Matrix&lt;double, <a class="el" href="classFilter.html#a4090cb97b06114d3e579307e1b64d355">total_measurements</a>, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>&gt; <a class="el" href="classFilter.html#ade5d5efb3aa4f88dd238f6a6485dacc5">Filter::measurementJacobian_t</a></td>
         </tr>
       </table>
   </td>
@@ -654,8 +729,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="acf283a126d6d70eefb18121172c5eb61" name="acf283a126d6d70eefb18121172c5eb61"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acf283a126d6d70eefb18121172c5eb61">&#9670;&#160;</a></span>state_t</h2>
+<a id="a0ed1acfe6b7afad744a0fcc811dd3f34" name="a0ed1acfe6b7afad744a0fcc811dd3f34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ed1acfe6b7afad744a0fcc811dd3f34">&#9670;&#160;</a></span>state_t</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -664,7 +739,73 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef Eigen::Matrix&lt;double, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1&gt; <a class="el" href="classFilter.html#acf283a126d6d70eefb18121172c5eb61">Filter::state_t</a></td>
+          <td class="memname">typedef <a class="el" href="classFilter.html#ad7621a88d049e22a7923898d5e40cb4f">vector3D_t</a> <a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">Filter::state_t</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a343247d2096b5dba972b32b02c6cb775" name="a343247d2096b5dba972b32b02c6cb775"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a343247d2096b5dba972b32b02c6cb775">&#9670;&#160;</a></span>vector2D_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Eigen::Matrix&lt;double, 2, 1&gt; <a class="el" href="classFilter.html#a343247d2096b5dba972b32b02c6cb775">Filter::vector2D_t</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad7621a88d049e22a7923898d5e40cb4f" name="ad7621a88d049e22a7923898d5e40cb4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7621a88d049e22a7923898d5e40cb4f">&#9670;&#160;</a></span>vector3D_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Eigen::Matrix&lt;double, <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1&gt; <a class="el" href="classFilter.html#ad7621a88d049e22a7923898d5e40cb4f">Filter::vector3D_t</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1873c8244050d608ca52ef5d9e94cdfe" name="a1873c8244050d608ca52ef5d9e94cdfe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1873c8244050d608ca52ef5d9e94cdfe">&#9670;&#160;</a></span>vector6D_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef Eigen::Matrix&lt;double, 2 * <a class="el" href="classFilter.html#aec9e12adb6d5b620228648437d46d358">total_states</a>, 1&gt; <a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">Filter::vector6D_t</a></td>
         </tr>
       </table>
   </td>
@@ -859,11 +1000,11 @@ Static Protected Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-<p>The formula used for the calculation of the Jacobian of the measurement matrix between ego vehicle \(i\) and measured vehicle \(j\) take the form  </p><p class="formulaDsp">
+<p>The formula used for the calculation of the Jacobian of the measurement matrix between ego vehicle \(i\) and measured agent \(j\) take the form  </p><p class="formulaDsp">
 \[ H = \begin{bmatrix} \frac{-\Delta x}{d} &amp; \frac{-\Delta y}{d} &amp; 0 &amp;
-\frac{\Delta x}{d} &amp; \frac{\Delta y}{d} \\ \frac{\Delta y}{d^2} &amp;
+\frac{\Delta x}{d} &amp; \frac{\Delta y}{d} &amp; 0\\ \frac{\Delta y}{d^2} &amp;
 \frac{-\Delta x}{d^2} &amp; -1 &amp; \frac{-\Delta y}{d^2} &amp; \frac{\Delta x}{d^2}
-\end{bmatrix} \]
+&amp; 0\end{bmatrix} \]
 </p>
 <p> where \(\Delta x = x_j - x_i\); \(\Delta y = y_j
 - y_i\); and \(\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\). </p>
@@ -937,7 +1078,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">Filter::augmentedState_t</a> Filter::calculateNormalisedEstimationResidual </td>
+          <td class="memname"><a class="el" href="classFilter.html#a3fae4d453b582218968653c80b4207ee">Filter::augmentedState_t</a> Filter::calculateNormalisedEstimationResidual </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
           <td class="paramname"><em>filter</em></td><td>)</td>
@@ -972,7 +1113,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">Filter::measurement_t</a> Filter::calculateNormalisedInnovation </td>
+          <td class="memname"><a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">Filter::measurement_t</a> Filter::calculateNormalisedInnovation </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
           <td class="paramname"><em>filter</em></td><td>)</td>
@@ -1091,8 +1232,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="afeda906e5aea85f6454a2877c976ea09" name="afeda906e5aea85f6454a2877c976ea09"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afeda906e5aea85f6454a2877c976ea09">&#9670;&#160;</a></span>createAugmentedCovariance()</h2>
+<a id="a7df491c87f23d298b5b0c2d73d3fd741" name="a7df491c87f23d298b5b0c2d73d3fd741"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7df491c87f23d298b5b0c2d73d3fd741">&#9670;&#160;</a></span>createAugmentedMatrix()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1101,15 +1242,15 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classFilter.html#a18b91f80a05f057eb4b940f894b40686">Filter::augmentedCovariance_t</a> Filter::createAugmentedCovariance </td>
+          <td class="memname"><a class="el" href="classFilter.html#a575b2f781eb956c4736ac0706cb3411a">Filter::augmentedCovariance_t</a> Filter::createAugmentedMatrix </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#ac25881384be9656978e7977210473bce">covariance_t</a> &amp;&#160;</td>
           <td class="paramname"><em>ego_robot</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#ac25881384be9656978e7977210473bce">covariance_t</a> &amp;&#160;</td>
           <td class="paramname"><em>other_agent</em>&#160;</td>
         </tr>
         <tr>
@@ -1125,7 +1266,7 @@ Static Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the agent measured. </p>
+<p>Combines the covariance/precision matrix of the 3 states of the ego vehicle (x,y,orientation), with the covariance/precision of the of the agent measured. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">ego_robot</td><td>the structure containing the estimation parameters of the ego vehicle. </td></tr>
@@ -1133,7 +1274,7 @@ Static Protected Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-<p>Cooperative Localisation (Positioning) involves robots that share thier state and estimation error covariances when one robot measures the other. As a result, the estimation error covariance needs to be augmented from a 3x3 to a 3x3 matrix to house the error covariance of both the ego vehicle ( \(i\)) and the measured vehicle ( \(j\)):  </p><p class="formulaDsp">
+<p>Cooperative Localisation (Positioning) involves robots that share thier state and estimation error covariances / precision when one robot measures the other. As a result, the estimation error covariance/precision needs to be augmented from a 3x3 to a 6x6 matrix to house the error covariance of both the ego vehicle ( \(i\)) and the measured agent ( \(j\)):  </p><p class="formulaDsp">
 \[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i &amp; \mathbf{0} \\ \mathbf{0} &amp;
 \mathbf{P}_j \end{bmatrix}, \]
 </p>
@@ -1141,8 +1282,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a91be471f68a0b059f184a4b027fff1f4" name="a91be471f68a0b059f184a4b027fff1f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a91be471f68a0b059f184a4b027fff1f4">&#9670;&#160;</a></span>createAugmentedPrecision()</h2>
+<a id="aafdb90537c3a97666ba73edccaec5dea" name="aafdb90537c3a97666ba73edccaec5dea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aafdb90537c3a97666ba73edccaec5dea">&#9670;&#160;</a></span>createAugmentedVector()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1151,15 +1292,15 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classFilter.html#ae6ce822c2a25bd57d0ca77fbade1f3ac">Filter::augmentedPrecision_t</a> Filter::createAugmentedPrecision </td>
+          <td class="memname"><a class="el" href="classFilter.html#a35efd3894c38fcf098eb6320d793fa3a">Filter::augmentedInformation_t</a> Filter::createAugmentedVector </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">state_t</a> &amp;&#160;</td>
           <td class="paramname"><em>ego_robot</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">state_t</a> &amp;&#160;</td>
           <td class="paramname"><em>other_agent</em>&#160;</td>
         </tr>
         <tr>
@@ -1175,52 +1316,7 @@ Static Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Combines the 3x3 precision matrix of the ego robot with the 2x2 precision matrix agent measured to create a 5x5 augmented precision matrix. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">ego_robot</td><td>the structure containing the estimation parameters of the ego vehicle. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">other_agent</td><td>the structure containing the estimation parameters of the agent measured by the ego vehicle. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a732bead30b04ca65498c65781c42fc60" name="a732bead30b04ca65498c65781c42fc60"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a732bead30b04ca65498c65781c42fc60">&#9670;&#160;</a></span>createAugmentedState()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">Filter::augmentedState_t</a> Filter::createAugmentedState </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>ego_robot</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>other_agent</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Combines the 3 states of the ego vehicle (x,y,orientation), with the position of the of the agent measured to create a augmented state vector. </p>
+<p>Combines the 3 states of the ego vehicle (x,y,orientation), with the state of the agent measured to create a augmented state vector. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">ego_robot</td><td>the structure containing the estimation parameters of the ego vehicle. </td></tr>
@@ -1244,7 +1340,7 @@ Static Protected Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="classFilter.html#a85e37de92e6fa1d27af942e420efd0eb">Filter::huberMeasurementWeights_t</a> Filter::HuberMeasurement </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">measurement_t</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">measurement_t</a> &amp;&#160;</td>
           <td class="paramname"><em>measurement_residual</em>, </td>
         </tr>
         <tr>
@@ -1287,15 +1383,15 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classFilter.html#a98009b7c8834d1a7a99eb2d954fb5369">Filter::huberStateWeights_t</a> Filter::HuberState </td>
+          <td class="memname"><a class="el" href="classFilter.html#adeb9d24d8295291aba5739f52bb1186c">Filter::huberStateWeights_t</a> Filter::HuberState </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#a3fae4d453b582218968653c80b4207ee">augmentedState_t</a> &amp;&#160;</td>
           <td class="paramname"><em>error_residual</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">huberStateThresholds_t</a> &amp;&#160;</td>
           <td class="paramname"><em>tau</em>&#160;</td>
         </tr>
         <tr>
@@ -1322,8 +1418,8 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a8c338eef230884d240532025711ad85a" name="a8c338eef230884d240532025711ad85a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8c338eef230884d240532025711ad85a">&#9670;&#160;</a></span>marginalise() <span class="overload">[1/2]</span></h2>
+<a id="a01d07b4c6464eaaa48bb9aaaa37ddfa0" name="a01d07b4c6464eaaa48bb9aaaa37ddfa0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01d07b4c6464eaaa48bb9aaaa37ddfa0">&#9670;&#160;</a></span>marginalise() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1332,16 +1428,51 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classFilter.html#acf283a126d6d70eefb18121172c5eb61">Filter::state_t</a> Filter::marginalise </td>
+          <td class="memname"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">Filter::matrix3D_t</a> Filter::marginalise </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classFilter.html#a4de8a8598e2f0c2c70e0212381a0b9c8">augmentedState_t</a> &amp;&#160;</td>
-          <td class="paramname"><em>vector3d</em>, </td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>matrix_6d</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Schur complement-based marginalisation that marginalises a 6x6 matrix into a 3x3 matrix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">matrix_6d</td><td>A 6x6 matrix. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A 3x3 matrix. </dd></dl>
+
+</div>
+</div>
+<a id="a6cb85e454d69127456b8c7cbc70d64c7" name="a6cb85e454d69127456b8c7cbc70d64c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cb85e454d69127456b8c7cbc70d64c7">&#9670;&#160;</a></span>marginalise() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classFilter.html#a0ed1acfe6b7afad744a0fcc811dd3f34">Filter::state_t</a> Filter::marginalise </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#a1873c8244050d608ca52ef5d9e94cdfe">vector6D_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>vector_6d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> &amp;&#160;</td>
-          <td class="paramname"><em>matrix_5d</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>matrix_6d</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1356,50 +1487,15 @@ Static Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Schur complement-based marginalisation that marginalises a 5x1 vector and 5x5 matrix into a 3x1 matrix. </p>
+<p>Schur complement-based marginalisation that marginalises a 6x1 vector and 6x6 matrix into a 3x1 vector. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">vector3d</td><td>A 5x1 vector. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">matrix_5d</td><td>A 5x5 matrix. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">vector_6d</td><td>A 6x1 vector. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">matrix_6d</td><td>A 6x6 matrix. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A 3x1 vector. </dd></dl>
-
-</div>
-</div>
-<a id="a1898000b368c27e199e1f0a55df2242c" name="a1898000b368c27e199e1f0a55df2242c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1898000b368c27e199e1f0a55df2242c">&#9670;&#160;</a></span>marginalise() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">Filter::matrix3D_t</a> Filter::marginalise </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classFilter.html#ab8c31364e4ced2d5bf10602f9304f940">matrix5D_t</a> &amp;&#160;</td>
-          <td class="paramname"><em>matrix_5d</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Schur complement-based marginalisation that marginalises a 5x5 matrix into a 3x3 matrix. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">matrix_5d</td><td>A 5x5 matrix. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A 3x3 matrix. </dd></dl>
 
 </div>
 </div>
@@ -1413,7 +1509,7 @@ Static Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classFilter.html#a16fe5a7a28288b349f160644b7fc5cc1">Filter::measurement_t</a> Filter::measurementModel </td>
+          <td class="memname"><a class="el" href="classFilter.html#a52f3127e98e39bfc8ac10240b6bfcaba">Filter::measurement_t</a> Filter::measurementModel </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
           <td class="paramname"><em>ego_robot</em>, </td>
@@ -1445,7 +1541,7 @@ Static Protected Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-<p>The measusurement model for the measurement taken from ego vehicle \(i\) to vehicle \(j\) used for the correction step takes the form  </p><p class="formulaDsp">
+<p>The measusurement model for the measurement taken from ego vehicle \(i\) to agent \(j\) used for the correction step takes the form  </p><p class="formulaDsp">
 \[ \begin{bmatrix} r_{ij}^{(t)} \\ \phi_{ij}^{(t)}\end{bmatrix} =
 \begin{bmatrix}\sqrt{(x_j^{(t)} - x_i^{(t)})^2 + (y_j^{(t)} - y_i^{(t)})^2} +
 q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
@@ -1539,7 +1635,7 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 </table>
 </div><div class="memdoc">
 
-<p>Normalise an angle between \(\pi\) and \(-\pi\). </p>
+<p>Normalise an angle between \((-\pi, \pi]\). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">angle</td><td>Angle in radians. </td></tr>
@@ -1676,7 +1772,7 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">      (<a class="code hl_typedef" href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">huberMeasurementThresholds_t</a>() &lt;&lt; 0.2, 0.01).finished()</div>
-<div class="ttc" id="aclassFilter_html_a0d3125c9e6187ee67c193d492286935d"><div class="ttname"><a href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">Filter::huberMeasurementThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, total_measurements, 1 &gt; huberMeasurementThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:75</div></div>
+<div class="ttc" id="aclassFilter_html_a0d3125c9e6187ee67c193d492286935d"><div class="ttname"><a href="classFilter.html#a0d3125c9e6187ee67c193d492286935d">Filter::huberMeasurementThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, total_measurements, 1 &gt; huberMeasurementThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:84</div></div>
 </div><!-- fragment -->
 <p>The thresholds for the huber measurement cost function. </p>
 <p>The vector is of the for: range and bearing. </p>
@@ -1717,7 +1813,7 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a> Filter::state_thresholds</td>
+          <td class="memname">const <a class="el" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">huberStateThresholds_t</a> Filter::state_thresholds</td>
         </tr>
       </table>
   </td>
@@ -1727,9 +1823,9 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">      (<a class="code hl_typedef" href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">huberStateThresholds_t</a>() &lt;&lt; 0.15, 0.154, 0.255, 0.0104, 0.0104)</div>
+<div class="line">      (<a class="code hl_typedef" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">huberStateThresholds_t</a>() &lt;&lt; 0.15, 0.154, 0.255, 0.0104, 0.0104, 0.0)</div>
 <div class="line">          .finished()</div>
-<div class="ttc" id="aclassFilter_html_a64f5d0ab584e32a2238ff2c786a00d47"><div class="ttname"><a href="classFilter.html#a64f5d0ab584e32a2238ff2c786a00d47">Filter::huberStateThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, 2+total_states, 1 &gt; huberStateThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:80</div></div>
+<div class="ttc" id="aclassFilter_html_a7bd0607b08c685e826eb3108d2c7ea4b"><div class="ttname"><a href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">Filter::huberStateThresholds_t</a></div><div class="ttdeci">Eigen::Matrix&lt; double, 2 *total_states, 1 &gt; huberStateThresholds_t</div><div class="ttdef"><b>Definition</b> filter.h:89</div></div>
 </div><!-- fragment -->
 <p>The thresholds for the huber state cost function. </p>
 <p>The vector is of the for: ego x, ego y, ego orientation, agent x, agent y. </p>
