@@ -365,7 +365,7 @@ void Filter::calculateProcessJacobian(
  * measured by the ego robot.
  *
  * @details The measusurement model for the measurement taken from ego vehicle
- * \f$i\f$ to vehicle \f$j\f$ used for the correction step takes the form
+ * \f$i\f$ to agent \f$j\f$ used for the correction step takes the form
  * \f[ \begin{bmatrix} r_{ij}^{(t)} \\ \phi_{ij}^{(t)}\end{bmatrix} =
  * \begin{bmatrix}\sqrt{(x_j^{(t)} - x_i^{(t)})^2 + (y_j^{(t)} - y_i^{(t)})^2} +
  * q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
@@ -417,7 +417,7 @@ Filter::measurementModel(EstimationParameters &ego_robot,
  * measured by the ego robot.
  *
  * @details The formula used for the calculation of the Jacobian of the
- * measurement matrix between ego vehicle \f$i\f$ and measured vehicle
+ * measurement matrix between ego vehicle \f$i\f$ and measured agent
  * \f$j\f$ take the form
  * \f[ H = \begin{bmatrix} \frac{-\Delta x}{d} & \frac{-\Delta y}{d} & 0 &
  * \frac{\Delta x}{d} & \frac{\Delta y}{d} & 0\\ \frac{\Delta y}{d^2} &
@@ -451,7 +451,7 @@ void Filter::calculateMeasurementJacobian(
 }
 
 /**
- * @brief Schur complement-based marginalisation that marginalises a 5x5 matrix
+ * @brief Schur complement-based marginalisation that marginalises a 6x6 matrix
  * into a 3x3 matrix.
  * @param[in] matrix_5d A 6x6 matrix.
  * @returns A 3x3 matrix.
@@ -468,8 +468,8 @@ Filter::matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
 }
 
 /**
- * @brief Schur complement-based marginalisation that marginalises a 5x1 vector
- * and 5x5 matrix into a 3x1 matrix.
+ * @brief Schur complement-based marginalisation that marginalises a 6x1 vector
+ * and 6x6 matrix into a 3x1 vector.
  * @param[in] vector3d A 6x1 vector.
  * @param[in] matrix_5d A 6x6 matrix.
  * @returns A 3x1 vector.
@@ -488,28 +488,29 @@ Filter::state_t Filter::marginalise(const vector6D_t &vector_6d,
 
 /**
  * @brief Combines the 3 states of the ego vehicle (x,y,orientation), with the
- * position of the of the agent measured to create a augmented state vector.
+ * state of the agent measured to create a augmented state vector.
  * @param[in] ego_robot the structure containing the estimation parameters of
  * the ego vehicle.
  * @param[in] other_agent the structure containing the estimation parameters of
  * the agent measured by the ego vehicle.
  * @returns A 5x1 state vector.
  */
-Filter::augmentedState_t
+Filter::augmentedInformation_t
 Filter::createAugmentedVector(const state_t &ego_robot,
                               const state_t &other_agent) {
 
-  augmentedState_t state_estimate = augmentedState_t::Zero();
+  augmentedInformation_t augmented_vector = augmentedState_t::Zero();
 
-  state_estimate.head<total_states>() = ego_robot;
-  state_estimate.tail<total_states>() = other_agent;
+  augmented_vector.head<total_states>() = ego_robot;
+  augmented_vector.tail<total_states>() = other_agent;
 
-  return state_estimate;
+  return augmented_vector;
 }
 
 /**
- * @brief Combines the 3 states of the ego vehicle (x,y,orientation), with the
- * position of the of the agent measured.
+ * @brief Combines the covariance/precision matrix of the 3 states of the ego
+ * vehicle (x,y,orientation), with the covariance/precision of the of the agent
+ * measured.
  *
  * @param[in] ego_robot the structure containing the estimation parameters of
  * the ego vehicle.
@@ -517,10 +518,11 @@ Filter::createAugmentedVector(const state_t &ego_robot,
  * the agent measured by the ego vehicle.
  *
  * @details Cooperative Localisation (Positioning) involves robots that share
- * thier state and estimation error covariances when one robot measures the
- * other. As a result, the estimation error covariance needs to be augmented
- * from a 3x3 to a 3x3 matrix to house the error covariance of both the ego
- * vehicle (\f$i\f$) and the measured vehicle (\f$j\f$):
+ * thier state and estimation error covariances / precision when one robot
+ * measures the other. As a result, the estimation error covariance/precision
+ * needs to be augmented from a 3x3 to a 6x6 matrix to house the error
+ * covariance of both the ego vehicle (\f$i\f$) and the measured agent
+ * (\f$j\f$):
  * \f[\mathbf{P} = \begin{bmatrix} \mathbf{P}_i & \mathbf{0} \\ \mathbf{0} &
  * \mathbf{P}_j \end{bmatrix}, \f] where \f$\mathbf{P}_i\f$ and
  * \f$\mathbf{P}_j\f$ are the estimation error covariance of the ego robot

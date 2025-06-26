@@ -277,7 +277,8 @@ protected:
 
   state_t marginalise(const vector6D_t &, const matrix6D_t &);
 
-  augmentedState_t createAugmentedVector(const state_t &, const state_t &);
+  augmentedInformation_t createAugmentedVector(const state_t &,
+                                               const state_t &);
 
   augmentedCovariance_t createAugmentedMatrix(const covariance_t &,
                                               const covariance_t &);
