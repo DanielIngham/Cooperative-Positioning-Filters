@@ -8,6 +8,7 @@
 
 #include "filter.h"
 #include <DataHandler/DataHandler.h>
+#include <chrono>
 #include <iostream>
 
 /**
@@ -27,8 +28,7 @@ Filter::Filter(DataHandler &data) : data_(data) {
 
     /* Assume known prior. This is done by setting the first value of the
      * estimated values to the groundtruth. */
-    robots[id].synced.states.push_back(
-        Robot::State(robots[id].groundtruth.states.front()));
+    robots[id].synced.states[0] = robots[id].groundtruth.states.front();
 
     /* Initial state: 3x1 Matrix. */
     initial_parameters.state_estimate << robots[id].synced.states.front().x,
@@ -102,7 +102,15 @@ void Filter::performInference() {
   /* Loop through each timestep and perform inference.  */
   std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
 
-  for (size_t k = 1; k < data_.getNumberOfSyncedDatapoints(); k++) {
+  /* Get the total number of syncede datapoints in the data set extracted. */
+  size_t total_datapoints = data_.getNumberOfSyncedDatapoints();
+
+  /* Start the timer for measuring the execution time of a child filter. */
+  auto timer_start = std::chrono::high_resolution_clock::now();
+
+  for (size_t k = 1; k < total_datapoints; k++) {
+    std::cout << "\rPerforming Inference: " << k * 100 / total_datapoints
+              << " %" << std::flush;
 
     /* Perform prediction for each robot using odometry values. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
@@ -118,10 +126,10 @@ void Filter::performInference() {
 
       normaliseAngle(normalised_angle);
       /* Update the robot state data structure. */
-      robots[id].synced.states.push_back(Robot::State(
+      robots[id].synced.states[k] = Robot::State(
           robots[id].groundtruth.states[k].time,
           robot_parameters[id].state_estimate(X),
-          robot_parameters[id].state_estimate(Y), normalised_angle));
+          robot_parameters[id].state_estimate(Y), normalised_angle);
     }
 
     /* If a measurements are available, loop through each measurement
@@ -198,6 +206,15 @@ void Filter::performInference() {
       measurement_index[id] += 1;
     }
   }
+
+  auto timer_end = std::chrono::high_resolution_clock::now();
+  auto execution_duration =
+      std::chrono::duration_cast<std::chrono::milliseconds>(timer_end -
+                                                            timer_start);
+
+  std::cout << '\r' << std::flush;
+  std::cout << "\033[1;32mInference Complete:\033[0m ["
+            << execution_duration.count() << " ms]" << std::endl;
 
   /* Calculate the inference error. */
   for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
