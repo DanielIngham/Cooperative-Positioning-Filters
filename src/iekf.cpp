@@ -20,43 +20,12 @@
  * Iterative Extended Kalman filtering.
  * @param[in] data Class containing all robot and landmark data.
  */
-IEKF::IEKF(DataHandler &data) : Filter(data) {}
+IEKF::IEKF(DataHandler &data) : EKF(data) {}
 
 /**
  * @brief Default destructor.
  */
 IEKF::~IEKF() {}
-
-/**
- * @brief performs the prediction step of the Extended Kalman filter.
- * @param[in] odometry The prior inputs into the system comprising a forward and
- * angular velocity.
- * @param[in,out] estimation_parameters The parameters required by the Extended
- * Kalman filter to perform the prediction step.
- */
-void IEKF::prediction(const Robot::Odometry &odometry,
-                      EstimationParameters &estimation_parameters) {
-
-  const double sample_period = data_.getSamplePeriod();
-
-  /* Make the prediction using the motion model: 3x1 matrix. */
-  motionModel(odometry, estimation_parameters, sample_period);
-
-  /* Calculate the Motion Jacobian: 3x3 matrix. */
-  calculateMotionJacobian(odometry, estimation_parameters, sample_period);
-
-  /* Calculate the process noise Jacobian: 3x2 matrix. */
-  calculateProcessJacobian(estimation_parameters, sample_period);
-
-  /* Propagate the estimation error covariance: 3x3 matrix. */
-  estimation_parameters.error_covariance =
-      estimation_parameters.motion_jacobian *
-          estimation_parameters.error_covariance *
-          estimation_parameters.motion_jacobian.transpose() +
-      estimation_parameters.process_jacobian *
-          estimation_parameters.process_noise *
-          estimation_parameters.process_jacobian.transpose();
-}
 
 /**
  * @brief Performs the Iterative Extended Kalman correct step.
