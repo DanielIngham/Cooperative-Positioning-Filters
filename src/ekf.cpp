@@ -38,14 +38,14 @@ void EKF::prediction(const Robot::Odometry &odometry,
 
   const double sample_period = data_.getSamplePeriod();
 
-  /* Make the prediction using the motion model: 3x1 matrix. */
-  motionModel(odometry, estimation_parameters, sample_period);
-
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   calculateMotionJacobian(odometry, estimation_parameters, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
   calculateProcessJacobian(estimation_parameters, sample_period);
+
+  /* Make the prediction using the motion model: 3x1 matrix. */
+  motionModel(odometry, estimation_parameters, sample_period);
 
   /* Propagate the estimation error covariance: 3x3 matrix. */
   estimation_parameters.error_covariance =
