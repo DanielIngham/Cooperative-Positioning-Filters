@@ -297,6 +297,9 @@ protected:
   huberStateWeights_t HuberState(const augmentedState_t &,
                                  const huberStateThresholds_t &);
 
+  matrix3D_t computePseudoInverse(const matrix3D_t &);
+  matrix6D_t computePseudoInverse(const matrix6D_t &);
+
 public:
   explicit Filter(DataHandler &data);
   virtual ~Filter();

@@ -478,10 +478,14 @@ void Filter::calculateMeasurementJacobian(
  */
 Filter::matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
 
+  matrix3D_t bottomRight =
+      matrix_6d.bottomRightCorner<total_states, total_states>();
+  matrix3D_t bottomRightMatrixInverse = computePseudoInverse(bottomRight);
+
   matrix3D_t matrix_3d =
       matrix_6d.topLeftCorner<total_states, total_states>() -
       matrix_6d.topRightCorner<total_states, total_states>() *
-          matrix_6d.bottomRightCorner<total_states, total_states>().inverse() *
+          bottomRightMatrixInverse *
           matrix_6d.bottomLeftCorner<total_states, total_states>();
 
   return matrix_3d;
@@ -497,11 +501,14 @@ Filter::matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
 Filter::state_t Filter::marginalise(const vector6D_t &vector_6d,
                                     const matrix6D_t &matrix_6d) {
 
-  state_t new_vector =
-      vector_6d.head<total_states>() -
-      matrix_6d.topRightCorner<total_states, total_states>() *
-          matrix_6d.bottomRightCorner<total_states, total_states>().inverse() *
-          vector_6d.tail<total_states>();
+  matrix3D_t bottomRight =
+      matrix_6d.bottomRightCorner<total_states, total_states>();
+
+  matrix3D_t bottomRightInverse = computePseudoInverse(bottomRight);
+
+  state_t new_vector = vector_6d.head<total_states>() -
+                       matrix_6d.topRightCorner<total_states, total_states>() *
+                           bottomRightInverse * vector_6d.tail<total_states>();
 
   return new_vector;
 }
@@ -627,4 +634,56 @@ Filter::augmentedState_t Filter::calculateNormalisedEstimationResidual(
       error_covariance_cholesky_matrix.inverse() * filter.estimation_residual;
 
   return normalised_error_residual;
+}
+
+Filter::matrix3D_t Filter::computePseudoInverse(const matrix3D_t &matrix_3d) {
+
+  // Compute pseudo-inverse using SVD
+  Eigen::JacobiSVD<matrix3D_t> svd(matrix_3d,
+                                   Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+  // Set tolerance for singular values (adjust as needed)
+  double tolerance = 1e-10;
+
+  // Get singular values and compute pseudo-inverse
+  auto singular_values = svd.singularValues();
+  Eigen::VectorXd singular_values_inv(singular_values.size());
+
+  for (int i = 0; i < singular_values.size(); ++i) {
+    if (singular_values(i) > tolerance) {
+      singular_values_inv(i) = 1.0 / singular_values(i);
+    } else {
+      singular_values_inv(i) = 0.0;
+    }
+  }
+
+  // Reconstruct pseudo-inverse: V * Σ^+ * U^T
+  return svd.matrixV() * singular_values_inv.asDiagonal() *
+         svd.matrixU().transpose();
+}
+
+Filter::matrix6D_t Filter::computePseudoInverse(const matrix6D_t &matrix_6d) {
+
+  // Compute pseudo-inverse using SVD
+  Eigen::JacobiSVD<matrix6D_t> svd(matrix_6d,
+                                   Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+  // Set tolerance for singular values (adjust as needed)
+  double tolerance = 1e-10;
+
+  // Get singular values and compute pseudo-inverse
+  auto singular_values = svd.singularValues();
+  Eigen::VectorXd singular_values_inv(singular_values.size());
+
+  for (int i = 0; i < singular_values.size(); ++i) {
+    if (singular_values(i) > tolerance) {
+      singular_values_inv(i) = 1.0 / singular_values(i);
+    } else {
+      singular_values_inv(i) = 0.0;
+    }
+  }
+
+  // Reconstruct pseudo-inverse: V * Σ^+ * U^T
+  return svd.matrixV() * singular_values_inv.asDiagonal() *
+         svd.matrixU().transpose();
 }
