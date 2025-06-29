@@ -61,7 +61,7 @@ void EKF::prediction(const Robot::Odometry &odometry,
  * @brief Performs the Extended Kalman correct step.
  * @param[in,out] ego_robot The parameters required by the Extended
  * Kalman filter to perform the correction step.
- * @param[in] other_agent The robot that was measured by the ego robot.
+ * @param[in] other_agent The agent that was measured by the ego robot.
  * @param[in] robust Flag which determines whether the state and covariance
  * should be updated using a robust cost function.
  */
@@ -127,7 +127,7 @@ void EKF::correction(EstimationParameters &ego_robot,
  * function to increase estimation error covariance of measurements that seem to
  * be outliers.
  * @param[in,out] ego_robot The estimation parameters of the ego robot.
- * @param[in] other_agent The estimation parameters of the obejct that was
+ * @param[in] other_agent The estimation parameters of the agent that was
  * measured by the ego robot.
  */
 void EKF::robustCorrection(EstimationParameters &ego_robot,
