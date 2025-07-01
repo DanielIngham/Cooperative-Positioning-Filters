@@ -3,7 +3,8 @@ Repository containing the implementation of Bayesian filters used for multi-robo
 - Extended Kalman Filter (EKF),
 - Iterative Extended Kalman Filter (IEKF), and
 - Extended Information Filter.
-
+## Documentation
+The documentation for this implementation of the cooperative positioning filters can be found [here](https://danielingham.github.io/Cooperative-Positioning-Filters/).
 # Submodule
 This repository contains the [Cooperative Positioning Data Handler](https://github.com/DanielIngham/Cooperative-Positioning-Data-Handler), as a submodule. Therefore, to clone the repository, the following commands are required:
 ```bash
