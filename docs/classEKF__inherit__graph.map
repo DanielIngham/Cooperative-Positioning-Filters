@@ -1,5 +1,7 @@
 <map id="EKF" name="EKF">
 <area shape="rect" id="Node000001" title="Extended Kalman Filter." alt="" coords="9,79,56,104"/>
+<area shape="rect" id="Node000003" href="$classIEKF.html" title="Itertative Extended Kalman Filter (IEKF)." alt="" coords="7,152,58,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="35,118,35,152,30,152,30,118"/>
 <area shape="rect" id="Node000002" href="$classFilter.html" title=" " alt="" coords="5,5,60,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="35,44,35,79,30,79,30,44"/>
 </map>

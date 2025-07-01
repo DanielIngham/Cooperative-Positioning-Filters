@@ -79,12 +79,31 @@ $(function() {
   <div class="headertitle"><div class="title">Cooperative Positioning Filters </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md__2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2README"></a>Repository containing the implementation of Bayesisan filters used for multirobot cooperative positioning. </p>
+<div class="textblock"><p><a class="anchor" id="md__2home_2dan_2Code_2UTIAS-Multi-Robot_2Filters_2README"></a>Repository containing the implementation of Bayesian filters used for multi-robot cooperative positioning, including:</p><ul>
+<li>Extended Kalman <a class="el" href="classFilter.html">Filter</a> (<a class="el" href="classEKF.html" title="Extended Kalman Filter.">EKF</a>),</li>
+<li>Iterative Extended Kalman <a class="el" href="classFilter.html">Filter</a> (<a class="el" href="classIEKF.html" title="Itertative Extended Kalman Filter (IEKF).">IEKF</a>), and</li>
+<li>Extended Information <a class="el" href="classFilter.html">Filter</a>.</li>
+</ul>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Submodule</h1>
 <p>This repository contains the <a href="https://github.com/DanielIngham/Cooperative-Positioning-Data-Handler">Cooperative Positioning Data Handler</a>, as a submodule. Therefore, to clone the repository, the following commands are required: </p><div class="fragment"><div class="line">git clone https://github.com/DanielIngham/Cooperative-Positioning-Filters.git</div>
 <div class="line">cd Cooperative-Positioning-Filters</div>
 <div class="line">git submodule update --init --recursive</div>
+</div><!-- fragment --> <h1><a class="anchor" id="autotoc_md2"></a>
+Running a Filter</h1>
+<p>To run a one of the aforementioned filters, the user can select the filter by setting the <code><a class="el" href="classFilter.html">Filter</a></code> environment variable before executable: </p><div class="fragment"><div class="line">make run Filter=&lt;Filter Name&gt;</div>
+</div><!-- fragment --><p> <code>&lt;<a class="el" href="classFilter.html">Filter</a> Name&gt;</code> can be either: <code><a class="el" href="classEKF.html" title="Extended Kalman Filter.">EKF</a></code>, <code><a class="el" href="classIEKF.html" title="Itertative Extended Kalman Filter (IEKF).">IEKF</a></code>, or <code>INFO</code>.</p>
+<p>To select a dataset, the user can set the <code>Dataset</code> environment variable before execution: </p><div class="fragment"><div class="line">make run Filter=&lt;Filter Name&gt; Dataset=&lt;Dataset Number&gt;</div>
+</div><!-- fragment --><p> <code>Dataset</code> can be any value in the range [1,9]. Note that dataset 9 has incorrect groundtruth values, and therefore it is not recomended to use it.</p>
+<h1><a class="anchor" id="autotoc_md3"></a>
+Build Options</h1>
+<h2><a class="anchor" id="autotoc_md4"></a>
+Coupled vs Decoupled</h2>
+<p>The measurement update can be performed either in a <b>coupled</b> or <b>decoupled</b> manner. The coupled approach creates an augmented state vector and covariance matrix containing the state and covariance of both the ego vehicle and the agent observed respectively. The decoupled approach adds the covariance of the agent observed to the ego robots measurement noise. Since the state of the agent in marginalized out in the coupled approach, both approaches result in identical inference. However, the decoupled approach is less computationally expensive.</p>
+<p>The decoupled is the default, however, the user can compile the project using the coupled approach during linking by adding the <code>COUPLED</code>: </p><div class="fragment"><div class="line">make COUPLED=1</div>
+</div><!-- fragment --> <h2><a class="anchor" id="autotoc_md5"></a>
+Normal vs Robust</h2>
+<p>The measurement update can be performed using the <em>Huber</em> loss function for both the <a class="el" href="classEKF.html" title="Extended Kalman Filter.">EKF</a> and <a class="el" href="classIEKF.html" title="Itertative Extended Kalman Filter (IEKF).">IEKF</a>, which results in improved robustness against outliers. To use the Huber loss function, the user must compile the project using the <code>ROBUST</code> flag: </p><div class="fragment"><div class="line">make ROBUST=1</div>
 </div><!-- fragment --> </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->

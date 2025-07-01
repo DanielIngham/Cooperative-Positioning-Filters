@@ -94,13 +94,13 @@ Inheritance diagram for Filter:</div>
 <div class="dyncontent">
 <div class="center"><img src="classFilter__inherit__graph.png" border="0" usemap="#aFilter_inherit__map" alt="Inheritance graph"/></div>
 <map name="aFilter_inherit__map" id="aFilter_inherit__map">
-<area shape="rect" title=" " alt="" coords="75,5,129,31"/>
-<area shape="rect" href="classEKF.html" title="Extended Kalman Filter." alt="" coords="5,79,52,104"/>
-<area shape="poly" title=" " alt="" coords="82,42,42,80,39,77,78,38"/>
-<area shape="rect" href="classIEKF.html" title=" " alt="" coords="77,79,127,104"/>
-<area shape="poly" title=" " alt="" coords="105,44,105,79,99,79,99,44"/>
-<area shape="rect" href="classInformationFilter.html" title=" " alt="" coords="151,79,282,104"/>
-<area shape="poly" title=" " alt="" coords="133,35,199,76,197,81,130,40"/>
+<area shape="rect" title=" " alt="" coords="59,5,114,31"/>
+<area shape="rect" href="classEKF.html" title="Extended Kalman Filter." alt="" coords="7,79,54,104"/>
+<area shape="poly" title=" " alt="" coords="71,43,42,80,38,77,67,40"/>
+<area shape="rect" href="classInformationFilter.html" title=" " alt="" coords="79,79,209,104"/>
+<area shape="poly" title=" " alt="" coords="107,40,137,77,133,80,102,43"/>
+<area shape="rect" href="classIEKF.html" title="Itertative Extended Kalman Filter (IEKF)." alt="" coords="5,152,56,177"/>
+<area shape="poly" title=" " alt="" coords="33,118,33,152,28,152,28,118"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -191,8 +191,8 @@ Protected Types</h2></td></tr>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a54c7c98a5649166b2963469d40c6a1af" id="r_a54c7c98a5649166b2963469d40c6a1af"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a54c7c98a5649166b2963469d40c6a1af">prediction</a> (const Robot::Odometry &amp;, <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)=0</td></tr>
 <tr class="separator:a54c7c98a5649166b2963469d40c6a1af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbbac984eaa2396a82e4741c4c0ca0f9" id="r_abbbac984eaa2396a82e4741c4c0ca0f9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#abbbac984eaa2396a82e4741c4c0ca0f9">correction</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const bool)=0</td></tr>
-<tr class="separator:abbbac984eaa2396a82e4741c4c0ca0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae97652d1e8dcdb083cde532ef7c60c08" id="r_ae97652d1e8dcdb083cde532ef7c60c08"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ae97652d1e8dcdb083cde532ef7c60c08">correction</a> (<a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;)=0</td></tr>
+<tr class="separator:ae97652d1e8dcdb083cde532ef7c60c08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6044b1e6f700aa6d3a4cb76cb07e990a" id="r_a6044b1e6f700aa6d3a4cb76cb07e990a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a6044b1e6f700aa6d3a4cb76cb07e990a">motionModel</a> (const Robot::Odometry &amp;, <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;, const double)</td></tr>
 <tr class="memdesc:a6044b1e6f700aa6d3a4cb76cb07e990a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The unicycle motion model used to perform motion predictions.  <br /></td></tr>
 <tr class="separator:a6044b1e6f700aa6d3a4cb76cb07e990a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -235,6 +235,10 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:ab14ab31c0a1875b53e4fa7373b61f2b6" id="r_ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#adeb9d24d8295291aba5739f52bb1186c">huberStateWeights_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#ab14ab31c0a1875b53e4fa7373b61f2b6">HuberState</a> (const <a class="el" href="classFilter.html#a3fae4d453b582218968653c80b4207ee">augmentedState_t</a> &amp;, const <a class="el" href="classFilter.html#a7bd0607b08c685e826eb3108d2c7ea4b">huberStateThresholds_t</a> &amp;)</td></tr>
 <tr class="memdesc:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Huber State cost function,.  <br /></td></tr>
 <tr class="separator:ab14ab31c0a1875b53e4fa7373b61f2b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04483f86b94490903faea3d5fcb5c9c3" id="r_a04483f86b94490903faea3d5fcb5c9c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#a04483f86b94490903faea3d5fcb5c9c3">computePseudoInverse</a> (const <a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a> &amp;)</td></tr>
+<tr class="separator:a04483f86b94490903faea3d5fcb5c9c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0209ad7d5512aa805f54112ab659950" id="r_aa0209ad7d5512aa805f54112ab659950"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFilter.html#aa0209ad7d5512aa805f54112ab659950">computePseudoInverse</a> (const <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> &amp;)</td></tr>
+<tr class="separator:aa0209ad7d5512aa805f54112ab659950"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -1188,8 +1192,60 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="abbbac984eaa2396a82e4741c4c0ca0f9" name="abbbac984eaa2396a82e4741c4c0ca0f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abbbac984eaa2396a82e4741c4c0ca0f9">&#9670;&#160;</a></span>correction()</h2>
+<a id="a04483f86b94490903faea3d5fcb5c9c3" name="a04483f86b94490903faea3d5fcb5c9c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04483f86b94490903faea3d5fcb5c9c3">&#9670;&#160;</a></span>computePseudoInverse() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">Filter::matrix3D_t</a> Filter::computePseudoInverse </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#a65f6d36c8d77dd42dfcd3cfbc8f6ae13">matrix3D_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>matrix_3d</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa0209ad7d5512aa805f54112ab659950" name="aa0209ad7d5512aa805f54112ab659950"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0209ad7d5512aa805f54112ab659950">&#9670;&#160;</a></span>computePseudoInverse() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">Filter::matrix6D_t</a> Filter::computePseudoInverse </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classFilter.html#afbbf56ebb0c548d58d4cbb2a212ed7cd">matrix6D_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>matrix_6d</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae97652d1e8dcdb083cde532ef7c60c08" name="ae97652d1e8dcdb083cde532ef7c60c08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae97652d1e8dcdb083cde532ef7c60c08">&#9670;&#160;</a></span>correction()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1207,12 +1263,6 @@ Static Protected Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structFilter_1_1EstimationParameters.html">EstimationParameters</a> &amp;&#160;</td>
-          <td class="paramname">, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const bool&#160;</td>
           <td class="paramname">&#160;</td>
         </tr>
         <tr>
@@ -1228,7 +1278,7 @@ Static Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implemented in <a class="el" href="classEKF.html#a61a61b784c4a89ce5364357a0e111741">EKF</a>, <a class="el" href="classIEKF.html#a6d04e007a47ca6ec97b8f9ea649c9acf">IEKF</a>, and <a class="el" href="classInformationFilter.html#abd30b2e934b485fac127b581c72cf828">InformationFilter</a>.</p>
+<p>Implemented in <a class="el" href="classEKF.html#a79e05a07c03eee30455437a48265e2e2">EKF</a>, <a class="el" href="classIEKF.html#a90f24edbe8bd80d203221f01c52f546c">IEKF</a>, and <a class="el" href="classInformationFilter.html#a44bfbb00b57bb87692373c6e99b4e8bd">InformationFilter</a>.</p>
 
 </div>
 </div>
@@ -1698,7 +1748,7 @@ q_r \\ \text{atan2}\left(\frac{y_j^{(t)}-y_i^{(t)}}{x_j^{(t)}-x_i^{(t)}
 </table>
 </div><div class="memdoc">
 
-<p>Implemented in <a class="el" href="classEKF.html#a383d25d9532e8eab9da6e9b3fed9ddfd">EKF</a>, <a class="el" href="classIEKF.html#af6d8cefc83c49d2dbafdb70c645611c5">IEKF</a>, and <a class="el" href="classInformationFilter.html#a9378c73cdf38a4e9e102974318b54cc5">InformationFilter</a>.</p>
+<p>Implemented in <a class="el" href="classEKF.html#a383d25d9532e8eab9da6e9b3fed9ddfd">EKF</a>, and <a class="el" href="classInformationFilter.html#a9378c73cdf38a4e9e102974318b54cc5">InformationFilter</a>.</p>
 
 </div>
 </div>

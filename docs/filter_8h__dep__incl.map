@@ -1,24 +1,24 @@
 <map id="/home/dan/Code/UTIAS&#45;Multi&#45;Robot/Filters/include/filter.h" name="/home/dan/Code/UTIAS&#45;Multi&#45;Robot/Filters/include/filter.h">
-<area shape="rect" id="Node000001" title="Header file of the parent class containing shared functionality amoung cooperative localsiation filte..." alt="" coords="420,5,591,60"/>
-<area shape="rect" id="Node000002" href="$ekf_8h.html" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="103,108,273,163"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="411,67,271,110,270,105,409,62"/>
-<area shape="rect" id="Node000003" href="$ekf_8cpp.html" title="Implementation of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="5,211,176,265"/>
-<area shape="poly" id="edge10_Node000001_Node000003" title=" " alt="" coords="407,40,317,47,223,60,142,80,112,94,93,110,81,133,77,159,79,186,84,210,79,211,74,186,72,159,76,131,89,106,110,89,140,75,222,55,316,42,406,35"/>
-<area shape="rect" id="Node000005" href="$iekf_8h.html" title="Header file of the Iterative Extended Kalman Fitler implementation for multirobot cooperative positio..." alt="" coords="297,108,468,163"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="464,71,416,110,413,106,461,67"/>
-<area shape="rect" id="Node000006" href="$iekf_8cpp.html" title="Implementation of the Iterative Extended Kalman Fitler implementation for multirobot cooperative posi..." alt="" coords="420,211,591,265"/>
-<area shape="poly" id="edge12_Node000001_Node000006" title=" " alt="" coords="508,74,508,210,503,210,503,74"/>
-<area shape="rect" id="Node000007" href="$information__filter_8h.html" title=" " alt="" coords="543,108,745,163"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="554,66,609,106,606,110,551,70"/>
-<area shape="rect" id="Node000008" href="$information__filter_8cpp.html" title="Implementation of the Extended Information Filter (information form of the Extended Kalman Filter)." alt="" coords="651,211,839,265"/>
-<area shape="poly" id="edge13_Node000001_Node000008" title=" " alt="" coords="605,48,698,72,736,88,759,106,771,132,772,160,768,187,760,211,755,209,762,186,767,159,766,133,755,110,733,92,696,77,604,53"/>
-<area shape="rect" id="Node000009" href="$filter_8cpp.html" title="Implementation of the shared functionality across cooperative localisation filters." alt="" coords="820,108,991,163"/>
-<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="605,56,820,110,819,115,603,61"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="155,175,118,212,114,209,151,171"/>
-<area shape="rect" id="Node000004" href="$main_8cpp.html" title=" " alt="" coords="225,211,396,265"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="232,169,280,209,277,213,229,174"/>
-<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="358,175,332,212,327,209,354,172"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="427,169,475,209,472,213,424,174"/>
-<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="545,169,397,214,396,208,543,164"/>
-<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="682,171,721,209,717,212,679,175"/>
+<area shape="rect" id="Node000001" title="Header file of the parent class containing shared functionality amoung cooperative localsiation filte..." alt="" coords="413,5,584,60"/>
+<area shape="rect" id="Node000002" href="$ekf_8h.html" title="Header file of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="221,108,392,163"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="438,69,358,110,355,106,436,64"/>
+<area shape="rect" id="Node000004" href="$iekf_8cpp.html" title="Implementation of the Iterative Extended Kalman Fitler implementation for multirobot cooperative posi..." alt="" coords="5,313,176,368"/>
+<area shape="poly" id="edge12_Node000001_Node000004" title=" " alt="" coords="401,50,306,73,257,89,210,110,170,131,139,150,115,174,93,212,85,237,83,264,87,313,82,313,77,264,80,236,88,210,111,171,136,146,167,126,208,106,255,84,305,68,399,45"/>
+<area shape="rect" id="Node000006" href="$ekf_8cpp.html" title="Implementation of the Extended Kalman Fitler implementation for multirobot cooperative positioning." alt="" coords="348,211,519,265"/>
+<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="475,73,457,109,444,162,437,211,432,210,438,161,452,107,470,71"/>
+<area shape="rect" id="Node000007" href="$information__filter_8h.html" title=" " alt="" coords="467,108,669,163"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="527,70,552,106,548,109,522,73"/>
+<area shape="rect" id="Node000008" href="$information__filter_8cpp.html" title="Implementation of the Extended Information Filter (information form of the Extended Kalman Filter)." alt="" coords="607,211,795,265"/>
+<area shape="poly" id="edge13_Node000001_Node000008" title=" " alt="" coords="598,52,644,73,664,88,682,106,696,131,704,159,707,210,701,211,699,160,691,133,678,110,661,92,641,78,596,56"/>
+<area shape="rect" id="Node000009" href="$filter_8cpp.html" title="Implementation of the shared functionality across cooperative localisation filters." alt="" coords="744,108,915,163"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="598,61,744,105,743,111,596,66"/>
+<area shape="rect" id="Node000003" href="$iekf_8h.html" title="Header file of the Iterative Extended Kalman Fitler implementation for multirobot cooperative positio..." alt="" coords="103,211,273,265"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="267,174,221,213,217,209,264,169"/>
+<area shape="rect" id="Node000005" href="$main_8cpp.html" title=" " alt="" coords="225,313,396,368"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="310,177,313,313,307,313,305,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="352,169,402,208,399,213,349,174"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="155,277,118,315,114,311,151,273"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="232,272,280,311,277,315,229,276"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="569,177,558,223,548,247,533,267,503,292,468,310,432,324,397,332,395,327,431,318,466,305,500,287,529,264,543,244,553,222,563,176"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="615,169,668,208,665,213,612,173"/>
 </map>
