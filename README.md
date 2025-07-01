@@ -28,7 +28,7 @@ make run Filter=<Filter Name> Dataset=<Dataset Number>
 ## Coupled vs Decoupled
 The measurement update can be performed either in a **coupled** or **decoupled** manner. The coupled approach creates an augmented state vector and covariance matrix containing the state and covariance of both the ego vehicle and the agent observed respectively. The decoupled approach adds the covariance of the agent observed to the ego robots measurement noise. Since the state of the agent in marginalized out in the coupled approach, both approaches result in identical inference. However, the decoupled approach is less computationally expensive. 
 
-The decoupled is the default, however, the user can compile the project using the coupled approach during linking by adding the 'COUPLED':
+The decoupled is the default, however, the user can compile the project using the coupled approach during linking by adding the `COUPLED`:
 ```bash
 make COUPLED=1
 ```
