@@ -13,9 +13,11 @@ int main() {
   const char *filter_ptr = std::getenv("Filter");
 
   if (filter_ptr == nullptr) {
-    std::cerr
-        << "Filter not set.\n Please set the filter using make run Filter=EKF."
-        << std::endl;
+    std::cout << std::endl;
+    std::cerr << "\033[1;31mERROR\033[0m: Filter not set.\n"
+              << "Please set the filter using: "
+              << "\033[2mmake run Filter=EKF.\033[0m" << std::endl;
+    std::cout << std::endl;
     return 1;
   }
 
@@ -23,6 +25,21 @@ int main() {
    * name. */
   std::string filter(filter_ptr);
   std::transform(filter.begin(), filter.end(), filter.begin(), ::toupper);
+
+  std::cout << "\033[1m" << filter << ": \033[0m";
+
+#ifdef COUPLED
+  std::cout << "coupled ";
+#endif
+#ifdef DECOUPLED
+  std::cout << "decoupled ";
+#endif // DECOUPLED
+
+#ifdef ROBUST
+  std::cout << ", robust " << std::endl;
+#endif
+
+  std::cout << std::endl;
 
   /* Creating an instance of the DataHandler class whose output directory will
    * will be set by the respective filter.*/
