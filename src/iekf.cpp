@@ -32,8 +32,6 @@ IEKF::~IEKF() {}
  * @param[in,out] ego_robot The estimation parameters of the ego robot.
  * @param[in] other_agent The estimation parameters of the obejct that was
  * measured by the ego robot.
- * @param[in] robust Flag which determines whether the robust version of the
- * cost function should be used.
  */
 void IEKF::correction(EstimationParameters &ego_robot,
                       const EstimationParameters &other_agent) {
@@ -41,7 +39,7 @@ void IEKF::correction(EstimationParameters &ego_robot,
 #ifdef ROBUST
   robustCorrection(ego_robot, other_agent);
   return;
-#endif // DEBUG
+#endif // ROBUST
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t intial_state_estimate = createAugmentedVector(
