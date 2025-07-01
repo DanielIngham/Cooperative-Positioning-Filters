@@ -23,6 +23,7 @@ InformationFilter::InformationFilter(DataHandler &data) : Filter(data) {}
  * @brief Default destructor.
  */
 InformationFilter::~InformationFilter() {}
+
 /**
  * @brief performs the prediction step of the Information filter.
  * @param[in] odometry The prior inputs into the system comprising a forward and
@@ -111,6 +112,7 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
       ego_robot.error_covariance * ego_robot.information_vector;
 }
 #endif
+
 #if 1
 void InformationFilter::prediction(const Robot::Odometry &odometry,
                                    EstimationParameters &ego_robot) {
@@ -146,11 +148,15 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Calculate the measurement Jacobian */
   calculateMeasurementJacobian(ego_robot, other_agent);
 
-  Eigen::Matrix<double, 2, 3> ego_measurment_Jacobian =
-      ego_robot.measurement_jacobian.topLeftCorner<2, 3>();
+  Eigen::Matrix<double, total_measurements, total_states>
+      ego_measurment_Jacobian =
+          ego_robot.measurement_jacobian
+              .topLeftCorner<total_measurements, total_states>();
 
-  Eigen::Matrix<double, 2, 3> agent_measurment_Jacobian =
-      ego_robot.measurement_jacobian.topRightCorner<2, 3>();
+  Eigen::Matrix<double, total_measurements, total_states>
+      agent_measurment_Jacobian =
+          ego_robot.measurement_jacobian
+              .topRightCorner<total_measurements, total_states>();
 
   /* Calculate the joint measurment noise. */
   measurementCovariance_t joint_measurement_noise =
