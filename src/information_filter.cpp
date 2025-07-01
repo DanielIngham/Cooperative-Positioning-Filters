@@ -139,6 +139,51 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
 }
 #endif // 0
 
+#ifdef DECOUPLED
+void InformationFilter::correction(EstimationParameters &ego_robot,
+                                   const EstimationParameters &other_agent) {
+
+  /* Calculate the measurement Jacobian */
+  calculateMeasurementJacobian(ego_robot, other_agent);
+
+  Eigen::Matrix<double, 2, 3> ego_measurment_Jacobian =
+      ego_robot.measurement_jacobian.topLeftCorner<2, 3>();
+
+  Eigen::Matrix<double, 2, 3> agent_measurment_Jacobian =
+      ego_robot.measurement_jacobian.topRightCorner<2, 3>();
+
+  /* Calculate the joint measurment noise. */
+  measurementCovariance_t joint_measurement_noise =
+      ego_robot.measurement_noise + agent_measurment_Jacobian *
+                                        other_agent.precision_matrix.inverse() *
+                                        agent_measurment_Jacobian.transpose();
+
+  /* Calculate the measurement residual. */
+  measurement_t predicted_measurement =
+      measurementModel(ego_robot, other_agent);
+
+  ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
+
+  /* Calculate the precision contribution */
+  precision_t precision_matrix_contribution =
+      ego_measurment_Jacobian.transpose() * joint_measurement_noise.inverse() *
+      ego_measurment_Jacobian;
+
+  /* Calculate the information contribution */
+  information_t information_vector_contribution =
+      ego_measurment_Jacobian.transpose() * joint_measurement_noise.inverse() *
+      (ego_robot.innovation +
+       ego_measurment_Jacobian * ego_robot.state_estimate);
+
+  ego_robot.precision_matrix += precision_matrix_contribution;
+
+  ego_robot.information_vector += information_vector_contribution;
+
+  ego_robot.state_estimate =
+      ego_robot.precision_matrix.inverse() * ego_robot.information_vector;
+}
+#endif
+
 /**
  * @brief Performs Information Filter correct step.
  * @param[in,out] ego_robot The parameters required by the Extended
@@ -147,6 +192,7 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
  * @param[in] robust Flag which determines whether the information and precision
  * should be updated using a robust cost function.
  */
+#ifdef COUPLED
 void InformationFilter::correction(EstimationParameters &ego_robot,
                                    const EstimationParameters &other_agent) {
 
@@ -160,12 +206,6 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Calculate the augmented estimated state of the system.  */
   augmentedState_t estimated_state =
       computePseudoInverse(precision_matrix) * information_vector;
-
-  static bool first = true;
-  if (!estimated_state.allFinite() && first) {
-    first = false;
-    std::cout << "Error estimated state" << std::endl;
-  }
 
   /* Calculate measurement Jacobian. */
   calculateMeasurementJacobian(ego_robot, other_agent);
@@ -212,3 +252,4 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   ego_robot.state_estimate = computePseudoInverse(ego_robot.precision_matrix) *
                              ego_robot.information_vector;
 }
+#endif // COUPLED
