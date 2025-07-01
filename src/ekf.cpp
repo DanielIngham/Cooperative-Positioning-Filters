@@ -7,6 +7,7 @@
  */
 #include "ekf.h"
 #include "filter.h"
+
 #include <DataHandler/Landmark.h>
 #include <DataHandler/Robot.h>
 #include <cmath>
@@ -57,6 +58,26 @@ void EKF::prediction(const Robot::Odometry &odometry,
           estimation_parameters.process_jacobian.transpose();
 }
 
+#if DECOUPLED
+void EKF::correction(EstimationParameters &ego_robot,
+                     const EstimationParameters &other_agent) {
+
+  /* Calculate Measurement Jacobian in terms of the other agent. */
+
+  /* Calculate new sensor noise.  */
+
+  /* Calculate measurement Jacobian in terms of the ego vehicle. */
+
+  /* Calculate innovation Covariance.  */
+
+  /* Calculate Kalman Gain */
+
+  /* Calculate the innovation */
+
+  /*  */
+}
+#endif // DECOUPLED
+
 /**
  * @brief Performs the Extended Kalman correct step.
  * @param[in,out] ego_robot The parameters required by the Extended
@@ -65,14 +86,9 @@ void EKF::prediction(const Robot::Odometry &odometry,
  * @param[in] robust Flag which determines whether the state and covariance
  * should be updated using a robust cost function.
  */
+#if COUPLED
 void EKF::correction(EstimationParameters &ego_robot,
-                     const EstimationParameters &other_agent,
-                     const bool robust) {
-
-  if (robust) {
-    robustCorrection(ego_robot, other_agent);
-    return;
-  }
+                     const EstimationParameters &other_agent) {
 
   /* Calculate measurement Jacobian */
   calculateMeasurementJacobian(ego_robot, other_agent);
@@ -121,6 +137,7 @@ void EKF::correction(EstimationParameters &ego_robot,
   ego_robot.error_covariance =
       error_covariance.topLeftCorner<total_states, total_states>();
 }
+#endif // COUPLED
 
 /**
  * @brief A robust version of the correction function that uses the Huber cost
@@ -130,6 +147,7 @@ void EKF::correction(EstimationParameters &ego_robot,
  * @param[in] other_agent The estimation parameters of the agent that was
  * measured by the ego robot.
  */
+#if ROBUST
 void EKF::robustCorrection(EstimationParameters &ego_robot,
                            const EstimationParameters &other_agent) {
 
@@ -225,3 +243,4 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
   ego_robot.error_covariance =
       error_covariance.topLeftCorner<total_states, total_states>();
 }
+#endif // ROBUST

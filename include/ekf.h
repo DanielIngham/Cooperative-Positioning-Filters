@@ -44,8 +44,8 @@ private:
 
   void prediction(const Robot::Odometry &, EstimationParameters &) override;
 
-  void correction(EstimationParameters &, const EstimationParameters &,
-                  const bool) override;
+  void correction(EstimationParameters &,
+                  const EstimationParameters &) override;
 
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 

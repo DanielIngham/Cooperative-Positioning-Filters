@@ -36,13 +36,12 @@ IEKF::~IEKF() {}
  * cost function should be used.
  */
 void IEKF::correction(EstimationParameters &ego_robot,
-                      const EstimationParameters &other_agent,
-                      const bool robust) {
+                      const EstimationParameters &other_agent) {
 
-  if (robust) {
-    robustCorrection(ego_robot, other_agent);
-    return;
-  }
+#ifdef ROBUST
+  robustCorrection(ego_robot, other_agent);
+  return;
+#endif // DEBUG
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t intial_state_estimate = createAugmentedVector(

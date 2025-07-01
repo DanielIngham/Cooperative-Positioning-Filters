@@ -12,8 +12,8 @@ public:
 
 private:
   void prediction(const Robot::Odometry &, EstimationParameters &) override;
-  void correction(EstimationParameters &, const EstimationParameters &,
-                  const bool) override;
+  void correction(EstimationParameters &,
+                  const EstimationParameters &) override;
 };
 
 #endif // INCLUDE_INCLUDE_INFORMATION_H_

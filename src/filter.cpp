@@ -188,11 +188,7 @@ void Filter::performInference() {
           measured_agent = &landmark_parameters[index];
         }
 
-        /* Determine whether the filter should use the huber cost function for
-         * the correction. */
-        bool robust = false;
-
-        correction(robot_parameters[id], *measured_agent, robust);
+        correction(robot_parameters[id], *measured_agent);
 
         double normalised_angle =
             robot_parameters[id].state_estimate(ORIENTATION);

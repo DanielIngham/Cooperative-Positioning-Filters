@@ -253,8 +253,8 @@ protected:
   /* Filter Functionality Functions */
   virtual void prediction(const Robot::Odometry &, EstimationParameters &) = 0;
 
-  virtual void correction(EstimationParameters &, const EstimationParameters &,
-                          const bool) = 0;
+  virtual void correction(EstimationParameters &,
+                          const EstimationParameters &) = 0;
 
   /* Motion Model Functions. */
   void motionModel(const Robot::Odometry &, EstimationParameters &,

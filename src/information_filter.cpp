@@ -148,24 +148,7 @@ void InformationFilter::prediction(const Robot::Odometry &odometry,
  * should be updated using a robust cost function.
  */
 void InformationFilter::correction(EstimationParameters &ego_robot,
-                                   const EstimationParameters &other_agent,
-                                   const bool robust) {
-
-  /* WARN: Robust correction not implemented yet. */
-  if (robust) {
-    static bool first_time_called = true;
-
-    if (first_time_called) {
-
-      first_time_called = false;
-
-      std::cerr
-          << "Warning: The robust version of the information filter has not "
-             "been "
-             "implemented yet. The statndard correction step will be applied."
-          << std::endl;
-    }
-  }
+                                   const EstimationParameters &other_agent) {
 
   /* Create the augmented information vector and precision matrix */
   augmentedInformation_t information_vector = createAugmentedVector(

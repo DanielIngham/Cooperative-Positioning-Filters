@@ -13,10 +13,23 @@ LIBRARIES :=$(LIB_DIR)/DataHandler/lib/libdata_handler.a
 # Compiler
 CXX := g++
 
+# Define Preprocessor macros
+MACROS :=
+ifdef ROBUST
+	MACROS += -DROBUST
+endif
+
+ifdef COUPLED
+	MACROS += -DCOUPLED
+else
+	MACROS += -DDECOUPLED
+endif
+
 # Flags
 WFLAGS := -Wall -Wextra -Werror -Wshadow 
 MFLAGS := -ffloat-store -fno-fast-math
-CFLAGS := $(WFLAGS) $(MFLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR)
+CFLAGS := $(WFLAGS) $(MFLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR) $(MACROS)
+
 
 # Files
 TARGET := $(BUILD_DIR)/$(PROJECT)
