@@ -62,19 +62,54 @@ void EKF::prediction(const Robot::Odometry &odometry,
 void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_agent) {
 
-  /* Calculate Measurement Jacobian in terms of the other agent. */
+  static bool first_iteration = true;
+  if (first_iteration) {
+    first_iteration = false;
+    std::cout << "DECOUPLED" << std::endl;
+  }
+  /* Calculate coupled Measurement Jacobian.
+   * NOTE: This is only done to reuse functionality between coupled and
+   * decoupled approaches.  */
+  calculateMeasurementJacobian(ego_robot, other_agent);
 
-  /* Calculate new sensor noise.  */
+  /* Extract the measurment Jacobian in terms of the agent.*/
+  Eigen::Matrix<double, 2, 3> agent_measurement_Jacobian =
+      ego_robot.measurement_jacobian.topRightCorner<2, 3>();
 
-  /* Calculate measurement Jacobian in terms of the ego vehicle. */
+  /* Calculate joint sensor measurment noise, which is the sum of the measurment
+   * noise and the estimate error covariance of the measured agent. */
+  measurementCovariance_t joint_sensor_noise =
+      ego_robot.measurement_noise + agent_measurement_Jacobian *
+                                        other_agent.error_covariance *
+                                        agent_measurement_Jacobian.transpose();
+
+  /* Extract the measurement Jacobian in terms of the ego vehicle. */
+  Eigen::Matrix<double, 2, 3> ego_measurement_Jacobian =
+      ego_robot.measurement_jacobian.topLeftCorner<2, 3>();
 
   /* Calculate innovation Covariance.  */
+  ego_robot.innovation_covariance = ego_measurement_Jacobian *
+                                        ego_robot.error_covariance *
+                                        ego_measurement_Jacobian.transpose() +
+                                    joint_sensor_noise;
 
-  /* Calculate Kalman Gain */
+  /* Calculate Kalman Gain. */
+  Eigen::Matrix<double, 3, 2> kalman_gain =
+      ego_robot.error_covariance * ego_measurement_Jacobian.transpose() *
+      ego_robot.innovation_covariance.inverse();
 
-  /* Calculate the innovation */
+  /* Calculate the innovation. */
+  measurement_t predicted_measurment = measurementModel(ego_robot, other_agent);
 
-  /*  */
+  ego_robot.innovation = ego_robot.measurement - predicted_measurment;
+  normaliseAngle(ego_robot.innovation(BEARING));
+
+  /* Update the state estimate. */
+  ego_robot.state_estimate += kalman_gain * ego_robot.innovation;
+
+  /* Update the estimation error covariance.  */
+  ego_robot.error_covariance -=
+      kalman_gain * ego_robot.innovation_covariance * kalman_gain.transpose();
 }
 #endif // DECOUPLED
 
@@ -89,6 +124,12 @@ void EKF::correction(EstimationParameters &ego_robot,
 #if COUPLED
 void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_agent) {
+
+  static bool first_iteration = true;
+  if (first_iteration) {
+    first_iteration = false;
+    std::cout << "COUPLED" << std::endl;
+  }
 
   /* Calculate measurement Jacobian */
   calculateMeasurementJacobian(ego_robot, other_agent);
