@@ -41,6 +41,17 @@ int main() {
 
   std::cout << std::endl;
 
+  const char *dataset_number = std::getenv("Dataset");
+  std::string dataset;
+
+  /* Set the Default data date to dataset 1. */
+  if (dataset_number == nullptr) {
+    dataset = "MRCLAM_Dataset1";
+
+  } else {
+    dataset = "MRCLAM_Dataset" + std::string(dataset_number);
+  }
+
   /* Creating an instance of the DataHandler class whose output directory will
    * will be set by the respective filter.*/
   DataHandler data;
@@ -48,7 +59,7 @@ int main() {
   /* Check which type of filter was requested by the user and run that specific
    * one */
   if ("EKF" == filter) {
-    data.setDataSet("MRCLAM_Dataset1", "EKF");
+    data.setDataSet(dataset, "EKF");
 
     EKF ekf(data);
 
@@ -56,7 +67,7 @@ int main() {
 
   } else if ("IEKF" == filter) {
 
-    data.setDataSet("MRCLAM_Dataset1", "IEKF");
+    data.setDataSet(dataset, "IEKF");
 
     IEKF iekf(data);
 
@@ -64,7 +75,7 @@ int main() {
 
   } else if ("INFO" == filter) {
 
-    data.setDataSet("MRCLAM_Dataset1", "Information_Filter");
+    data.setDataSet(dataset, "Information_Filter");
 
     InformationFilter info(data);
 
