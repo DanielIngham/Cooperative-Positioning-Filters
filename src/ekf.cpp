@@ -62,11 +62,6 @@ void EKF::prediction(const Robot::Odometry &odometry,
 void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_agent) {
 
-  static bool first_iteration = true;
-  if (first_iteration) {
-    first_iteration = false;
-    std::cout << "DECOUPLED" << std::endl;
-  }
   /* Calculate coupled Measurement Jacobian.
    * NOTE: This is only done to reuse functionality between coupled and
    * decoupled approaches.  */
@@ -124,12 +119,6 @@ void EKF::correction(EstimationParameters &ego_robot,
 #if COUPLED
 void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_agent) {
-
-  static bool first_iteration = true;
-  if (first_iteration) {
-    first_iteration = false;
-    std::cout << "COUPLED" << std::endl;
-  }
 
   /* Calculate measurement Jacobian */
   calculateMeasurementJacobian(ego_robot, other_agent);
