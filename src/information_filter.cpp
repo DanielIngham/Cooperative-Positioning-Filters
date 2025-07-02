@@ -65,7 +65,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   calculateMeasurementJacobian(ego_robot, other_agent);
 
   Eigen::Matrix<double, total_measurements, total_states>
-      ego_measurment_Jacobian =
+      ego_measurement_Jacobian =
           ego_robot.measurement_jacobian
               .topLeftCorner<total_measurements, total_states>();
 
@@ -88,14 +88,14 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 
   /* Calculate the precision contribution */
   precision_t precision_matrix_contribution =
-      ego_measurment_Jacobian.transpose() * joint_measurement_noise.inverse() *
-      ego_measurment_Jacobian;
+      ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
+      ego_measurement_Jacobian;
 
   /* Calculate the information contribution */
   information_t information_vector_contribution =
-      ego_measurment_Jacobian.transpose() * joint_measurement_noise.inverse() *
+      ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
       (ego_robot.innovation +
-       ego_measurment_Jacobian * ego_robot.state_estimate);
+       ego_measurement_Jacobian * ego_robot.state_estimate);
 
   ego_robot.precision_matrix += precision_matrix_contribution;
 
