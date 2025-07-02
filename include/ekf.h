@@ -24,36 +24,16 @@
  */
 class EKF : public Filter {
 public:
-  explicit EKF(DataHandler &data);
+  explicit EKF(DataHandler &);
   ~EKF() override;
 
 private:
-  Eigen::Matrix<double, total_measurements, 1> accumulative_innovation =
-      Eigen::Matrix<double, total_measurements, 1>::Zero();
-
-  Eigen::Matrix<double, total_measurements, 1>
-      accumulative_innovation_covariance =
-          Eigen::Matrix<double, total_measurements, 1>::Zero();
-
-  Eigen::Matrix<double, 2 + total_states, 1> accumulative_estimation_error =
-      Eigen::Matrix<double, 2 + total_states, 1>::Zero();
-
-  Eigen::Matrix<double, 2 + total_states, 1>
-      accummulative_estimation_covariance =
-          Eigen::Matrix<double, 2 + total_states, 1>::Zero();
-
   void prediction(const Robot::Odometry &, EstimationParameters &) override;
 
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
 
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
-
-  Eigen::Matrix<double, total_measurements, 1>
-  computeMeasurementTau(const EstimationParameters &);
-
-  Eigen::Matrix<double, 2 + total_states, 1>
-  computeStateTau(const EstimationParameters &);
 };
 
 #endif // INCLUDE_INCLUDE_EKF_H_

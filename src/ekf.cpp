@@ -11,8 +11,6 @@
 #include <DataHandler/Landmark.h>
 #include <DataHandler/Robot.h>
 #include <cmath>
-#include <iostream>
-#include <stdexcept>
 
 /**
  * @brief EKF class constructor.
