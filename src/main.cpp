@@ -17,6 +17,8 @@
 
 int main(int argc, char *argv[]) {
 
+  std::cout << "Filter performing correction in ";
+
 #ifdef COUPLED
   std::cout << "coupled ";
 
@@ -26,13 +28,11 @@ int main(int argc, char *argv[]) {
 #endif // DECOUPLED
 
 #ifdef ROBUST
-  std::cout << ", robust " << std::endl;
+  std::cout << " robust " << std::endl;
 #endif // ROBUST
 
-  std::cout << std::endl;
+  std::cout << " mode. " << std::endl;
 
-  /* Creating an instance of the DataHandler class whose output directory will
-   * will be set by the respective filter.*/
   DataHandler data;
 
   ArgumentHandler::setArguments(argc, argv, data);
@@ -52,15 +52,12 @@ int main(int argc, char *argv[]) {
 
   filter->performInference();
 
-  /* Check for environment variable IN that determines if the input data should
+  /* Check for SAVE_INPUT definition that determines if the input data should
    * be plot.*/
-  const char *plot_input = std::getenv("IN");
-  if (plot_input != nullptr) {
-    if (std::strcmp(plot_input, "1")) {
-      data.saveExtractedData();
-      data.plotExtractedData();
-    }
-  }
+#ifdef SAVE_INPUT
+  data.saveExtractedData();
+  data.plotExtractedData();
+#endif // SAVE_INPUT
 
   /* The Inference plots are always saved.  */
   data.saveInferenceData();

@@ -13,47 +13,62 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
 
+option(COUPLED "Use coupled correction step" OFF)
+option(ROBUST "Use Robust correction step" OFF)
+
+option(SAVE_INPUT "Saves the input data" OFF)
+
 link_libraries(
 	DataHandler
 	Eigen3::Eigen
 )
 
+function(add_filter_target TARGET_NAME)
+    add_executable(${TARGET_NAME} ${ARGN})
+
+    target_link_libraries(${TARGET_NAME}
+        PRIVATE
+        DataHandler
+        Eigen3::Eigen
+    )
+
+    target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)
+
+    if(ROBUST)
+        target_compile_definitions(${TARGET_NAME} PRIVATE ROBUST)
+    endif()
+
+    if(COUPLED)
+        target_compile_definitions(${TARGET_NAME} PRIVATE COUPLED)
+    else()
+        target_compile_definitions(${TARGET_NAME} PRIVATE DECOUPLED)
+    endif()
+
+    if (SAVE_INPUT)
+	target_compile_definitions(${TARGET_NAME} PRIVATE SAVE_INPUT)
+    endif()
+
+endfunction()
+
 # EKF
-add_executable(EKF 
+add_filter_target(EKF 
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
 )
 
-target_compile_definitions(EKF PUBLIC 
-	EKF_TARGET
-	DECOUPLED
-)
-
 # IEKF
-add_executable(IEKF 
+add_filter_target(IEKF 
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/iekf.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
 )
 
-target_compile_definitions(IEKF PUBLIC 
-	IEKF_TARGET
-	DECOUPLED
-)
-
 # Information Filter
-add_executable(INFO 
+add_filter_target(INFO 
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/information_filter.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
 )
-
-target_compile_definitions(INFO PUBLIC 
-	INFO_TARGET
-	DECOUPLED
-)
-
-
 
