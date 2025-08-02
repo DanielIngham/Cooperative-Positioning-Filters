@@ -13,17 +13,23 @@ cd Cooperative-Positioning-Filters
 git submodule update --init --recursive
 ```
 # Running a Filter
-To run a one of the aforementioned filters, the user can select the filter by setting the `Filter` environment variable before executable:
+To run a one of the aforementioned filters, the user should first build the project using CMake:
 ```bash
-make run Filter=<Filter Name>
+mkdir build && cd build
+cmake ..
+cmake --build .
 ```
-`<Filter Name>` can be either: `EKF`, `IEKF`, or `INFO`. 
+This compiles a target for each of the filters:
+- `./EKF` 
+- `./IEKF` 
+- `./INFO` 
 
-To select a dataset, the user can set the `Dataset` environment variable before execution:
+## Selecting a Dataset
+To select a dataset, the [DataHandlers](https://github.com/DanielIngham/Cooperative-Positioning-Data-Handler) [ArgumentHandler.h](https://github.com/DanielIngham/Cooperative-Positioning-Data-Handler/blob/master/ArgumentHandler.h) is used. For example, to set the dataset for the `EKF`: 
 ```bash
-make run Filter=<Filter Name> Dataset=<Dataset Number>
+./EKF -d <Dataset>
 ```
-`Dataset` can be any value in the range [1,9]. Note that dataset 9 has incorrect groundtruth values, and therefore it is not recomended to use it.
+`Dataset` can be any value in the range [1,9]. Note that dataset 9 has incorrect groundtruth values, and therefore it is not recommended using it.
 
 # Build Options
 ## Coupled vs Decoupled
@@ -31,10 +37,10 @@ The measurement update can be performed either in a **coupled** or **decoupled**
 
 The decoupled is the default, however, the user can compile the project using the coupled approach during linking by adding the `COUPLED`:
 ```bash
-make COUPLED=1
+cmake -DCOUPLED=ON ..
 ```
 ## Normal vs Robust 
 The measurement update can be performed using the *Huber* loss function for both the EKF and IEKF, which results in improved robustness against outliers. To use the Huber loss function, the user must compile the project using the `ROBUST` flag:
 ```bash
-make ROBUST=1
+cmake -DROBUST=ON ..
 ```
