@@ -9,9 +9,6 @@
 #include "iekf.h"
 #include "filter.h"
 
-#include <DataHandler/Landmark.h>
-#include <DataHandler/Robot.h>
-#include <Eigen/Cholesky>
 #include <stdexcept>
 
 /**

@@ -7,7 +7,8 @@
  */
 
 #include "filter.h"
-#include <DataHandler/DataHandler.h>
+
+#include <DataHandler.h>
 #include <chrono>
 #include <iostream>
 
@@ -131,6 +132,7 @@ void Filter::performInference() {
           robot_parameters[id].state_estimate(X),
           robot_parameters[id].state_estimate(Y), normalised_angle);
     }
+#if 1
 
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */
@@ -201,6 +203,7 @@ void Filter::performInference() {
       }
       measurement_index[id] += 1;
     }
+#endif // 0
   }
 
   auto timer_end = std::chrono::high_resolution_clock::now();

@@ -9,7 +9,7 @@
 #ifndef INCLUDE_SRC_FILTER_H_
 #define INCLUDE_SRC_FILTER_H_
 
-#include <DataHandler/DataHandler.h>
+#include <DataHandler.h>
 #include <Eigen/Dense>
 
 class Filter {

@@ -3,7 +3,7 @@
 
 #include "filter.h"
 
-#include <DataHandler/DataHandler.h>
+#include <DataHandler.h>
 
 class InformationFilter : public Filter {
 public:
