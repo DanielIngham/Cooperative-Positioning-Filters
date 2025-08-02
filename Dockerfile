@@ -1,18 +1,29 @@
 FROM ubuntu:24.04
 
+# Install system dependencies
 RUN apt-get update && \
-	apt-get install -y --no-install-recommends \
-		gcc \
-		g++ \
-		gnuplot \
-		make && \
-	apt-get clean && \ 
-	rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        gnuplot \
+        libeigen3-dev \
+        && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p ./app/output
+# Set working directory
+WORKDIR /app
 
-# Copy files maintaining the structure
-COPY . ./app
-WORKDIR ./app
+# Copy source code into container
+COPY . .
 
-CMD ["make", "run"]
+# Create a separate build directory
+RUN rm -rf ./build && mkdir -p build && cd build && \
+    cmake .. && \
+    cmake --build .
+
+# Set working directory to run built app
+WORKDIR /app/build
+
+# Set the default command to run your application
+# Replace `your_executable` with the actual binary name
+CMD ["bash"]
