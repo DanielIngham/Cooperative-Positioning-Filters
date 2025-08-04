@@ -133,7 +133,7 @@ void Filter::performInference() {
           robot_parameters[id].state_estimate(Y), normalised_angle);
     }
 
-#if MEASUREMENT_UPDATE
+#ifdef MEASUREMENT_UPDATE
 
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */

@@ -16,7 +16,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
 option(COUPLED "Use coupled correction step" OFF)
 option(ROBUST "Use Robust correction step" OFF)
 
-option (MEASUREMENT_UPDATE "Include measurement update step when filtering." OFF)
+option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
 
 option(SAVE_INPUT "Saves the input data" OFF)
 
@@ -35,6 +35,11 @@ function(add_filter_target TARGET_NAME)
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)
+
+    if (MEASUREMENT_UPDATE) 
+	target_compile_definitions(${TARGET_NAME} PRIVATE MEASUREMENT_UPDATE)
+    endif()
+
 
     if(ROBUST)
         target_compile_definitions(${TARGET_NAME} PRIVATE ROBUST)
