@@ -16,6 +16,8 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
 option(COUPLED "Use coupled correction step" OFF)
 option(ROBUST "Use Robust correction step" OFF)
 
+option (MEASUREMENT_UPDATE "Include measurement update step when filtering." OFF)
+
 option(SAVE_INPUT "Saves the input data" OFF)
 
 link_libraries(
