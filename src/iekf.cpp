@@ -17,7 +17,7 @@
  * Iterative Extended Kalman filtering.
  * @param[in] data Class containing all robot and landmark data.
  */
-IEKF::IEKF(DataHandler &data) : EKF(data) {}
+IEKF::IEKF(Data::Handler &data) : EKF(data) {}
 
 /**
  * @brief Default destructor.

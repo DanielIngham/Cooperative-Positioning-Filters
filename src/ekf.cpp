@@ -16,7 +16,7 @@
  * Extended Kalman filtering.
  * @param[in] data Class containing all robot and landmark data.
  */
-EKF::EKF(DataHandler &data) : Filter(data) {}
+EKF::EKF(Data::Handler &data) : Filter(data) {}
 
 /**
  * @brief Default destructor.
@@ -30,7 +30,7 @@ EKF::~EKF() {}
  * @param[in,out] estimation_parameters The parameters required by the Extended
  * Kalman filter to perform the prediction step.
  */
-void EKF::prediction(const Robot::Odometry &odometry,
+void EKF::prediction(const Data::Robot::Odometry &odometry,
                      EstimationParameters &estimation_parameters) {
 
   const double sample_period = data_.getSamplePeriod();

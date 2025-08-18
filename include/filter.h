@@ -94,7 +94,7 @@ protected:
    * @brief Data class housing all the data pertaining to cooperative
    * localisation (positioning).
    */
-  DataHandler &data_;
+  Data::Handler &data_;
 
   /**
    * @struct EstimationParameters
@@ -251,17 +251,18 @@ protected:
           .finished();
 
   /* Filter Functionality Functions */
-  virtual void prediction(const Robot::Odometry &, EstimationParameters &) = 0;
+  virtual void prediction(const Data::Robot::Odometry &,
+                          EstimationParameters &) = 0;
 
   virtual void correction(EstimationParameters &,
                           const EstimationParameters &) = 0;
 
   /* Motion Model Functions. */
-  void motionModel(const Robot::Odometry &, EstimationParameters &,
+  void motionModel(const Data::Robot::Odometry &, EstimationParameters &,
                    const double);
 
-  void calculateMotionJacobian(const Robot::Odometry &, EstimationParameters &,
-                               const double);
+  void calculateMotionJacobian(const Data::Robot::Odometry &,
+                               EstimationParameters &, const double);
 
   void calculateProcessJacobian(EstimationParameters &, const double);
 
@@ -301,7 +302,7 @@ protected:
   matrix6D_t computePseudoInverse(const matrix6D_t &);
 
 public:
-  explicit Filter(DataHandler &data);
+  explicit Filter(Data::Handler &data);
   virtual ~Filter();
 
   void performInference();

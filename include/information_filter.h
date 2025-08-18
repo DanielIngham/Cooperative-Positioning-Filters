@@ -7,11 +7,13 @@
 
 class InformationFilter : public Filter {
 public:
-  InformationFilter(DataHandler &data);
+  InformationFilter(Data::Handler &data);
   ~InformationFilter() override;
 
 private:
-  void prediction(const Robot::Odometry &, EstimationParameters &) override;
+  void prediction(const Data::Robot::Odometry &,
+                  EstimationParameters &) override;
+
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
 };

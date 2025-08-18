@@ -16,9 +16,9 @@
  * @brief Assigns fields data based on datahandler input.
  * @param[in] data Class containing all robot data.
  */
-Filter::Filter(DataHandler &data) : data_(data) {
+Filter::Filter(Data::Handler &data) : data_(data) {
 
-  std::vector<Robot> &robots = data_.getRobots();
+  std::vector<Data::Robot> &robots = data_.getRobots();
 
   /* Populate the Estimation parameters for each robot. */
   for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
@@ -54,7 +54,7 @@ Filter::Filter(DataHandler &data) : data_(data) {
   }
 
   /* Populate the estimation parameters for each landmark. */
-  std::vector<Landmark> landmarks = data_.getLandmarks();
+  std::vector<Data::Landmark> landmarks = data_.getLandmarks();
 
   for (unsigned short id = 0; id < data_.getNumberOfLandmarks(); id++) {
     EstimationParameters initial_parameters;
@@ -98,7 +98,7 @@ Filter::~Filter() = default;
  * framework for all robots provided.
  */
 void Filter::performInference() {
-  std::vector<Robot> &robots = this->data_.getRobots();
+  std::vector<Data::Robot> &robots = this->data_.getRobots();
 
   /* Loop through each timestep and perform inference.  */
   std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
@@ -116,9 +116,10 @@ void Filter::performInference() {
     /* Perform prediction for each robot using odometry values. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
 
-      Robot::Odometry odometry(robots[id].synced.odometry[k].time,
-                               robots[id].synced.odometry[k].forward_velocity,
-                               robots[id].synced.odometry[k].angular_velocity);
+      Data::Robot::Odometry odometry(
+          robots[id].synced.odometry[k].time,
+          robots[id].synced.odometry[k].forward_velocity,
+          robots[id].synced.odometry[k].angular_velocity);
 
       prediction(odometry, robot_parameters[id]);
 
@@ -127,14 +128,13 @@ void Filter::performInference() {
 
       normaliseAngle(normalised_angle);
       /* Update the robot state data structure. */
-      robots[id].synced.states[k] = Robot::State(
+      robots[id].synced.states[k] = Data::Robot::State(
           robots[id].groundtruth.states[k].time,
           robot_parameters[id].state_estimate(X),
           robot_parameters[id].state_estimate(Y), normalised_angle);
     }
 
 #ifdef MEASUREMENT_UPDATE
-
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */
     for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
@@ -160,7 +160,7 @@ void Filter::performInference() {
        * NOTE: This operation uses the assumption that the measurements fo the
        * indpendent robots/landmarks are independent of one another.
        */
-      const Robot::Measurement &current_measurement =
+      const Data::Robot::Measurement &current_measurement =
           robots[id].synced.measurements[measurement_index[id]];
 
       for (unsigned short j = 0; j < current_measurement.subjects.size(); j++) {
@@ -298,7 +298,7 @@ Filter::HuberState(const augmentedState_t &error_residual,
  * distributed random variables \f$\mathcal{N}(0,w)\f$ (see
  * Filter::EstimationParameters::process_noise).
  */
-void Filter::motionModel(const Robot::Odometry &odometry,
+void Filter::motionModel(const Data::Robot::Odometry &odometry,
                          EstimationParameters &estimation_parameters,
                          const double sample_period) {
 
@@ -335,7 +335,7 @@ void Filter::motionModel(const Robot::Odometry &odometry,
  * information on the motion model from which this was derived.
  */
 void Filter::calculateMotionJacobian(
-    const Robot::Odometry &odometry,
+    const Data::Robot::Odometry &odometry,
     EstimationParameters &estimation_parameters, const double sample_period) {
 
   estimation_parameters.motion_jacobian << 1, 0,

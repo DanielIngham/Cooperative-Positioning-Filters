@@ -24,11 +24,12 @@
  */
 class EKF : public Filter {
 public:
-  explicit EKF(DataHandler &);
+  explicit EKF(Data::Handler &);
   ~EKF() override;
 
 private:
-  void prediction(const Robot::Odometry &, EstimationParameters &) override;
+  void prediction(const Data::Robot::Odometry &,
+                  EstimationParameters &) override;
 
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;

@@ -27,7 +27,7 @@
  */
 class IEKF : public EKF {
 public:
-  explicit IEKF(DataHandler &data);
+  explicit IEKF(Data::Handler &data);
   ~IEKF() override;
 
 private:

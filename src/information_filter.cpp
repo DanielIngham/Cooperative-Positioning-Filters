@@ -9,15 +9,13 @@
 #include "information_filter.h"
 #include "filter.h"
 
-#include <iostream>
-
 /**
  * @brief InformationFilter class constructor.
  * @details This constructor sets up the prior states and parameters to perform
  * Extended Information filtering.
  * @param[in] data Class containing all robot and landmark data.
  */
-InformationFilter::InformationFilter(DataHandler &data) : Filter(data) {}
+InformationFilter::InformationFilter(Data::Handler &data) : Filter(data) {}
 
 /**
  * @brief Default destructor.
@@ -31,7 +29,7 @@ InformationFilter::~InformationFilter() {}
  * @param[in,out] ego_robot The parameters required by the
  * Information filter to perform the prediction step.
  */
-void InformationFilter::prediction(const Robot::Odometry &odometry,
+void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
                                    EstimationParameters &ego_robot) {
 
   const double sample_period = data_.getSamplePeriod();

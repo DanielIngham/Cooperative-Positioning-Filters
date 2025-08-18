@@ -1,3 +1,4 @@
+#include "Plotter.h"
 #ifdef EKF_TARGET
 #include "ekf.h"
 #endif // EKF
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << " mode. " << std::endl;
 
-  DataHandler data;
+  Data::Handler data;
 
   ArgumentHandler::setArguments(argc, argv, data);
 
@@ -54,14 +55,15 @@ int main(int argc, char *argv[]) {
 
   /* Check for SAVE_INPUT definition that determines if the input data should
    * be plot.*/
+
+  Data::Plotter plotter(data);
+
 #ifdef SAVE_INPUT
   data.saveExtractedData();
-  data.plotExtractedData();
 #endif // SAVE_INPUT
 
-  /* The Inference plots are always saved.  */
-  data.saveInferenceData();
-  data.plotInferenceData();
+  plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
+  plotter.plotPoses({Data::Plotter::ERROR}, 1);
 
   delete filter;
 
