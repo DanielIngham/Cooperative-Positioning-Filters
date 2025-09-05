@@ -21,30 +21,29 @@ Filter::Filter(Data::Handler &data) : data_(data) {
   std::vector<Data::Robot> &robots = data_.getRobots();
 
   /* Populate the Estimation parameters for each robot. */
-  for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
+  for (auto &robot : robots) {
 
     EstimationParameters initial_parameters;
-    initial_parameters.id = robots[id].id;
-    initial_parameters.barcode = robots[id].barcode;
+    initial_parameters.id = robot.id;
+    initial_parameters.barcode = robot.barcode;
 
     /* Assume known prior. This is done by setting the first value of the
      * estimated values to the groundtruth. */
-    robots[id].synced.states[0] = robots[id].groundtruth.states.front();
+    robot.synced.states.front() = robot.groundtruth.states.front();
 
     /* Initial state: 3x1 Matrix. */
-    initial_parameters.state_estimate << robots[id].synced.states.front().x,
-        robots[id].synced.states.front().y,
-        robots[id].synced.states.front().orientation;
+    initial_parameters.state_estimate << robot.synced.states.front().x,
+        robot.synced.states.front().y, robot.synced.states.front().orientation;
 
     /* Populate odometry error covariance matrix: 2x2 matrix. */
     initial_parameters.process_noise.diagonal().topRows(total_inputs)
-        << robots[id].forward_velocity_error.variance,
-        robots[id].angular_velocity_error.variance;
+        << robot.forward_velocity_error.variance,
+        robot.angular_velocity_error.variance;
 
     /* Populate measurement error covariance matrix: 2x2 matrix. */
     initial_parameters.measurement_noise.diagonal().topRows(total_measurements)
-        << robots[id].range_error.variance,
-        robots[id].bearing_error.variance;
+        << robot.range_error.variance,
+        robot.bearing_error.variance;
 
     /* Populate the Initial information vector */
     initial_parameters.information_vector =
@@ -56,13 +55,13 @@ Filter::Filter(Data::Handler &data) : data_(data) {
   /* Populate the estimation parameters for each landmark. */
   std::vector<Data::Landmark> landmarks = data_.getLandmarks();
 
-  for (unsigned short id = 0; id < data_.getNumberOfLandmarks(); id++) {
+  for (const auto &landmark : landmarks) {
     EstimationParameters initial_parameters;
 
-    initial_parameters.id = landmarks[id].id;
-    initial_parameters.barcode = landmarks[id].barcode;
+    initial_parameters.id = landmark.id;
+    initial_parameters.barcode = landmark.barcode;
 
-    initial_parameters.state_estimate << landmarks[id].x, landmarks[id].y, 0.0;
+    initial_parameters.state_estimate << landmark.x, landmark.y, 0.0;
 
     /* The landmark only has two states: x and y coordintate.
      * NOTE: Although the landmark only has two states, the same data structure
@@ -70,8 +69,8 @@ Filter::Filter(Data::Handler &data) : data_(data) {
      * EFK::correction function, since only the x and y coordinate and thier
      * corresponding error covariances are used for the measurement update. */
     initial_parameters.error_covariance.diagonal().topRows(total_states - 1)
-        << landmarks[id].x_std_dev * landmarks[id].x_std_dev,
-        landmarks[id].y_std_dev * landmarks[id].y_std_dev;
+        << landmark.x_std_dev * landmark.x_std_dev,
+        landmark.y_std_dev * landmark.y_std_dev;
 
     /* NOTE: The landmarks don't have an estimate for thier orientation. So the
      * third diagonal element in the precsion matrix is never used. It is kept
@@ -98,10 +97,6 @@ Filter::~Filter() = default;
  * framework for all robots provided.
  */
 void Filter::performInference() {
-  std::vector<Data::Robot> &robots = this->data_.getRobots();
-
-  /* Loop through each timestep and perform inference.  */
-  std::vector<size_t> measurement_index(data_.getNumberOfRobots(), 0);
 
   /* Get the total number of syncede datapoints in the data set extracted. */
   size_t total_datapoints = data_.getNumberOfSyncedDatapoints();
@@ -109,17 +104,20 @@ void Filter::performInference() {
   /* Start the timer for measuring the execution time of a child filter. */
   auto timer_start = std::chrono::high_resolution_clock::now();
 
-  for (size_t k = 1; k < total_datapoints; k++) {
+  for (size_t k{1}; k < total_datapoints; k++) {
     std::cout << "\rPerforming Inference: " << k * 100 / total_datapoints
               << " %" << std::flush;
 
     /* Perform prediction for each robot using odometry values. */
-    for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
+    std::vector<Data::Robot> &robots = this->data_.getRobots();
 
-      Data::Robot::Odometry odometry(
-          robots[id].synced.odometry[k].time,
-          robots[id].synced.odometry[k].forward_velocity,
-          robots[id].synced.odometry[k].angular_velocity);
+    for (unsigned short id{}; id < data_.getNumberOfRobots(); id++) {
+
+      Data::Robot::Odometry odometry = {
+          .time = robots[id].synced.odometry[k].time,
+          .forward_velocity = robots[id].synced.odometry[k].forward_velocity,
+          .angular_velocity = robots[id].synced.odometry[k].angular_velocity,
+      };
 
       prediction(odometry, robot_parameters[id]);
 
@@ -127,54 +125,49 @@ void Filter::performInference() {
           robot_parameters[id].state_estimate(ORIENTATION);
 
       normaliseAngle(normalised_angle);
+
       /* Update the robot state data structure. */
-      robots[id].synced.states[k] = Data::Robot::State(
-          robots[id].groundtruth.states[k].time,
-          robot_parameters[id].state_estimate(X),
-          robot_parameters[id].state_estimate(Y), normalised_angle);
+      robots[id].synced.states[k] = Data::Robot::State{
+          .time = robots[id].groundtruth.states[k].time,
+          .x = robot_parameters[id].state_estimate(X),
+          .y = robot_parameters[id].state_estimate(Y),
+          .orientation = normalised_angle,
+      };
     }
 
 #ifdef MEASUREMENT_UPDATE
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */
-    for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-
-      /* Range check. */
-      if (measurement_index[id] >= robots[id].synced.measurements.size()) {
-        continue;
-      }
-
-      /* Check if a measurement is not available for this time stamp, then skip.
-       */
-      if (std::round(
-              (robots[id].synced.measurements[measurement_index[id]].time -
-               robots[id].synced.odometry[k].time) *
-              10000.0) /
-              10000.0 !=
-          0.0) {
-        continue;
-      }
+    for (unsigned short id{}; id < data_.getNumberOfRobots(); id++) {
 
       /* Loop through the measurements taken and perform the measurement
        * update for each robot.
        * NOTE: This operation uses the assumption that the measurements fo the
        * indpendent robots/landmarks are independent of one another.
        */
-      const Data::Robot::Measurement &current_measurement =
-          robots[id].synced.measurements[measurement_index[id]];
+      const Data::Robot::Measurement *current_measurement =
+          Data::Handler::getMeasurement(&robots[id], k);
 
-      for (unsigned short j = 0; j < current_measurement.subjects.size(); j++) {
+      if (current_measurement == nullptr) {
+        continue;
+      }
+
+      for (unsigned short j{}; j < current_measurement->subjects.size(); j++) {
         /* Find the subject for whom the barcode belongs to. */
-        int subject_id = data_.getID(current_measurement.subjects[j]);
+        Data::Handler::Subject subject;
 
-        if (-1 == subject_id) {
+        bool subject_found =
+            data_.getSubject(current_measurement->subjects[j], subject);
+
+        if (!subject_found) {
           continue;
         }
+
         /* Populate the measurement matrix required for the correction step.
          * Remove any noise bias from the measurement.
          */
-        robot_parameters[id].measurement << current_measurement.ranges[j],
-            current_measurement.bearings[j];
+        robot_parameters[id].measurement << current_measurement->ranges[j],
+            current_measurement->bearings[j];
 
         /* The datahandler first assigns the ID to the robots then the
          * landmarks. Therefore if the ID is less than or equal to the number
@@ -182,13 +175,11 @@ void Filter::performInference() {
          * landmark. */
         EstimationParameters *measured_agent;
 
-        if (subject_id <= data_.getNumberOfRobots()) {
-          unsigned short index = subject_id - 1;
-          measured_agent = &robot_parameters[index];
+        if (subject.type == Data::Handler::Subject::Type::ROBOT) {
+          measured_agent = &robot_parameters[subject.index];
 
         } else {
-          unsigned short index = subject_id - data_.getNumberOfRobots() - 1;
-          measured_agent = &landmark_parameters[index];
+          measured_agent = &landmark_parameters[subject.index];
         }
 
         correction(robot_parameters[id], *measured_agent);
@@ -202,7 +193,6 @@ void Filter::performInference() {
         robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
         robots[id].synced.states[k].orientation = normalised_angle;
       }
-      measurement_index[id] += 1;
     }
 #endif // 0
   }
@@ -217,9 +207,7 @@ void Filter::performInference() {
             << execution_duration.count() << " ms]" << std::endl;
 
   /* Calculate the inference error. */
-  for (unsigned short id = 0; id < data_.getNumberOfRobots(); id++) {
-    robots[id].calculateStateError();
-  }
+  data_.calculateStateError();
 }
 
 /**

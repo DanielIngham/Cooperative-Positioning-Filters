@@ -62,8 +62,8 @@ int main(int argc, char *argv[]) {
   data.saveExtractedData();
 #endif // SAVE_INPUT
 
-  plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
-  plotter.plotPoses({Data::Plotter::ERROR}, 1);
+  // plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
+  plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR}, 1);
 
   delete filter;
 

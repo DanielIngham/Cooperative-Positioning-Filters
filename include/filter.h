@@ -257,7 +257,6 @@ protected:
   virtual void correction(EstimationParameters &,
                           const EstimationParameters &) = 0;
 
-  /* Motion Model Functions. */
   void motionModel(const Data::Robot::Odometry &, EstimationParameters &,
                    const double);
 
@@ -266,14 +265,12 @@ protected:
 
   void calculateProcessJacobian(EstimationParameters &, const double);
 
-  /* Measurement Model Functions. */
   measurement_t measurementModel(EstimationParameters &,
                                  const EstimationParameters &);
 
   void calculateMeasurementJacobian(EstimationParameters &,
                                     const EstimationParameters &);
 
-  /* Filter Helper Functions. */
   matrix3D_t marginalise(const matrix6D_t &);
 
   state_t marginalise(const vector6D_t &, const matrix6D_t &);

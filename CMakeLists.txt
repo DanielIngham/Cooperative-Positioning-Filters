@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28.3)
 
 project(Filters)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Eigen3 REQUIRED)
@@ -37,6 +37,7 @@ function(add_filter_target TARGET_NAME)
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)
 
     if (MEASUREMENT_UPDATE) 
+	message("Including measurements.")
 	target_compile_definitions(${TARGET_NAME} PRIVATE MEASUREMENT_UPDATE)
     endif()
 
