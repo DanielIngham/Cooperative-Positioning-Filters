@@ -12,6 +12,8 @@
 #include <chrono>
 #include <iostream>
 
+namespace Filter {
+
 /**
  * @brief Assigns fields data based on datahandler input.
  * @param[in] data Class containing all robot data.
@@ -675,3 +677,4 @@ Filter::matrix6D_t Filter::computePseudoInverse(const matrix6D_t &matrix_6d) {
   return svd.matrixV() * singular_values_inv.asDiagonal() *
          svd.matrixU().transpose();
 }
+} // namespace Filter

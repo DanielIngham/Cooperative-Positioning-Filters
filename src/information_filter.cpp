@@ -9,6 +9,7 @@
 #include "information_filter.h"
 #include "filter.h"
 
+namespace Filter {
 /**
  * @brief InformationFilter class constructor.
  * @details This constructor sets up the prior states and parameters to perform
@@ -173,3 +174,5 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
                              ego_robot.information_vector;
 }
 #endif // COUPLED
+
+} // namespace Filter

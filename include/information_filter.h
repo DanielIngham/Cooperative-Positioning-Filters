@@ -5,6 +5,7 @@
 
 #include <DataHandler.h>
 
+namespace Filter {
 class InformationFilter : public Filter {
 public:
   InformationFilter(Data::Handler &data);
@@ -17,5 +18,5 @@ private:
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
 };
-
+} // namespace Filter
 #endif // INCLUDE_INCLUDE_INFORMATION_H_

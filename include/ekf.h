@@ -14,6 +14,8 @@
 #include <DataHandler.h>
 #include <Eigen/Dense>
 
+namespace Filter {
+
 /**
  * @class EKF
  * @brief Extended Kalman Filter.
@@ -36,5 +38,5 @@ private:
 
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 };
-
+} // namespace Filter
 #endif // INCLUDE_INCLUDE_EKF_H_

@@ -13,6 +13,7 @@
 #include <DataHandler.h>
 #include <Eigen/Dense>
 
+namespace Filter {
 /**
  * @class IEKF
  * @brief Itertative Extended Kalman Filter (IEKF).
@@ -38,4 +39,5 @@ private:
 
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 };
+}      // namespace Filter
 #endif // INCLUDE_INCLUDE_IEKF_H_

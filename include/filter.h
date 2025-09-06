@@ -12,6 +12,7 @@
 #include <DataHandler.h>
 #include <Eigen/Dense>
 
+namespace Filter {
 class Filter {
 protected:
   /**
@@ -304,5 +305,6 @@ public:
 
   void performInference();
 };
+} // namespace Filter
 
 #endif // INCLUDE_SRC_FILTER_H_

@@ -1,4 +1,5 @@
 #include "Plotter.h"
+#include <memory>
 #ifdef EKF_TARGET
 #include "ekf.h"
 #endif // EKF
@@ -15,6 +16,8 @@
 #include <DataHandler.h>
 #include <cctype>
 #include <iostream>
+
+using std::make_unique;
 
 int main(int argc, char *argv[]) {
 
@@ -38,16 +41,16 @@ int main(int argc, char *argv[]) {
 
   ArgumentHandler::setArguments(argc, argv, data);
 
-  Filter *filter;
+  std::unique_ptr<Filter::Filter> filter;
 
 #ifdef EKF_TARGET
-  filter = new EKF(data);
+  filter = make_unique<Filter::EKF>(data);
 
 #elif defined(IEKF_TARGET)
-  filter = new IEKF(data);
+  filter = make_unique<Filter::IEKF>(data);
 
 #else
-  filter = new InformationFilter(data);
+  filter = make_unique<Filter::InformationFilter>(data);
 
 #endif // EKF_TARGET
 
@@ -64,8 +67,6 @@ int main(int argc, char *argv[]) {
 
   // plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
   plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR}, 1);
-
-  delete filter;
 
   return 0;
 }

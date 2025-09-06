@@ -10,6 +10,8 @@
 
 #include <cmath>
 
+namespace Filter {
+
 /**
  * @brief EKF class constructor.
  * @details This constructor sets up the prior states and parameters to perform
@@ -270,3 +272,5 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
       error_covariance.topLeftCorner<total_states, total_states>();
 }
 #endif // ROBUST
+
+} // namespace Filter
