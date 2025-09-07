@@ -29,13 +29,13 @@ public:
   explicit EKF(Data::Handler &);
   ~EKF() override;
 
-private:
   void prediction(const Data::Robot::Odometry &,
                   EstimationParameters &) override;
 
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
 
+private:
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 };
 } // namespace Filter

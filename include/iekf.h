@@ -31,13 +31,13 @@ public:
   explicit IEKF(Data::Handler &data);
   ~IEKF() override;
 
-private:
-  const unsigned short max_iterations = 1;
-
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
 
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
+
+private:
+  const unsigned short max_iterations{5U};
 };
-}      // namespace Filter
+} // namespace Filter
 #endif // INCLUDE_INCLUDE_IEKF_H_

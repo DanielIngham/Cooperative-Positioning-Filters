@@ -251,13 +251,6 @@ protected:
       (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104, 0.0)
           .finished();
 
-  /* Filter Functionality Functions */
-  virtual void prediction(const Data::Robot::Odometry &,
-                          EstimationParameters &) = 0;
-
-  virtual void correction(EstimationParameters &,
-                          const EstimationParameters &) = 0;
-
   void motionModel(const Data::Robot::Odometry &, EstimationParameters &,
                    const double);
 
@@ -289,7 +282,6 @@ protected:
   augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);
 
-  /* Huber Cost Functions. */
   huberMeasurementWeights_t
   HuberMeasurement(const measurement_t &, const huberMeasurementThresholds_t &);
 
@@ -304,6 +296,12 @@ public:
   virtual ~Filter();
 
   void performInference();
+
+  virtual void prediction(const Data::Robot::Odometry &,
+                          EstimationParameters &) = 0;
+
+  virtual void correction(EstimationParameters &,
+                          const EstimationParameters &) = 0;
 };
 } // namespace Filter
 

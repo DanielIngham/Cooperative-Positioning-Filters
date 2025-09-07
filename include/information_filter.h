@@ -11,12 +11,13 @@ public:
   InformationFilter(Data::Handler &data);
   ~InformationFilter() override;
 
-private:
   void prediction(const Data::Robot::Odometry &,
                   EstimationParameters &) override;
 
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
+
+private:
 };
 } // namespace Filter
 #endif // INCLUDE_INCLUDE_INFORMATION_H_
