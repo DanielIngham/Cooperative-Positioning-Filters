@@ -1,21 +1,23 @@
 #include "Plotter.h"
-#include <memory>
-#ifdef EKF_TARGET
-#include "ekf.h"
-#endif // EKF
-
-#ifdef IEKF_TARGET
-#include "iekf.h"
-#endif // IEKF
-
-#ifdef INFO_TARGET
-#include "information_filter.h"
-#endif // INFO
 
 #include <ArgumentHandler.h>
 #include <DataHandler.h>
 #include <cctype>
+#include <cstdlib>
 #include <iostream>
+#include <memory>
+
+#ifdef EKF_TARGET
+#include "ekf.h"
+#endif // EKF_TARGET
+
+#ifdef IEKF_TARGET
+#include "iekf.h"
+#endif // IEKF_TARGET
+
+#ifdef INFO_TARGET
+#include "information_filter.h"
+#endif // INFO_TARGET
 
 using std::make_unique;
 
@@ -68,5 +70,5 @@ int main(int argc, char *argv[]) {
   // plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
   plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR}, 1);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
