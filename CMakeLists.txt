@@ -5,6 +5,18 @@ project(Filters)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(Eigen3 REQUIRED)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
+
+option(COUPLED "Use coupled correction step" OFF)
+option(ROBUST "Use Robust correction step" OFF)
+option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
+option(SAVE_INPUT "Saves the input data" OFF)
 
 function(add_filter_target TARGET_NAME)
     add_executable(${TARGET_NAME} ${ARGN})
@@ -41,18 +53,6 @@ function(configure_target_options TARGET_NAME)
     endif()
 endfunction()
 
-find_package(Eigen3 REQUIRED)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
-
-option(COUPLED "Use coupled correction step" OFF)
-option(ROBUST "Use Robust correction step" OFF)
-option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
-option(SAVE_INPUT "Saves the input data" OFF)
 
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     message(STATUS "Configuring filters as an executable.")
