@@ -33,7 +33,7 @@ InformationFilter::~InformationFilter() {}
 void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
                                    EstimationParameters &ego_robot) {
 
-  const double sample_period = data_.getSamplePeriod();
+  const double sample_period{data_.getSamplePeriod()};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   calculateMotionJacobian(odometry, ego_robot, sample_period);
@@ -69,32 +69,31 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
               .topLeftCorner<total_measurements, total_states>();
 
   Eigen::Matrix<double, total_measurements, total_states>
-      agent_measurment_Jacobian =
+      agent_measurment_Jacobian{
           ego_robot.measurement_jacobian
-              .topRightCorner<total_measurements, total_states>();
+              .topRightCorner<total_measurements, total_states>()};
 
   /* Calculate the joint measurment noise. */
-  measurementCovariance_t joint_measurement_noise =
+  measurementCovariance_t joint_measurement_noise{
       ego_robot.measurement_noise + agent_measurment_Jacobian *
                                         other_agent.precision_matrix.inverse() *
-                                        agent_measurment_Jacobian.transpose();
+                                        agent_measurment_Jacobian.transpose()};
 
   /* Calculate the measurement residual. */
-  measurement_t predicted_measurement =
-      measurementModel(ego_robot, other_agent);
+  measurement_t predicted_measurement{measurementModel(ego_robot, other_agent)};
 
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
   /* Calculate the precision contribution */
-  precision_t precision_matrix_contribution =
+  precision_t precision_matrix_contribution{
       ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
-      ego_measurement_Jacobian;
+      ego_measurement_Jacobian};
 
   /* Calculate the information contribution */
-  information_t information_vector_contribution =
+  information_t information_vector_contribution{
       ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
       (ego_robot.innovation +
-       ego_measurement_Jacobian * ego_robot.state_estimate);
+       ego_measurement_Jacobian * ego_robot.state_estimate)};
 
   ego_robot.precision_matrix += precision_matrix_contribution;
 
@@ -139,7 +138,7 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the angle residual. */
-  normaliseAngle(ego_robot.innovation(BEARING));
+  Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Calculate the precision contribution */
   augmentedPrecision_t precision_matrix_contribution =

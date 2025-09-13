@@ -37,7 +37,7 @@ public:
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 
 private:
-  const unsigned short max_iterations{5U};
+  const unsigned short max_iterations_{5U};
 };
 } // namespace Filter
 #endif // INCLUDE_INCLUDE_IEKF_H_

@@ -2,6 +2,7 @@
 
 #include <ArgumentHandler.h>
 #include <DataHandler.h>
+
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
@@ -68,7 +69,10 @@ int main(int argc, char *argv[]) {
 #endif // SAVE_INPUT
 
   // plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
-  plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR}, 1);
+  plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR});
 
+  std::cout << data.getAverageRMSE().x << std::endl
+            << data.getAverageRMSE().y << std::endl
+            << data.getAverageRMSE().orientation << std::endl;
   return EXIT_SUCCESS;
 }

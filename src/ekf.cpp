@@ -95,7 +95,7 @@ void EKF::correction(EstimationParameters &ego_robot,
   measurement_t predicted_measurment = measurementModel(ego_robot, other_agent);
 
   ego_robot.innovation = ego_robot.measurement - predicted_measurment;
-  normaliseAngle(ego_robot.innovation(BEARING));
+  Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Update the state estimate. */
   ego_robot.state_estimate += kalman_gain * ego_robot.innovation;
@@ -154,7 +154,7 @@ void EKF::correction(EstimationParameters &ego_robot,
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the angle residual. */
-  normaliseAngle(ego_robot.innovation(BEARING));
+  Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Update the state using the measurement. */
   state_estimate += ego_robot.kalman_gain * ego_robot.innovation;
@@ -228,7 +228,7 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
   /* Normalise the bearing residual */
-  normaliseAngle(ego_robot.innovation(BEARING));
+  Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
 
   /* Calculate the new robust sensor error covariance. */
   measurementCovariance_t reweighted_measurement_covariance =
@@ -254,7 +254,7 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
   ego_robot.estimation_residual =
       intial_state_estimate - iterative_state_estimate;
 
-  normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
+  Data::Robot::normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
 
   /* Resize matrices back to normal */
   ego_robot.state_estimate = iterative_state_estimate.head<total_states>();
