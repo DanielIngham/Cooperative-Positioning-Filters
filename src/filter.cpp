@@ -20,14 +20,15 @@ namespace Filter {
  */
 Filter::Filter(Data::Handler &data) : data_(data) {
 
-  std::vector<Data::Robot> &robots = data_.getRobots();
+  std::vector<Data::Robot> &robots{data_.getRobots()};
 
   /* Populate the Estimation parameters for each robot. */
   for (auto &robot : robots) {
 
-    EstimationParameters initial_parameters;
-    initial_parameters.id = robot.id;
-    initial_parameters.barcode = robot.barcode;
+    EstimationParameters initial_parameters{
+        .id = robot.id,
+        .barcode = robot.barcode,
+    };
 
     /* Assume known prior. This is done by setting the first value of the
      * estimated values to the groundtruth. */
@@ -55,13 +56,14 @@ Filter::Filter(Data::Handler &data) : data_(data) {
   }
 
   /* Populate the estimation parameters for each landmark. */
-  std::vector<Data::Landmark> landmarks = data_.getLandmarks();
+  std::vector<Data::Landmark> landmarks{data_.getLandmarks()};
 
   for (const auto &landmark : landmarks) {
-    EstimationParameters initial_parameters;
 
-    initial_parameters.id = landmark.id;
-    initial_parameters.barcode = landmark.barcode;
+    EstimationParameters initial_parameters{
+        .id = landmark.id,
+        .barcode = landmark.barcode,
+    };
 
     initial_parameters.state_estimate << landmark.x, landmark.y, 0.0;
 
@@ -101,38 +103,32 @@ Filter::~Filter() = default;
 void Filter::performInference() {
 
   /* Get the total number of syncede datapoints in the data set extracted. */
-  size_t total_datapoints = data_.getNumberOfSyncedDatapoints();
+  size_t total_datapoints{data_.getNumberOfSyncedDatapoints()};
 
   /* Start the timer for measuring the execution time of a child filter. */
-  auto timer_start = std::chrono::high_resolution_clock::now();
+  auto timer_start{std::chrono::high_resolution_clock::now()};
 
   for (size_t k{1}; k < total_datapoints; k++) {
     std::cout << "\rPerforming Inference: " << k * 100 / total_datapoints
               << " %" << std::flush;
 
     /* Perform prediction for each robot using odometry values. */
-    std::vector<Data::Robot> &robots = this->data_.getRobots();
+    std::vector<Data::Robot> &robot{data_.getRobots()};
 
     for (unsigned short id{}; id < data_.getNumberOfRobots(); id++) {
 
-      Data::Robot::Odometry odometry = {
-          .time = robots[id].synced.odometry[k].time,
-          .forward_velocity = robots[id].synced.odometry[k].forward_velocity,
-          .angular_velocity = robots[id].synced.odometry[k].angular_velocity,
-      };
+      Data::Robot::Odometry &odometry{robot.at(id).synced.odometry[k]};
 
-      prediction(odometry, robot_parameters[id]);
+      prediction(odometry, robot_parameters.at(id));
 
-      double normalised_angle =
-          robot_parameters[id].state_estimate(ORIENTATION);
-
-      normaliseAngle(normalised_angle);
+      double normalised_angle{robot_parameters[id].state_estimate(ORIENTATION)};
+      Data::Robot::normaliseAngle(normalised_angle);
 
       /* Update the robot state data structure. */
-      robots[id].synced.states[k] = Data::Robot::State{
-          .time = robots[id].groundtruth.states[k].time,
-          .x = robot_parameters[id].state_estimate(X),
-          .y = robot_parameters[id].state_estimate(Y),
+      robot[id].synced.states[k] = Data::Robot::State{
+          .time = robot.at(id).groundtruth.states[k].time,
+          .x = robot_parameters.at(id).state_estimate(X),
+          .y = robot_parameters.at(id).state_estimate(Y),
           .orientation = normalised_angle,
       };
     }
@@ -147,8 +143,8 @@ void Filter::performInference() {
        * NOTE: This operation uses the assumption that the measurements fo the
        * indpendent robots/landmarks are independent of one another.
        */
-      const Data::Robot::Measurement *current_measurement =
-          Data::Handler::getMeasurement(&robots[id], k);
+      const Data::Robot::Measurement *current_measurement{
+          Data::Handler::getMeasurement(&robot[id], k)};
 
       if (current_measurement == nullptr) {
         continue;
@@ -158,8 +154,8 @@ void Filter::performInference() {
         /* Find the subject for whom the barcode belongs to. */
         Data::Handler::Subject subject;
 
-        bool subject_found =
-            data_.getSubject(current_measurement->subjects[j], subject);
+        bool subject_found{
+            data_.getSubject(current_measurement->subjects[j], subject)};
 
         if (!subject_found) {
           continue;
@@ -186,23 +182,23 @@ void Filter::performInference() {
 
         correction(robot_parameters[id], *measured_agent);
 
-        double normalised_angle =
-            robot_parameters[id].state_estimate(ORIENTATION);
-        normaliseAngle(normalised_angle);
+        double normalised_angle{
+            robot_parameters[id].state_estimate(ORIENTATION)};
+
+        Data::Robot::normaliseAngle(normalised_angle);
 
         /* Update the robot state data structure. */
-        robots[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
-        robots[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
-        robots[id].synced.states[k].orientation = normalised_angle;
+        robot[id].synced.states[k].x = robot_parameters[id].state_estimate(X);
+        robot[id].synced.states[k].y = robot_parameters[id].state_estimate(Y);
+        robot[id].synced.states[k].orientation = normalised_angle;
       }
     }
 #endif // 0
   }
 
-  auto timer_end = std::chrono::high_resolution_clock::now();
-  auto execution_duration =
-      std::chrono::duration_cast<std::chrono::milliseconds>(timer_end -
-                                                            timer_start);
+  auto timer_end{std::chrono::high_resolution_clock::now()};
+  auto execution_duration{std::chrono::duration_cast<std::chrono::milliseconds>(
+      timer_end - timer_start)};
 
   std::cout << '\r' << std::flush;
   std::cout << "\033[1;32mInference Complete:\033[0m ["
@@ -229,7 +225,7 @@ Filter::HuberMeasurement(const measurement_t &measurement_residual,
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
-  for (unsigned short i = 0; i < total_measurements; i++) {
+  for (unsigned short i{}; i < total_measurements; i++) {
 
     if (std::abs(measurement_residual(i)) >= tau(i)) {
       weight_matrix(i, i) = tau(i) / std::abs(measurement_residual(i));
@@ -255,7 +251,7 @@ Filter::HuberState(const augmentedState_t &error_residual,
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
-  for (unsigned short i = 0; i < 2 + total_states; i++) {
+  for (unsigned short i{}; i < 2 + total_states; i++) {
 
     if (std::abs(error_residual(i)) >= tau(i)) {
       weight_matrix(i, i) = tau(i) / std::abs(error_residual(i));
@@ -390,14 +386,14 @@ Filter::measurementModel(EstimationParameters &ego_robot,
                          const EstimationParameters &other_agent) {
 
   /* Calculate the terms */
-  const double x_difference =
-      other_agent.state_estimate(X) - ego_robot.state_estimate(X);
+  const double x_difference{other_agent.state_estimate(X) -
+                            ego_robot.state_estimate(X)};
 
-  const double y_difference =
-      other_agent.state_estimate(Y) - ego_robot.state_estimate(Y);
+  const double y_difference{other_agent.state_estimate(Y) -
+                            ego_robot.state_estimate(Y)};
 
-  double denominator =
-      std::sqrt(x_difference * x_difference + y_difference * y_difference);
+  double denominator{
+      std::sqrt(x_difference * x_difference + y_difference * y_difference)};
 
   /* Prevent division by zero and floating point precision errors. */
   const double MIN_DISTANCE = 1e-6;
@@ -406,14 +402,14 @@ Filter::measurementModel(EstimationParameters &ego_robot,
   }
 
   /* Calculate the predicted measurement based on the estimated states. */
-  measurement_t predicted_measurement =
+  measurement_t predicted_measurement{
       (measurement_t() << std::sqrt((x_difference * x_difference) +
                                     (y_difference * y_difference)),
        std::atan2(y_difference, x_difference) -
            ego_robot.state_estimate(ORIENTATION))
-          .finished();
+          .finished()};
 
-  normaliseAngle(predicted_measurement(BEARING));
+  Data::Robot::normaliseAngle(predicted_measurement(BEARING));
 
   return predicted_measurement;
 }
@@ -556,14 +552,6 @@ Filter::createAugmentedMatrix(const covariance_t &ego_robot,
   matrix.bottomRightCorner<total_states, total_states>() = other_agent;
 
   return matrix;
-}
-
-/**
- * @brief Normalise an angle between \f$(-\pi, \pi]\f$.
- * @param[inout] angle Angle in radians.
- */
-void Filter::normaliseAngle(double &angle) {
-  angle -= 2.0 * M_PI * floor((angle + M_PI) / (2.0 * M_PI));
 }
 
 /**

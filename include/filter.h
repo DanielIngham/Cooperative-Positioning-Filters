@@ -275,8 +275,6 @@ protected:
   augmentedCovariance_t createAugmentedMatrix(const covariance_t &,
                                               const covariance_t &);
 
-  void normaliseAngle(double &);
-
   measurement_t calculateNormalisedInnovation(const EstimationParameters &);
 
   augmentedState_t
