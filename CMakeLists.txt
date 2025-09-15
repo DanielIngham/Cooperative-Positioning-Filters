@@ -57,11 +57,17 @@ endfunction()
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     message(STATUS "Configuring filters as an executable.")
 
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(MAIN_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/debug.cpp")
+    else()
+	set(MAIN_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
+    endif()
+
     # EKF
     add_filter_target(EKF 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
+	    ${MAIN_SOURCE}
     )
 
     # IEKF
@@ -69,14 +75,14 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/iekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
+	    ${MAIN_SOURCE}
     )
 
     # Information Filter
     add_filter_target(INFO 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/information_filter.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
+	    ${MAIN_SOURCE}
     )
 else()
     message(STATUS "Configuring filters as a library.")
