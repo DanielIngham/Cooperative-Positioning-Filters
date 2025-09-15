@@ -11,7 +11,9 @@
 
 #include <DataHandler.h>
 #include <Eigen/Dense>
+#include <map>
 
+#include "Agent.h"
 #include "estimation_parameters.h"
 #include "types.h"
 
@@ -43,12 +45,12 @@ protected:
   /**
    * @brief Houses all estimation parameters for all robots.
    */
-  std::vector<EstimationParameters> robot_parameters;
+  std::map<Data::Agent::ID, EstimationParameters> robot_parameters;
 
   /**
    * @brief Houses all estimation parameters for all landmarks.
    */
-  std::vector<EstimationParameters> landmark_parameters;
+  std::map<Data::Agent::ID, EstimationParameters> landmark_parameters;
 
   /**
    * @brief The thresholds for the huber measurement cost function.

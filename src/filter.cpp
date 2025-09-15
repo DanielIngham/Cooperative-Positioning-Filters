@@ -8,10 +8,13 @@
 
 #include "filter.h"
 #include "Agent.h"
+#include "estimation_parameters.h"
+#include "types.h"
 
 #include <DataHandler.h>
 #include <chrono>
 #include <iostream>
+#include <stdexcept>
 
 namespace Filter {
 
@@ -25,55 +28,71 @@ Filter::Filter(Data::Handler &data) : data_(data) {
 
   /* Populate the Estimation parameters for each robot. */
   for (auto &robot : robots) {
-
-    EstimationParameters initial_parameters{
-        .id = robot.id(),
-        .barcode = robot.barcode(),
-    };
-
     /* Assume known prior. This is done by setting the first value of the
      * estimated values to the groundtruth. */
     robot.synced.states.front() = robot.groundtruth.states.front();
 
+    const Data::Agent::ID id{robot.id()};
+
+    auto result{robot_parameters.emplace(id, EstimationParameters{
+                                                 .id = id,
+                                                 .barcode = robot.barcode(),
+                                             })};
+    if (!result.second) {
+      throw std::runtime_error("Unable to add Robot with ID " + id +
+                               " to robot parameters");
+    }
+
+    EstimationParameters &parameters{result.first->second};
+
     /* Initial state: 3x1 Matrix. */
-    initial_parameters.state_estimate << robot.synced.states.front().x,
-        robot.synced.states.front().y, robot.synced.states.front().orientation;
+    parameters.state_estimate(X) = robot.synced.states.front().x;
+    parameters.state_estimate(Y) = robot.synced.states.front().y;
+    parameters.state_estimate(ORIENTATION) =
+        robot.synced.states.front().orientation;
 
     /* Populate odometry error covariance matrix: 2x2 matrix. */
-    initial_parameters.process_noise.diagonal().topRows(total_inputs)
-        << robot.forward_velocity_error.variance,
+    parameters.process_noise(FORWARD_VELOCITY, FORWARD_VELOCITY) =
+        robot.forward_velocity_error.variance;
+    parameters.process_noise(ANGULAR_VELOCITY, ANGULAR_VELOCITY) =
         robot.angular_velocity_error.variance;
 
     /* Populate measurement error covariance matrix: 2x2 matrix. */
-    initial_parameters.measurement_noise.diagonal().topRows(total_measurements)
-        << robot.range_error.variance,
+    parameters.measurement_noise(RANGE, RANGE) = robot.range_error.variance;
+    parameters.measurement_noise(BEARING, BEARING) =
         robot.bearing_error.variance;
 
     /* Populate the Initial information vector */
-    initial_parameters.information_vector =
-        initial_parameters.precision_matrix * initial_parameters.state_estimate;
-
-    robot_parameters.push_back(initial_parameters);
+    parameters.information_vector =
+        parameters.precision_matrix * parameters.state_estimate;
   }
 
   /* Populate the estimation parameters for each landmark. */
   const std::vector<Data::Landmark> &landmarks{data_.getLandmarks()};
 
   for (const auto &landmark : landmarks) {
+    const Data::Agent::ID id{landmark.id()};
 
-    EstimationParameters initial_parameters{
-        .id = landmark.id(),
-        .barcode = landmark.barcode(),
-    };
+    auto result{
+        landmark_parameters.emplace(id, EstimationParameters{
+                                            .id = id,
+                                            .barcode = landmark.barcode(),
+                                        })};
+    if (!result.second) {
+      throw std::runtime_error("Unable to add Landmark with ID " + id +
+                               " to robot parameters");
+    }
 
-    initial_parameters.state_estimate << landmark.x(), landmark.y(), 0.0;
+    EstimationParameters &parameters{result.first->second};
+
+    parameters.state_estimate << landmark.x(), landmark.y(), 0.0;
 
     /* The landmark only has two states: x and y coordintate.
      * NOTE: Although the landmark only has two states, the same data structure
      * is used for both the robot and landmark for compatibility with the
      * EFK::correction function, since only the x and y coordinate and thier
      * corresponding error covariances are used for the measurement update. */
-    initial_parameters.error_covariance.diagonal().topRows(total_states - 1)
+    parameters.error_covariance.diagonal().topRows(total_states - 1)
         << landmark.x_std_dev() * landmark.x_std_dev(),
         landmark.y_std_dev() * landmark.y_std_dev();
 
@@ -83,15 +102,12 @@ Filter::Filter(Data::Handler &data) : data_(data) {
      * both robot and landmarks use the same data structure, so they can be used
      * in the same measurement correction function.
      */
-    initial_parameters.precision_matrix =
-        initial_parameters.error_covariance.inverse();
+    parameters.precision_matrix = parameters.error_covariance.inverse();
 
-    initial_parameters.precision_matrix(ORIENTATION, ORIENTATION) = 1;
+    parameters.precision_matrix(ORIENTATION, ORIENTATION) = 1;
 
-    initial_parameters.information_vector =
-        initial_parameters.precision_matrix * initial_parameters.state_estimate;
-
-    landmark_parameters.push_back(initial_parameters);
+    parameters.information_vector =
+        parameters.precision_matrix * parameters.state_estimate;
   }
 }
 
@@ -107,7 +123,7 @@ void Filter::performInference() {
   const size_t total_datapoints{data_.getNumberOfSyncedDatapoints()};
 
   /* Start the timer for measuring the execution time of a child filter. */
-  auto timer_start{std::chrono::high_resolution_clock::now()};
+  const auto timer_start{std::chrono::high_resolution_clock::now()};
 
   /* Perform prediction for each robot using odometry values. */
   std::vector<Data::Robot> &robots{data_.getRobots()};
@@ -116,20 +132,21 @@ void Filter::performInference() {
     std::cout << "\rPerforming Inference: " << k * 100 / total_datapoints
               << " %" << std::flush;
 
-    for (unsigned short id{}; id < data_.getNumberOfRobots(); id++) {
+    for (auto &robot : robots) {
 
-      Data::Robot::Odometry &odometry{robots.at(id).synced.odometry[k]};
+      Data::Robot::Odometry &odometry{robot.synced.odometry[k]};
+      EstimationParameters &parameters{robot_parameters.at(robot.id())};
 
-      prediction(odometry, robot_parameters.at(id));
+      prediction(odometry, parameters);
 
-      double normalised_angle{robot_parameters[id].state_estimate(ORIENTATION)};
+      double normalised_angle{parameters.state_estimate(ORIENTATION)};
       Data::Robot::normaliseAngle(normalised_angle);
 
       /* Update the robot state data structure. */
-      robots[id].synced.states[k] = Data::Robot::State{
-          .time = robots.at(id).groundtruth.states[k].time,
-          .x = robot_parameters.at(id).state_estimate(X),
-          .y = robot_parameters.at(id).state_estimate(Y),
+      robot.synced.states[k] = Data::Robot::State{
+          .time = robot.groundtruth.states[k].time,
+          .x = parameters.state_estimate(X),
+          .y = parameters.state_estimate(Y),
           .orientation = normalised_angle,
       };
     }
@@ -137,7 +154,7 @@ void Filter::performInference() {
 #ifdef MEASUREMENT_UPDATE
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */
-    for (unsigned short id{}; id < data_.getNumberOfRobots(); id++) {
+    for (auto &robot : robots) {
 
       /* Loop through the measurements taken and perform the measurement
        * update for each robot.
@@ -145,9 +162,9 @@ void Filter::performInference() {
        * indpendent robots/landmarks are independent of one another.
        */
       const Data::Robot::Measurement *current_measurement{
-          Data::Handler::getMeasurement(&robots[id], k)};
+          Data::Handler::getMeasurement(&robot, k)};
 
-      if (current_measurement == nullptr) {
+      if (!current_measurement) {
         continue;
       }
 
@@ -165,33 +182,34 @@ void Filter::performInference() {
         /* Populate the measurement matrix required for the correction step.
          * Remove any noise bias from the measurement.
          */
-        robot_parameters[id].measurement[RANGE] =
-            current_measurement->ranges[j];
+        EstimationParameters &parameters{robot_parameters.at(robot.id())};
 
-        robot_parameters[id].measurement[BEARING] =
-            current_measurement->bearings[j];
+        parameters.measurement[RANGE] = current_measurement->ranges[j];
 
-        correction(robot_parameters[id], *measured_agent);
+        parameters.measurement[BEARING] = current_measurement->bearings[j];
 
-        double normalised_angle{
-            robot_parameters[id].state_estimate(ORIENTATION)};
+        correction(parameters, *measured_agent);
+
+        double normalised_angle{parameters.state_estimate(ORIENTATION)};
 
         Data::Robot::normaliseAngle(normalised_angle);
 
         /* Update the robot state data structure. */
-        robots[id].synced.states[k] = {
-            .x = robot_parameters[id].state_estimate(X),
-            .y = robot_parameters[id].state_estimate(Y),
+        robot.synced.states[k] = {
+            .time = robot.groundtruth.states[k].time,
+            .x = parameters.state_estimate(X),
+            .y = parameters.state_estimate(Y),
             .orientation = normalised_angle,
         };
       }
     }
-#endif // 0
+#endif // MEASUREMENT_UPDATE
   }
 
-  auto timer_end{std::chrono::high_resolution_clock::now()};
-  auto execution_duration{std::chrono::duration_cast<std::chrono::milliseconds>(
-      timer_end - timer_start)};
+  const auto timer_end{std::chrono::high_resolution_clock::now()};
+  const auto execution_duration{
+      std::chrono::duration_cast<std::chrono::milliseconds>(timer_end -
+                                                            timer_start)};
 
   std::cout << '\r' << std::flush;
   std::cout << "\033[1;32mInference Complete:\033[0m ["
@@ -213,8 +231,8 @@ Filter::HuberMeasurement(const measurement_t &measurement_residual,
                          const huberMeasurementThresholds_t &tau) {
 
   /* Reweight matrix that is used to adjust the covariance of outliers. */
-  huberMeasurementWeights_t weight_matrix =
-      huberMeasurementWeights_t::Identity();
+  huberMeasurementWeights_t weight_matrix{
+      huberMeasurementWeights_t::Identity()};
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
@@ -239,7 +257,7 @@ huberStateWeights_t Filter::HuberState(const augmentedState_t &error_residual,
                                        const huberStateThresholds_t &tau) {
 
   /* Reweight matrix that is used to adjust the covariance of outliers. */
-  huberStateWeights_t weight_matrix = huberStateWeights_t::Identity();
+  huberStateWeights_t weight_matrix{huberStateWeights_t::Identity()};
 
   /* Loop through each of the measurements and perform the huber reweighting if
    * the residual is larger than the parameter tau. */
@@ -388,10 +406,9 @@ Filter::measurementModel(EstimationParameters &ego_robot,
       std::sqrt(x_difference * x_difference + y_difference * y_difference)};
 
   /* Prevent division by zero and floating point precision errors. */
-  const double MIN_DISTANCE = 1e-6;
-  if (denominator < MIN_DISTANCE) {
-    denominator = MIN_DISTANCE;
-  }
+  static constexpr double min_distance{1e-6};
+  if (denominator < min_distance)
+    denominator = min_distance;
 
   /* Calculate the predicted measurement based on the estimated states. */
   measurement_t predicted_measurement{
@@ -426,19 +443,18 @@ Filter::measurementModel(EstimationParameters &ego_robot,
 void Filter::calculateMeasurementJacobian(
     EstimationParameters &ego_robot, const EstimationParameters &other_agent) {
 
-  const double x_difference =
-      other_agent.state_estimate(X) - ego_robot.state_estimate(X);
+  const double x_difference{other_agent.state_estimate(X) -
+                            ego_robot.state_estimate(X)};
 
-  const double y_difference =
-      other_agent.state_estimate(Y) - ego_robot.state_estimate(Y);
+  const double y_difference{other_agent.state_estimate(Y) -
+                            ego_robot.state_estimate(Y)};
 
-  double denominator =
-      std::sqrt(x_difference * x_difference + y_difference * y_difference);
+  double denominator{
+      std::sqrt(x_difference * x_difference + y_difference * y_difference)};
 
-  const double MIN_DISTANCE = 1e-6;
-  if (denominator < MIN_DISTANCE) {
-    denominator = MIN_DISTANCE;
-  }
+  static constexpr double min_distance{1e-6};
+  if (denominator < min_distance)
+    denominator = min_distance;
 
   ego_robot.measurement_jacobian << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
@@ -456,15 +472,15 @@ void Filter::calculateMeasurementJacobian(
  */
 matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
 
-  matrix3D_t bottomRight =
-      matrix_6d.bottomRightCorner<total_states, total_states>();
-  matrix3D_t bottomRightMatrixInverse = computePseudoInverse(bottomRight);
+  matrix3D_t bottomRight{
+      matrix_6d.bottomRightCorner<total_states, total_states>()};
+  matrix3D_t bottomRightMatrixInverse{computePseudoInverse(bottomRight)};
 
-  matrix3D_t matrix_3d =
+  matrix3D_t matrix_3d{
       matrix_6d.topLeftCorner<total_states, total_states>() -
       matrix_6d.topRightCorner<total_states, total_states>() *
           bottomRightMatrixInverse *
-          matrix_6d.bottomLeftCorner<total_states, total_states>();
+          matrix_6d.bottomLeftCorner<total_states, total_states>()};
 
   return matrix_3d;
 }
@@ -479,14 +495,14 @@ matrix3D_t Filter::marginalise(const matrix6D_t &matrix_6d) {
 state_t Filter::marginalise(const vector6D_t &vector_6d,
                             const matrix6D_t &matrix_6d) {
 
-  matrix3D_t bottomRight =
-      matrix_6d.bottomRightCorner<total_states, total_states>();
+  matrix3D_t bottomRight{
+      matrix_6d.bottomRightCorner<total_states, total_states>()};
 
-  matrix3D_t bottomRightInverse = computePseudoInverse(bottomRight);
+  matrix3D_t bottomRightInverse{computePseudoInverse(bottomRight)};
 
-  state_t new_vector = vector_6d.head<total_states>() -
-                       matrix_6d.topRightCorner<total_states, total_states>() *
-                           bottomRightInverse * vector_6d.tail<total_states>();
+  state_t new_vector{vector_6d.head<total_states>() -
+                     matrix_6d.topRightCorner<total_states, total_states>() *
+                         bottomRightInverse * vector_6d.tail<total_states>()};
 
   return new_vector;
 }
@@ -504,7 +520,7 @@ augmentedInformation_t
 Filter::createAugmentedVector(const state_t &ego_robot,
                               const state_t &other_agent) {
 
-  augmentedInformation_t augmented_vector = augmentedState_t::Zero();
+  augmentedInformation_t augmented_vector{augmentedState_t::Zero()};
 
   augmented_vector.head<total_states>() = ego_robot;
   augmented_vector.tail<total_states>() = other_agent;
@@ -537,7 +553,7 @@ augmentedCovariance_t
 Filter::createAugmentedMatrix(const covariance_t &ego_robot,
                               const covariance_t &other_agent) {
 
-  augmentedCovariance_t matrix = augmentedCovariance_t::Zero();
+  augmentedCovariance_t matrix{augmentedCovariance_t::Zero()};
 
   matrix.topLeftCorner<total_states, total_states>() = ego_robot;
 
@@ -557,8 +573,8 @@ measurement_t
 Filter::calculateNormalisedInnovation(const EstimationParameters &filter) {
 
   /* Calculate the Cholesky of the innovation */
-  Eigen::LLT<measurementCovariance_t> innovatation_cholesky(
-      filter.innovation_covariance);
+  Eigen::LLT<measurementCovariance_t> innovatation_cholesky{
+      filter.innovation_covariance};
 
   if (innovatation_cholesky.info() != Eigen::Success) {
     throw std::runtime_error(
@@ -566,11 +582,11 @@ Filter::calculateNormalisedInnovation(const EstimationParameters &filter) {
         "the innovation error covariance");
   }
 
-  measurementCovariance_t innovatation_cholesky_matrix =
-      innovatation_cholesky.matrixL();
+  measurementCovariance_t innovatation_cholesky_matrix{
+      innovatation_cholesky.matrixL()};
 
-  measurement_t normalised_measurement_residual =
-      innovatation_cholesky_matrix.inverse() * filter.innovation;
+  measurement_t normalised_measurement_residual{
+      innovatation_cholesky_matrix.inverse() * filter.innovation};
 
   return normalised_measurement_residual;
 }
@@ -585,10 +601,11 @@ augmentedState_t Filter::calculateNormalisedEstimationResidual(
     const EstimationParameters &filter) {
 
   /* Calculate the mean of the estimation residual (innovation). */
+  static constexpr double regularisation{1e-3};
   Eigen::LLT<augmentedCovariance_t> error_covariance_cholesky(
       filter.kalman_gain * filter.innovation_covariance *
           filter.kalman_gain.transpose() +
-      augmentedCovariance_t::Identity() * 1e-3);
+      augmentedCovariance_t::Identity() * regularisation);
 
   if (error_covariance_cholesky.info() != Eigen::Success) {
 
@@ -597,11 +614,11 @@ augmentedState_t Filter::calculateNormalisedEstimationResidual(
                              "the estimation error covariance");
   }
 
-  augmentedCovariance_t error_covariance_cholesky_matrix =
-      error_covariance_cholesky.matrixL();
+  augmentedCovariance_t error_covariance_cholesky_matrix{
+      error_covariance_cholesky.matrixL()};
 
-  augmentedState_t normalised_error_residual =
-      error_covariance_cholesky_matrix.inverse() * filter.estimation_residual;
+  augmentedState_t normalised_error_residual{
+      error_covariance_cholesky_matrix.inverse() * filter.estimation_residual};
 
   return normalised_error_residual;
 }
@@ -609,15 +626,15 @@ augmentedState_t Filter::calculateNormalisedEstimationResidual(
 matrix3D_t Filter::computePseudoInverse(const matrix3D_t &matrix_3d) {
 
   // Compute pseudo-inverse using SVD
-  Eigen::JacobiSVD<matrix3D_t> svd(matrix_3d,
-                                   Eigen::ComputeFullU | Eigen::ComputeFullV);
+  Eigen::JacobiSVD<matrix3D_t> svd{matrix_3d,
+                                   Eigen::ComputeFullU | Eigen::ComputeFullV};
 
   // Set tolerance for singular values (adjust as needed)
-  double tolerance = 1e-10;
+  static constexpr double tolerance{1e-10};
 
   // Get singular values and compute pseudo-inverse
-  auto singular_values = svd.singularValues();
-  Eigen::VectorXd singular_values_inv(singular_values.size());
+  auto singular_values{svd.singularValues()};
+  Eigen::VectorXd singular_values_inv{singular_values.size()};
 
   for (int i = 0; i < singular_values.size(); ++i) {
     if (singular_values(i) > tolerance) {
@@ -635,17 +652,17 @@ matrix3D_t Filter::computePseudoInverse(const matrix3D_t &matrix_3d) {
 matrix6D_t Filter::computePseudoInverse(const matrix6D_t &matrix_6d) {
 
   // Compute pseudo-inverse using SVD
-  Eigen::JacobiSVD<matrix6D_t> svd(matrix_6d,
-                                   Eigen::ComputeFullU | Eigen::ComputeFullV);
+  Eigen::JacobiSVD<matrix6D_t> svd{matrix_6d,
+                                   Eigen::ComputeFullU | Eigen::ComputeFullV};
 
   // Set tolerance for singular values (adjust as needed)
-  double tolerance = 1e-10;
+  static constexpr double tolerance{1e-10};
 
   // Get singular values and compute pseudo-inverse
-  auto singular_values = svd.singularValues();
-  Eigen::VectorXd singular_values_inv(singular_values.size());
+  auto singular_values{svd.singularValues()};
+  Eigen::VectorXd singular_values_inv{singular_values.size()};
 
-  for (int i = 0; i < singular_values.size(); ++i) {
+  for (int i{}; i < singular_values.size(); ++i) {
     if (singular_values(i) > tolerance) {
       singular_values_inv(i) = 1.0 / singular_values(i);
     } else {
@@ -658,15 +675,21 @@ matrix6D_t Filter::computePseudoInverse(const matrix6D_t &matrix_6d) {
          svd.matrixU().transpose();
 }
 
+/**
+ *  Finds the estimation parameters corresponding to a give barcode.
+ *  @param barcode Barcode of the agent of interests.
+ *  @returns Pointer to the agents estimation parameters.
+ */
 EstimationParameters const *
 Filter::getEstimationParameters(const Data::Agent::Barcode &barcode) const {
-  for (auto &robot : robot_parameters) {
+
+  for (const auto &[id, robot] : robot_parameters) {
     if (robot.barcode == barcode) {
       return &robot;
     }
   }
 
-  for (auto &landmark : landmark_parameters) {
+  for (const auto &[id, landmark] : landmark_parameters) {
     if (landmark.barcode == barcode) {
       return &landmark;
     }
