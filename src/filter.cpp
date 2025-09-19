@@ -24,7 +24,7 @@ namespace Filter {
  */
 Filter::Filter(Data::Handler &data) : data_(data) {
 
-  std::vector<Data::Robot> &robots{data_.getRobots()};
+  Data::Robot::List &robots{data_.getRobots()};
 
   /* Populate the Estimation parameters for each robot. */
   for (auto &robot : robots) {
@@ -68,7 +68,7 @@ Filter::Filter(Data::Handler &data) : data_(data) {
   }
 
   /* Populate the estimation parameters for each landmark. */
-  const std::vector<Data::Landmark> &landmarks{data_.getLandmarks()};
+  const Data::Landmark::List &landmarks{data_.getLandmarks()};
 
   for (const auto &landmark : landmarks) {
     const Data::Agent::ID id{landmark.id()};
@@ -126,7 +126,7 @@ void Filter::performInference() {
   const auto timer_start{std::chrono::high_resolution_clock::now()};
 
   /* Perform prediction for each robot using odometry values. */
-  std::vector<Data::Robot> &robots{data_.getRobots()};
+  Data::Robot::List &robots{data_.getRobots()};
 
   for (size_t k{1}; k < total_datapoints; k++) {
     std::cout << "\rPerforming Inference: " << k * 100 / total_datapoints

@@ -1,4 +1,5 @@
 #include "Plotter.h"
+#include "Robot.h"
 
 #include <ArgumentHandler.h>
 #include <DataHandler.h>
@@ -62,14 +63,17 @@ int main(int argc, char *argv[]) {
   /* Check for SAVE_INPUT definition that determines if the input data should
    * be plot.*/
 
-  Data::Plotter plotter(data);
+  Data::Plotter plotter;
 
 #ifdef SAVE_INPUT
   data.saveExtractedData();
 #endif // SAVE_INPUT
 
   // plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
-  plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR});
+  // plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR});
+  const auto &robots{data.getRobots()};
+
+  plotter.plotPoses(robots);
 
   std::cout << data.getAverageRMSE().x << std::endl
             << data.getAverageRMSE().y << std::endl
