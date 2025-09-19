@@ -4,8 +4,6 @@
 
 #include <cctype>
 #include <cstdlib>
-#include <iostream>
-#include <memory>
 
 #ifdef EKF_TARGET
 #include "ekf.h"
@@ -24,11 +22,21 @@ int main(int argc, char *argv[]) {
   Data::Handler data;
 
   data.setDataSet(Data::Set[0]);
+  // data.setSimulation(1000);
 
   Filter::EKF ekf{data};
   ekf.performInference();
 
-  Data::Plotter plot{data};
-  plot.plotPoses({Data::Plotter::ABSOLUTE_ERROR});
+  Data::Plotter plot{};
+  const Data::Robot::List &robots{data.getRobots()};
+  const Data::Landmark::List &landmarks{data.getLandmarks()};
+
+  // plot.plotPoses(robots, {Data::Type::GROUNDTRUTH});
+  // plot.plotMeasurements(robots);
+  // plot.plotMeasurementsVector(robots, landmarks);
+  // plot.plotMeasurements(robots, {Data::Type::ERROR});
+  // plot.plotMeasurements(robots);
+  plot.plotMeasurementPDFs(robots);
+  // plot.plotOdometryPDFs(robots);
   return EXIT_SUCCESS;
 }
