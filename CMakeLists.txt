@@ -9,8 +9,6 @@ find_package(Eigen3 REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
 
 option(COUPLED "Use coupled correction step" OFF)
@@ -28,8 +26,13 @@ endfunction()
 
 
 function(configure_target_options TARGET_NAME)
+    target_include_directories(${TARGET_NAME}
+	PUBLIC
+	"${CMAKE_CURRENT_SOURCE_DIR}/include"
+    )
+
     target_link_libraries(${TARGET_NAME}
-        PRIVATE
+	PUBLIC
         DataHandler
         Eigen3::Eigen
     )
