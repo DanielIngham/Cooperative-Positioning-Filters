@@ -13,7 +13,7 @@
 #include <DataHandler.h>
 #include <Eigen/Dense>
 
-namespace Filter {
+namespace Filters {
 /**
  * @class IEKF
  * @brief Itertative Extended Kalman Filter (IEKF).
@@ -43,5 +43,5 @@ public:
 private:
   const unsigned short max_iterations_{5U};
 };
-} // namespace Filter
+} // namespace Filters
 #endif // INCLUDE_INCLUDE_IEKF_H_

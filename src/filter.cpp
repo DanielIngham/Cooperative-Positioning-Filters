@@ -16,7 +16,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace Filter {
+namespace Filters {
 
 /**
  * @brief Assigns fields data based on datahandler input.
@@ -154,55 +154,7 @@ void Filter::performInference() {
 #ifdef MEASUREMENT_UPDATE
     /* If a measurements are available, loop through each measurement
      * and update the estimate. */
-    for (auto &robot : robots) {
-
-      /* Loop through the measurements taken and perform the measurement
-       * update for each robot.
-       * NOTE: This operation uses the assumption that the measurements fo the
-       * indpendent robots/landmarks are independent of one another.
-       */
-      const Data::Robot::Measurement *current_measurement{
-          Data::Handler::getMeasurement(&robot, k)};
-
-      if (!current_measurement) {
-        continue;
-      }
-
-      for (unsigned short j{}; j < current_measurement->subjects.size(); j++) {
-
-        /* Find the subject for whom the barcode belongs to. */
-        const Data::Agent::Barcode &barcode{current_measurement->subjects[j]};
-        EstimationParameters const *measured_agent{
-            getEstimationParameters(barcode)};
-
-        if (!measured_agent) {
-          continue;
-        }
-
-        /* Populate the measurement matrix required for the correction step.
-         * Remove any noise bias from the measurement.
-         */
-        EstimationParameters &parameters{robot_parameters.at(robot.id())};
-
-        parameters.measurement[RANGE] = current_measurement->ranges[j];
-
-        parameters.measurement[BEARING] = current_measurement->bearings[j];
-
-        correction(parameters, *measured_agent);
-
-        double normalised_angle{parameters.state_estimate(ORIENTATION)};
-
-        Data::Robot::normaliseAngle(normalised_angle);
-
-        /* Update the robot state data structure. */
-        robot.synced.states[k] = {
-            .time = robot.groundtruth.states[k].time,
-            .x = parameters.state_estimate(X),
-            .y = parameters.state_estimate(Y),
-            .orientation = normalised_angle,
-        };
-      }
-    }
+    processMeasurements(robots, k);
 #endif // MEASUREMENT_UPDATE
   }
 
@@ -217,6 +169,58 @@ void Filter::performInference() {
 
   /* Calculate the inference error. */
   data_.calculateStateError();
+}
+
+void Filter::processMeasurements(Data::Robot::List &robots, size_t index) {
+
+  for (auto &robot : robots) {
+
+    /* Loop through the measurements taken and perform the measurement
+     * update for each robot.
+     * NOTE: This operation uses the assumption that the measurements fo the
+     * indpendent robots/landmarks are independent of one another.
+     */
+    const Data::Robot::Measurement *current_measurement{
+        Data::Handler::getMeasurement(&robot, index)};
+
+    if (!current_measurement) {
+      continue;
+    }
+
+    for (unsigned short j{}; j < current_measurement->subjects.size(); j++) {
+
+      /* Find the subject for whom the barcode belongs to. */
+      const Data::Agent::Barcode &barcode{current_measurement->subjects[j]};
+      EstimationParameters const *measured_agent{
+          getEstimationParameters(barcode)};
+
+      if (!measured_agent) {
+        continue;
+      }
+
+      /* Populate the measurement matrix required for the correction step.
+       * Remove any noise bias from the measurement.
+       */
+      EstimationParameters &parameters{robot_parameters.at(robot.id())};
+
+      parameters.measurement[RANGE] = current_measurement->ranges.at(j);
+      parameters.measurement[BEARING] = current_measurement->bearings.at(j);
+
+      correction(parameters, *measured_agent);
+
+      double normalised_angle{parameters.state_estimate(ORIENTATION)};
+
+      Data::Robot::normaliseAngle(normalised_angle);
+
+      /* Update the robot state data structure. */
+      robot.synced.states.at(index) = {
+          .time = robot.groundtruth.states[index].time,
+          .x = parameters.state_estimate(X),
+          .y = parameters.state_estimate(Y),
+          .orientation = normalised_angle,
+      };
+    }
+  }
 }
 
 /**
@@ -577,6 +581,7 @@ Filter::calculateNormalisedInnovation(const EstimationParameters &filter) {
       filter.innovation_covariance};
 
   if (innovatation_cholesky.info() != Eigen::Success) {
+    std::cout << filter.innovation_covariance << std::endl;
     throw std::runtime_error(
         "An error has occurred with calculating the Cholesky decomposition of "
         "the innovation error covariance");
@@ -698,4 +703,4 @@ Filter::getEstimationParameters(const Data::Agent::Barcode &barcode) const {
   return nullptr;
 }
 
-} // namespace Filter
+} // namespace Filters

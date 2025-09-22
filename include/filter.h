@@ -17,7 +17,7 @@
 #include "estimation_parameters.h"
 #include "types.h"
 
-namespace Filter {
+namespace Filters {
 class Filter {
 public:
   explicit Filter(Data::Handler &data);
@@ -36,9 +36,6 @@ public:
                           const EstimationParameters &) = 0;
 
 private:
-  EstimationParameters const *
-  getEstimationParameters(const Data::Agent::Barcode &barcode) const;
-
 protected:
   /**
    * @brief Data class housing all the data pertaining to cooperative
@@ -109,7 +106,12 @@ protected:
 
   matrix3D_t computePseudoInverse(const matrix3D_t &);
   matrix6D_t computePseudoInverse(const matrix6D_t &);
+
+  EstimationParameters const *
+  getEstimationParameters(const Data::Agent::Barcode &barcode) const;
+
+  virtual void processMeasurements(Data::Robot::List &robots, size_t index);
 };
-} // namespace Filter
+} // namespace Filters
 
 #endif // INCLUDE_SRC_FILTER_H_

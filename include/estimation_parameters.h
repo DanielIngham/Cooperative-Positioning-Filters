@@ -4,7 +4,7 @@
 
 #include <DataHandler.h>
 
-namespace Filter {
+namespace Filters {
 
 /**
  * @struct EstimationParameters
@@ -67,7 +67,7 @@ struct EstimationParameters {
    * covariances of both the ego and measured robots position [3+2]. See
    * EKF::correction.
    */
-  kalmanGain_t kalman_gain{kalmanGain_t::Zero()};
+  augmentedKalmanGain_t kalman_gain{augmentedKalmanGain_t::Zero()};
 
   /**
    * @brief Odometry process noise covariance matrix: 2x2 matrix.
@@ -108,7 +108,8 @@ struct EstimationParameters {
   /**
    * @brief Jacobian of the measurement model: 2 x 6 matrix.
    */
-  measurementJacobian_t measurement_jacobian{measurementJacobian_t::Zero()};
+  augmentedMeasurementJacobian_t measurement_jacobian{
+      augmentedMeasurementJacobian_t::Zero()};
 
   /**
    * @brief Information vector: 3x1 matrix.
@@ -133,4 +134,4 @@ struct EstimationParameters {
    */
   precision_t precision_matrix{error_covariance.inverse()};
 };
-} // namespace Filter
+} // namespace Filters

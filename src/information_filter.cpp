@@ -8,8 +8,9 @@
 
 #include "information_filter.h"
 #include "filter.h"
+#include "types.h"
 
-namespace Filter {
+namespace Filters {
 /**
  * @brief InformationFilter class constructor.
  * @details This constructor sets up the prior states and parameters to perform
@@ -45,12 +46,13 @@ void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
   motionModel(odometry, ego_robot, sample_period);
 
   /* Propagate the estimation information: 3x3 matrix. */
-  ego_robot.precision_matrix =
-      (ego_robot.motion_jacobian * ego_robot.precision_matrix.inverse() *
-           ego_robot.motion_jacobian.transpose() +
-       ego_robot.process_jacobian * ego_robot.process_noise *
-           ego_robot.process_jacobian.transpose())
-          .inverse();
+  ego_robot.error_covariance =
+      ego_robot.motion_jacobian * ego_robot.precision_matrix.inverse() *
+          ego_robot.motion_jacobian.transpose() +
+      ego_robot.process_jacobian * ego_robot.process_noise *
+          ego_robot.process_jacobian.transpose();
+
+  ego_robot.precision_matrix = ego_robot.error_covariance.inverse();
 
   ego_robot.information_vector =
       ego_robot.precision_matrix * ego_robot.state_estimate;
@@ -63,15 +65,13 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Calculate the measurement Jacobian */
   calculateMeasurementJacobian(ego_robot, other_agent);
 
-  Eigen::Matrix<double, total_measurements, total_states>
-      ego_measurement_Jacobian =
-          ego_robot.measurement_jacobian
-              .topLeftCorner<total_measurements, total_states>();
+  measurementJacobian_t ego_measurement_Jacobian{
+      ego_robot.measurement_jacobian
+          .topLeftCorner<total_measurements, total_states>()};
 
-  Eigen::Matrix<double, total_measurements, total_states>
-      agent_measurment_Jacobian{
-          ego_robot.measurement_jacobian
-              .topRightCorner<total_measurements, total_states>()};
+  measurementJacobian_t agent_measurment_Jacobian{
+      ego_robot.measurement_jacobian
+          .topRightCorner<total_measurements, total_states>()};
 
   /* Calculate the joint measurment noise. */
   measurementCovariance_t joint_measurement_noise{
@@ -174,4 +174,4 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
 }
 #endif // COUPLED
 
-} // namespace Filter
+} // namespace Filters

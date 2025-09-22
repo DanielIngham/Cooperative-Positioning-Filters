@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-namespace Filter {
+namespace Filters {
 
 /**
  * @brief The total number of system states: x coordinate [m], y-coordinate
@@ -56,7 +56,9 @@ using measurement_t = vector2D_t;
 using measurementCovariance_t = matrix2D_t;
 
 /* Measurement Type Definitions. */
-using kalmanGain_t =
+using kalmanGain_t = Eigen::Matrix<double, total_states, total_measurements>;
+
+using augmentedKalmanGain_t =
     Eigen::Matrix<double, 2 * total_states, total_measurements>;
 
 /* Motion Model Type Definitions. */
@@ -65,6 +67,9 @@ using motionJacobian_t = Eigen::Matrix<double, total_states, total_states>;
 using processJacobian_t = Eigen::Matrix<double, total_states, total_inputs>;
 
 using measurementJacobian_t =
+    Eigen::Matrix<double, total_measurements, total_states>;
+
+using augmentedMeasurementJacobian_t =
     Eigen::Matrix<double, total_measurements, 2 * total_states>;
 
 using processCovariance_t = Eigen::Matrix<double, total_inputs, total_inputs>;
@@ -80,4 +85,4 @@ using huberStateThresholds_t = Eigen::Matrix<double, 2 * total_states, 1>;
 using huberStateWeights_t =
     Eigen::Matrix<double, 2 * total_states, 2 * total_states>;
 
-} // namespace Filter
+} // namespace Filters

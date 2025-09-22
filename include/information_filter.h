@@ -12,7 +12,7 @@
 
 #include <DataHandler.h>
 
-namespace Filter {
+namespace Filters {
 
 /**
  * @class InformationFilter
@@ -35,5 +35,5 @@ public:
 
 private:
 };
-} // namespace Filter
+} // namespace Filters
 #endif // INCLUDE_INCLUDE_INFORMATION_H_

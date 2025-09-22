@@ -10,7 +10,7 @@
 
 #include <cmath>
 
-namespace Filter {
+namespace Filters {
 
 /**
  * @brief EKF class constructor.
@@ -273,4 +273,4 @@ void EKF::robustCorrection(EstimationParameters &ego_robot,
 }
 #endif // ROBUST
 
-} // namespace Filter
+} // namespace Filters

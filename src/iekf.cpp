@@ -11,7 +11,7 @@
 
 #include <stdexcept>
 
-namespace Filter {
+namespace Filters {
 /**
  * @brief IEKF class constructor.
  * @details This constructor sets up the prior states and parameters to perform
@@ -235,4 +235,4 @@ void IEKF::robustCorrection(EstimationParameters &ego_robot,
   ego_robot.error_covariance = error_covariance.topLeftCorner<3, 3>();
 }
 
-} // namespace Filter
+} // namespace Filters

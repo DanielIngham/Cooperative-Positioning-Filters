@@ -14,7 +14,7 @@
 #include <DataHandler.h>
 #include <Eigen/Dense>
 
-namespace Filter {
+namespace Filters {
 
 /**
  * @class EKF
@@ -42,5 +42,5 @@ public:
 private:
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 };
-} // namespace Filter
+} // namespace Filters
 #endif // INCLUDE_INCLUDE_EKF_H_
