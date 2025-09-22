@@ -29,6 +29,10 @@ namespace Filter {
 class IEKF : public EKF {
 public:
   explicit IEKF(Data::Handler &data);
+  IEKF(IEKF &&) = default;
+  IEKF(const IEKF &) = default;
+  IEKF &operator=(IEKF &&) = delete;
+  IEKF &operator=(const IEKF &) = delete;
   ~IEKF() override;
 
   void correction(EstimationParameters &,

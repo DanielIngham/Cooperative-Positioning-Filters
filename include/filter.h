@@ -21,6 +21,10 @@ namespace Filter {
 class Filter {
 public:
   explicit Filter(Data::Handler &data);
+  Filter(Filter &&) = default;
+  Filter(const Filter &) = default;
+  Filter &operator=(Filter &&) = delete;
+  Filter &operator=(const Filter &) = delete;
   virtual ~Filter();
 
   void performInference();

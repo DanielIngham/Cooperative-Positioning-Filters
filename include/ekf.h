@@ -27,6 +27,10 @@ namespace Filter {
 class EKF : public Filter {
 public:
   explicit EKF(Data::Handler &);
+  EKF(EKF &&) = default;
+  EKF(const EKF &) = default;
+  EKF &operator=(EKF &&) = delete;
+  EKF &operator=(const EKF &) = delete;
   ~EKF() override;
 
   void prediction(const Data::Robot::Odometry &,
