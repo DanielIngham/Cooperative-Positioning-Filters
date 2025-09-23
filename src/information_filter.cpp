@@ -62,35 +62,31 @@ void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
 void InformationFilter::correction(EstimationParameters &ego_robot,
                                    const EstimationParameters &other_agent) {
 
-  /* Calculate the measurement Jacobian */
-  calculateMeasurementJacobian(ego_robot, other_agent);
+  const measurementJacobian_t ego_measurement_Jacobian{
+      egoMeasurementJacobian(ego_robot, other_agent)};
 
-  measurementJacobian_t ego_measurement_Jacobian{
-      ego_robot.measurement_jacobian
-          .topLeftCorner<total_measurements, total_states>()};
-
-  measurementJacobian_t agent_measurment_Jacobian{
-      ego_robot.measurement_jacobian
-          .topRightCorner<total_measurements, total_states>()};
+  const measurementJacobian_t agent_measurement_Jacobian{
+      agentMeasurementJacobian(ego_robot, other_agent)};
 
   /* Calculate the joint measurment noise. */
-  measurementCovariance_t joint_measurement_noise{
-      ego_robot.measurement_noise + agent_measurment_Jacobian *
+  const measurementCovariance_t joint_measurement_noise{
+      ego_robot.measurement_noise + agent_measurement_Jacobian *
                                         other_agent.precision_matrix.inverse() *
-                                        agent_measurment_Jacobian.transpose()};
+                                        agent_measurement_Jacobian.transpose()};
 
   /* Calculate the measurement residual. */
-  measurement_t predicted_measurement{measurementModel(ego_robot, other_agent)};
+  const measurement_t predicted_measurement{
+      measurementModel(ego_robot, other_agent)};
 
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
   /* Calculate the precision contribution */
-  precision_t precision_matrix_contribution{
+  const precision_t precision_matrix_contribution{
       ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
       ego_measurement_Jacobian};
 
   /* Calculate the information contribution */
-  information_t information_vector_contribution{
+  const information_t information_vector_contribution{
       ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
       (ego_robot.innovation +
        ego_measurement_Jacobian * ego_robot.state_estimate)};
