@@ -57,45 +57,55 @@ protected:
    * @brief The thresholds for the huber measurement cost function.
    * @details The vector is of the for: range and bearing.
    */
-  const huberMeasurementThresholds_t measurement_thresholds =
-      (huberMeasurementThresholds_t() << 0.2, 0.01).finished();
+  const huberMeasurementThresholds_t measurement_thresholds{
+      (huberMeasurementThresholds_t() << 0.2, 0.01).finished()};
 
   /**
    * @brief The thresholds for the huber state cost function.
    * @details The vector is of the for: ego x, ego y, ego orientation, agent x,
    * agent y.
    */
-  const huberStateThresholds_t state_thresholds =
+  const huberStateThresholds_t state_thresholds{
       (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104, 0.0)
-          .finished();
+          .finished()};
 
-  void motionModel(const Data::Robot::Odometry &, EstimationParameters &,
-                   const double);
+  static void motionModel(const Data::Robot::Odometry &, EstimationParameters &,
+                          const double);
 
-  void calculateMotionJacobian(const Data::Robot::Odometry &,
-                               EstimationParameters &, const double);
+  static void calculateMotionJacobian(const Data::Robot::Odometry &,
+                                      EstimationParameters &, const double);
 
-  void calculateProcessJacobian(EstimationParameters &, const double);
+  static void calculateProcessJacobian(EstimationParameters &, const double);
 
-  measurement_t measurementModel(EstimationParameters &,
-                                 const EstimationParameters &);
+  [[nodiscard]] static measurement_t
+  measurementModel(EstimationParameters &, const EstimationParameters &);
 
-  void calculateMeasurementJacobian(EstimationParameters &,
-                                    const EstimationParameters &);
+  static void calculateMeasurementJacobian(EstimationParameters &,
+                                           const EstimationParameters &);
 
-  matrix3D_t marginalise(const matrix6D_t &);
+  [[nodiscard]] static measurementJacobian_t
+  egoMeasurementJacobian(const EstimationParameters &,
+                         const EstimationParameters &);
 
-  state_t marginalise(const vector6D_t &, const matrix6D_t &);
+  [[nodiscard]] static measurementJacobian_t
+  agentMeasurementJacobian(const EstimationParameters &,
+                           const EstimationParameters &);
 
-  augmentedInformation_t createAugmentedVector(const state_t &,
-                                               const state_t &);
+  [[nodiscard]] static matrix3D_t marginalise(const matrix6D_t &);
 
-  augmentedCovariance_t createAugmentedMatrix(const covariance_t &,
-                                              const covariance_t &);
+  [[nodiscard]] static state_t marginalise(const vector6D_t &,
+                                           const matrix6D_t &);
 
-  measurement_t calculateNormalisedInnovation(const EstimationParameters &);
+  [[nodiscard]] static augmentedInformation_t
+  createAugmentedVector(const state_t &, const state_t &);
 
-  augmentedState_t
+  [[nodiscard]] static augmentedCovariance_t
+  createAugmentedMatrix(const covariance_t &, const covariance_t &);
+
+  [[nodiscard]] static measurement_t
+  calculateNormalisedInnovation(const EstimationParameters &);
+
+  [[nodiscard]] static augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);
 
   huberMeasurementWeights_t
@@ -104,10 +114,10 @@ protected:
   huberStateWeights_t HuberState(const augmentedState_t &,
                                  const huberStateThresholds_t &);
 
-  matrix3D_t computePseudoInverse(const matrix3D_t &);
-  matrix6D_t computePseudoInverse(const matrix6D_t &);
+  [[nodiscard]] static matrix3D_t computePseudoInverse(const matrix3D_t &);
+  [[nodiscard]] static matrix6D_t computePseudoInverse(const matrix6D_t &);
 
-  EstimationParameters const *
+  [[nodiscard]] EstimationParameters const *
   getEstimationParameters(const Data::Agent::Barcode &barcode) const;
 
   virtual void processMeasurements(Data::Robot::List &robots, size_t index);

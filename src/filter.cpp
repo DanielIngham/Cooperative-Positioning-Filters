@@ -468,6 +468,58 @@ void Filter::calculateMeasurementJacobian(
       x_difference / (denominator * denominator), 0;
 }
 
+measurementJacobian_t
+Filter::egoMeasurementJacobian(const EstimationParameters &ego,
+                               const EstimationParameters &agent) {
+
+  const double x_difference{agent.state_estimate(X) - ego.state_estimate(X)};
+
+  const double y_difference{agent.state_estimate(Y) - ego.state_estimate(Y)};
+
+  double denominator{
+      std::sqrt(x_difference * x_difference + y_difference * y_difference)};
+
+  static constexpr double min_distance{1e-6};
+  if (denominator < min_distance)
+    denominator = min_distance;
+
+  measurementJacobian_t jacobian;
+  jacobian(0, 0) = -x_difference / denominator;
+  jacobian(0, 1) = -y_difference / denominator;
+  jacobian(0, 2) = 0;
+
+  jacobian(1, 0) = y_difference / (denominator * denominator);
+  jacobian(1, 1) = -x_difference / (denominator * denominator);
+  jacobian(1, 2) = -1;
+  return jacobian;
+}
+
+measurementJacobian_t
+Filter::agentMeasurementJacobian(const EstimationParameters &ego,
+                                 const EstimationParameters &agent) {
+  const double x_difference{agent.state_estimate(X) - ego.state_estimate(X)};
+
+  const double y_difference{agent.state_estimate(Y) - ego.state_estimate(Y)};
+
+  double denominator{
+      std::sqrt(x_difference * x_difference + y_difference * y_difference)};
+
+  static constexpr double min_distance{1e-6};
+  if (denominator < min_distance)
+    denominator = min_distance;
+
+  measurementJacobian_t jacobian;
+  jacobian(0, 0) = x_difference / denominator;
+  jacobian(0, 1) = y_difference / denominator;
+  jacobian(0, 2) = 0;
+
+  jacobian(1, 0) = -y_difference / (denominator * denominator);
+  jacobian(1, 1) = x_difference / (denominator * denominator);
+  jacobian(1, 2) = 0;
+
+  return jacobian;
+}
+
 /**
  * @brief Schur complement-based marginalisation that marginalises a 6x6 matrix
  * into a 3x3 matrix.
@@ -607,6 +659,7 @@ augmentedState_t Filter::calculateNormalisedEstimationResidual(
 
   /* Calculate the mean of the estimation residual (innovation). */
   static constexpr double regularisation{1e-3};
+
   Eigen::LLT<augmentedCovariance_t> error_covariance_cholesky(
       filter.kalman_gain * filter.innovation_covariance *
           filter.kalman_gain.transpose() +
