@@ -44,7 +44,7 @@ public:
   static void calculateProcessJacobian(EstimationParameters &, const double);
 
   [[nodiscard]] static measurement_t
-  measurementModel(EstimationParameters &, const EstimationParameters &);
+  measurementModel(const EstimationParameters &, const EstimationParameters &);
 
   static void calculateMeasurementJacobian(EstimationParameters &,
                                            const EstimationParameters &);
@@ -69,7 +69,8 @@ public:
   createAugmentedMatrix(const covariance_t &, const covariance_t &);
 
   [[nodiscard]] static measurement_t
-  calculateNormalisedInnovation(const EstimationParameters &);
+  calculateNormalisedInnovation(const measurement_t &,
+                                const measurementCovariance_t &);
 
   [[nodiscard]] static augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);

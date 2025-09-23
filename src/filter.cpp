@@ -396,7 +396,7 @@ void Filter::calculateProcessJacobian(
  * Filter::EstimationParameters.measurement_noise).
  */
 measurement_t
-Filter::measurementModel(EstimationParameters &ego_robot,
+Filter::measurementModel(const EstimationParameters &ego_robot,
                          const EstimationParameters &other_agent) {
 
   /* Calculate the terms */
@@ -625,15 +625,15 @@ Filter::createAugmentedMatrix(const covariance_t &ego_robot,
  * @param[in] filter The estimation parameters of the filter.
  * @returns The normalised innovation.
  */
-measurement_t
-Filter::calculateNormalisedInnovation(const EstimationParameters &filter) {
+measurement_t Filter::calculateNormalisedInnovation(
+    const measurement_t &innovation,
+    const measurementCovariance_t &covariance) {
 
   /* Calculate the Cholesky of the innovation */
-  Eigen::LLT<measurementCovariance_t> innovatation_cholesky{
-      filter.innovation_covariance};
+  Eigen::LLT<measurementCovariance_t> innovatation_cholesky{covariance};
 
   if (innovatation_cholesky.info() != Eigen::Success) {
-    std::cout << filter.innovation_covariance << std::endl;
+    std::cout << covariance << std::endl;
     throw std::runtime_error(
         "An error has occurred with calculating the Cholesky decomposition of "
         "the innovation error covariance");
@@ -643,7 +643,7 @@ Filter::calculateNormalisedInnovation(const EstimationParameters &filter) {
       innovatation_cholesky.matrixL()};
 
   measurement_t normalised_measurement_residual{
-      innovatation_cholesky_matrix.inverse() * filter.innovation};
+      innovatation_cholesky_matrix.inverse() * innovation};
 
   return normalised_measurement_residual;
 }
