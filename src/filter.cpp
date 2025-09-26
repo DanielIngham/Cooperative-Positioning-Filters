@@ -625,27 +625,47 @@ Filter::createAugmentedMatrix(const covariance_t &ego_robot,
  * @param[in] filter The estimation parameters of the filter.
  * @returns The normalised innovation.
  */
-measurement_t Filter::calculateNormalisedInnovation(
-    const measurement_t &innovation,
-    const measurementCovariance_t &covariance) {
+measurement_t
+Filter::normaliseInnovation(const measurement_t &innovation,
+                            const measurementCovariance_t &covariance) {
 
   /* Calculate the Cholesky of the innovation */
-  Eigen::LLT<measurementCovariance_t> innovatation_cholesky{covariance};
+  Eigen::LLT<measurementCovariance_t> llt{covariance};
 
-  if (innovatation_cholesky.info() != Eigen::Success) {
+  if (llt.info() != Eigen::Success) {
     std::cout << covariance << std::endl;
     throw std::runtime_error(
         "An error has occurred with calculating the Cholesky decomposition of "
         "the innovation error covariance");
   }
 
-  measurementCovariance_t innovatation_cholesky_matrix{
-      innovatation_cholesky.matrixL()};
+  measurementCovariance_t covariance_sqrt{llt.matrixL()};
 
-  measurement_t normalised_measurement_residual{
-      innovatation_cholesky_matrix.inverse() * innovation};
+  measurement_t normalised_innovation{covariance_sqrt.inverse() * innovation};
 
-  return normalised_measurement_residual;
+  return normalised_innovation;
+}
+
+measurement_t
+Filter::unnormaliseInnovation(const measurement_t &normalised_innovation,
+                              const measurementCovariance_t &covariance) {
+
+  /* Calculate the Cholesky of the innovation */
+  Eigen::LLT<measurementCovariance_t> llt{covariance};
+
+  if (llt.info() != Eigen::Success) {
+    std::cout << covariance << std::endl;
+    throw std::runtime_error(
+        "An error has occurred with calculating the Cholesky decomposition of "
+        "the innovation error covariance");
+  }
+
+  measurementCovariance_t covariance_sqrt{llt.matrixL()};
+
+  measurement_t unnormalised_innovation{covariance_sqrt *
+                                        normalised_innovation};
+
+  return unnormalised_innovation;
 }
 
 /**

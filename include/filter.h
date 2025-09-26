@@ -69,8 +69,10 @@ public:
   createAugmentedMatrix(const covariance_t &, const covariance_t &);
 
   [[nodiscard]] static measurement_t
-  calculateNormalisedInnovation(const measurement_t &,
-                                const measurementCovariance_t &);
+  normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
+
+  [[nodiscard]] static measurement_t
+  unnormaliseInnovation(const measurement_t &, const measurementCovariance_t &);
 
   [[nodiscard]] static augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);
