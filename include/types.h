@@ -81,8 +81,7 @@ using huberMeasurementThresholds_t =
 using huberMeasurementWeights_t =
     Eigen::Matrix<double, total_measurements, total_measurements>;
 
-using huberStateThresholds_t = Eigen::Matrix<double, 2 * total_states, 1>;
-using huberStateWeights_t =
-    Eigen::Matrix<double, 2 * total_states, 2 * total_states>;
+using huberStateThresholds_t = Eigen::Matrix<double, total_states, 1>;
+using huberStateWeights_t = Eigen::Matrix<double, total_states, total_states>;
 
 } // namespace Filters

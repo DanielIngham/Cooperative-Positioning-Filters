@@ -224,58 +224,6 @@ void Filter::processMeasurements(Data::Robot::List &robots, size_t index) {
 }
 
 /**
- * @brief Huber Measurement cost function,
- * @param [in] measurement_residual The difference between the measurement and
- * the predicted measurement based on the states of the robots.
- * @param [in] tau Tunable parameter \f$\tau\f$ that is used to determine if the
- * residual is too large.
- */
-huberMeasurementWeights_t
-Filter::HuberMeasurement(const measurement_t &measurement_residual,
-                         const huberMeasurementThresholds_t &tau) {
-
-  /* Reweight matrix that is used to adjust the covariance of outliers. */
-  huberMeasurementWeights_t weight_matrix{
-      huberMeasurementWeights_t::Identity()};
-
-  /* Loop through each of the measurements and perform the huber reweighting if
-   * the residual is larger than the parameter tau. */
-  for (unsigned short i{}; i < total_measurements; i++) {
-
-    if (std::abs(measurement_residual(i)) >= tau(i)) {
-      weight_matrix(i, i) = tau(i) / std::abs(measurement_residual(i));
-    }
-  }
-
-  return weight_matrix;
-}
-
-/**
- * @brief Huber State cost function,
- * @param [in] error_residual The difference between the measurement and
- * the predicted measurement based on the states of the robots.
- * @param [in] tau Tunable parameter \f$\tau\f$ that is used to determine if the
- * residual is too large.
- */
-huberStateWeights_t Filter::HuberState(const augmentedState_t &error_residual,
-                                       const huberStateThresholds_t &tau) {
-
-  /* Reweight matrix that is used to adjust the covariance of outliers. */
-  huberStateWeights_t weight_matrix{huberStateWeights_t::Identity()};
-
-  /* Loop through each of the measurements and perform the huber reweighting if
-   * the residual is larger than the parameter tau. */
-  for (unsigned short i{}; i < 2 + total_states; i++) {
-
-    if (std::abs(error_residual(i)) >= tau(i)) {
-      weight_matrix(i, i) = tau(i) / std::abs(error_residual(i));
-    }
-  }
-
-  return weight_matrix;
-}
-
-/**
  * @brief The unicycle motion model used to perform motion predictions.
  *
  * @param[in] odometry The prior inputs into the system comprising a forward and

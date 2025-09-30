@@ -45,16 +45,16 @@ int main(int argc, char *argv[]) {
 
   ArgumentHandler::setArguments(argc, argv, data);
 
-  std::unique_ptr<Filter::Filter> filter;
+  std::unique_ptr<Filters::Filter> filter;
 
 #ifdef EKF_TARGET
-  filter = make_unique<Filter::EKF>(data);
+  filter = make_unique<Filters::EKF>(data);
 
 #elif defined(IEKF_TARGET)
-  filter = make_unique<Filter::IEKF>(data);
+  filter = make_unique<Filters::IEKF>(data);
 
 #else
-  filter = make_unique<Filter::InformationFilter>(data);
+  filter = make_unique<Filters::InformationFilter>(data);
 
 #endif // EKF_TARGET
 

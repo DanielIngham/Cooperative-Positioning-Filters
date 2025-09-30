@@ -101,28 +101,6 @@ protected:
    */
   std::map<Data::Agent::ID, EstimationParameters> landmark_parameters;
 
-  /**
-   * @brief The thresholds for the huber measurement cost function.
-   * @details The vector is of the for: range and bearing.
-   */
-  const huberMeasurementThresholds_t measurement_thresholds{
-      (huberMeasurementThresholds_t() << 0.2, 0.01).finished()};
-
-  /**
-   * @brief The thresholds for the huber state cost function.
-   * @details The vector is of the for: ego x, ego y, ego orientation, agent x,
-   * agent y.
-   */
-  const huberStateThresholds_t state_thresholds{
-      (huberStateThresholds_t() << 0.15, 0.154, 0.255, 0.0104, 0.0104, 0.0)
-          .finished()};
-
-  huberMeasurementWeights_t
-  HuberMeasurement(const measurement_t &, const huberMeasurementThresholds_t &);
-
-  huberStateWeights_t HuberState(const augmentedState_t &,
-                                 const huberStateThresholds_t &);
-
   virtual void processMeasurements(Data::Robot::List &robots, size_t index);
 };
 } // namespace Filters

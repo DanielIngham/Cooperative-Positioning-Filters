@@ -7,6 +7,7 @@
  */
 #include "ekf.h"
 #include "filter.h"
+#include "types.h"
 
 #include <cmath>
 
@@ -33,76 +34,67 @@ EKF::~EKF() {}
  * Kalman filter to perform the prediction step.
  */
 void EKF::prediction(const Data::Robot::Odometry &odometry,
-                     EstimationParameters &estimation_parameters) {
+                     EstimationParameters &parameters) {
 
-  const double sample_period = data_.getSamplePeriod();
+  const double sample_period{data_.getSamplePeriod()};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  calculateMotionJacobian(odometry, estimation_parameters, sample_period);
+  calculateMotionJacobian(odometry, parameters, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  calculateProcessJacobian(estimation_parameters, sample_period);
+  calculateProcessJacobian(parameters, sample_period);
 
   /* Make the prediction using the motion model: 3x1 matrix. */
-  motionModel(odometry, estimation_parameters, sample_period);
+  motionModel(odometry, parameters, sample_period);
 
   /* Propagate the estimation error covariance: 3x3 matrix. */
-  estimation_parameters.error_covariance =
-      estimation_parameters.motion_jacobian *
-          estimation_parameters.error_covariance *
-          estimation_parameters.motion_jacobian.transpose() +
-      estimation_parameters.process_jacobian *
-          estimation_parameters.process_noise *
-          estimation_parameters.process_jacobian.transpose();
+  parameters.error_covariance =
+      parameters.motion_jacobian * parameters.error_covariance *
+          parameters.motion_jacobian.transpose() +
+      parameters.process_jacobian * parameters.process_noise *
+          parameters.process_jacobian.transpose();
 }
 
 #if DECOUPLED
-void EKF::correction(EstimationParameters &ego_robot,
-                     const EstimationParameters &other_agent) {
+void EKF::correction(EstimationParameters &ego,
+                     const EstimationParameters &agent) {
 
-  /* Calculate coupled Measurement Jacobian.
-   * NOTE: This is only done to reuse functionality between coupled and
-   * decoupled approaches.  */
-  calculateMeasurementJacobian(ego_robot, other_agent);
+  const measurementJacobian_t ego_measurement_Jacobian{
+      egoMeasurementJacobian(ego, agent)};
 
-  /* Extract the measurment Jacobian in terms of the agent.*/
-  Eigen::Matrix<double, 2, 3> agent_measurement_Jacobian =
-      ego_robot.measurement_jacobian.topRightCorner<2, 3>();
+  const measurementJacobian_t agent_measurement_Jacobian{
+      agentMeasurementJacobian(ego, agent)};
 
-  /* Calculate joint sensor measurment noise, which is the sum of the measurment
-   * noise and the estimate error covariance of the measured agent. */
-  measurementCovariance_t joint_sensor_noise =
-      ego_robot.measurement_noise + agent_measurement_Jacobian *
-                                        other_agent.error_covariance *
-                                        agent_measurement_Jacobian.transpose();
-
-  /* Extract the measurement Jacobian in terms of the ego vehicle. */
-  Eigen::Matrix<double, 2, 3> ego_measurement_Jacobian =
-      ego_robot.measurement_jacobian.topLeftCorner<2, 3>();
+  /* Calculate joint sensor measurment noise, which is the sum of the
+   * measurment noise and the estimate error covariance of the measured agent.
+   */
+  measurementCovariance_t joint_sensor_noise{
+      ego.measurement_noise + agent_measurement_Jacobian *
+                                  agent.error_covariance *
+                                  agent_measurement_Jacobian.transpose()};
 
   /* Calculate innovation Covariance.  */
-  ego_robot.innovation_covariance = ego_measurement_Jacobian *
-                                        ego_robot.error_covariance *
-                                        ego_measurement_Jacobian.transpose() +
-                                    joint_sensor_noise;
+  ego.innovation_covariance = ego_measurement_Jacobian * ego.error_covariance *
+                                  ego_measurement_Jacobian.transpose() +
+                              joint_sensor_noise;
 
   /* Calculate Kalman Gain. */
-  Eigen::Matrix<double, 3, 2> kalman_gain =
-      ego_robot.error_covariance * ego_measurement_Jacobian.transpose() *
-      ego_robot.innovation_covariance.inverse();
+  kalmanGain_t kalman_gain{ego.error_covariance *
+                           ego_measurement_Jacobian.transpose() *
+                           ego.innovation_covariance.inverse()};
 
   /* Calculate the innovation. */
-  measurement_t predicted_measurment = measurementModel(ego_robot, other_agent);
+  measurement_t predicted_measurment{measurementModel(ego, agent)};
 
-  ego_robot.innovation = ego_robot.measurement - predicted_measurment;
-  Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
+  ego.innovation = ego.measurement - predicted_measurment;
+  Data::Robot::normaliseAngle(ego.innovation(BEARING));
 
   /* Update the state estimate. */
-  ego_robot.state_estimate += kalman_gain * ego_robot.innovation;
+  ego.state_estimate += kalman_gain * ego.innovation;
 
   /* Update the estimation error covariance.  */
-  ego_robot.error_covariance -=
-      kalman_gain * ego_robot.innovation_covariance * kalman_gain.transpose();
+  ego.error_covariance -=
+      kalman_gain * ego.innovation_covariance * kalman_gain.transpose();
 }
 #endif // DECOUPLED
 
@@ -149,7 +141,8 @@ void EKF::correction(EstimationParameters &ego_robot,
       measurementModel(ego_robot, other_agent);
 
   /* Calculate the innovation: the difference between the measurement
-   * and the predicted measurement based on the estimated states of both robots.
+   * and the predicted measurement based on the estimated states of both
+   * robots.
    */
   ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 
@@ -169,8 +162,8 @@ void EKF::correction(EstimationParameters &ego_robot,
 
 /**
  * @brief A robust version of the correction function that uses the Huber cost
- * function to increase estimation error covariance of measurements that seem to
- * be outliers.
+ * function to increase estimation error covariance of measurements that seem
+ * to be outliers.
  * @param[in,out] ego_robot The estimation parameters of the ego robot.
  * @param[in] other_agent The estimation parameters of the agent that was
  * measured by the ego robot.
