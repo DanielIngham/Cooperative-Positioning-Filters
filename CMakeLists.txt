@@ -81,12 +81,21 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	    ${MAIN_SOURCE}
     )
 
+    # Converted measurement 
+    add_filter_target(CMEKF 
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/cmekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    ${MAIN_SOURCE}
+    )
+
     # Information Filter
     add_filter_target(INFO 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/information_filter.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
 	    ${MAIN_SOURCE}
     )
+
 else()
     message(STATUS "Configuring filters as a library.")
     set(LIBRARY_NAME Filters)

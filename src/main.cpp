@@ -1,13 +1,14 @@
-#include "Plotter.h"
-#include "Robot.h"
-
 #include <ArgumentHandler.h>
 #include <DataHandler.h>
+#include <Plotter.h>
+#include <Robot.h>
 
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+
+#include "filter.h"
 
 #ifdef EKF_TARGET
 #include "ekf.h"
@@ -19,6 +20,10 @@
 
 #ifdef INFO_TARGET
 #include "information_filter.h"
+#endif // INFO_TARGET
+
+#ifdef CMEKF_TARGET
+#include "cmekf.h"
 #endif // INFO_TARGET
 
 using std::make_unique;
@@ -53,8 +58,16 @@ int main(int argc, char *argv[]) {
 #elif defined(IEKF_TARGET)
   filter = make_unique<Filters::IEKF>(data);
 
-#else
+#elif defined(INFO_TARGET)
+
   filter = make_unique<Filters::InformationFilter>(data);
+
+#elif defined(CMEKF_TARGET)
+
+  filter = make_unique<Filters::CMEKF>(data);
+
+#else
+  throw std::runtime_error("Filter target not selected");
 
 #endif // EKF_TARGET
 
@@ -73,10 +86,8 @@ int main(int argc, char *argv[]) {
   // plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR});
   const auto &robots{data.getRobots()};
 
-  plotter.plotPoses(robots);
+  plotter.plotPoses(robots, {Data::Type::ABSOLUTE_ERROR});
 
-  std::cout << data.getAverageRMSE().x << std::endl
-            << data.getAverageRMSE().y << std::endl
-            << data.getAverageRMSE().orientation << std::endl;
+  std::cout << data.getAverageRMSE() << std::endl;
   return EXIT_SUCCESS;
 }
