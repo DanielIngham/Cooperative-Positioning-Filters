@@ -1,7 +1,8 @@
 # Cooperative Positioning Filters
 Repository containing the implementation of Bayesian filters used for multi-robot cooperative positioning, including:
 - Extended Kalman Filter (EKF),
-- Iterative Extended Kalman Filter (IEKF), and
+- Iterative Extended Kalman Filter (IEKF),
+- Converted Measurement Extended Kalman Filter, and
 - Extended Information Filter.
 ## Documentation
 The documentation for this implementation of the cooperative positioning filters can be found [here](https://danielingham.github.io/Cooperative-Positioning-Filters/).
@@ -22,6 +23,7 @@ cmake --build .
 This compiles a target for each of the filters:
 - `./EKF` 
 - `./IEKF` 
+- `./CMEKF` 
 - `./INFO` 
 
 ## Selecting a Dataset
