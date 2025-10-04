@@ -18,13 +18,13 @@ public:
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
 
+protected:
   Eigen::Matrix2d jacobian(measurement_t measurement);
-  Eigen::Matrix<double, 2, 3> jacobian(state_t ego, state_t agent);
+  Eigen::Matrix<double, total_measurements, total_states>
+  jacobian(state_t ego, state_t agent);
 
   Eigen::Vector2d relativePosition(measurement_t measurement);
   Eigen::Vector2d relativePosition(state_t ego, state_t agent);
-
-private:
 };
 
 } // namespace Filters

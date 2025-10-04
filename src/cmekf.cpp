@@ -1,6 +1,7 @@
 #include "cmekf.h"
-#include "Plotter.h"
 #include "types.h"
+
+#include <Plotter.h>
 #include <cmath>
 
 namespace Filters {
@@ -39,7 +40,6 @@ void CMEKF::correction(EstimationParameters &ego,
                            ego.innovation_covariance.inverse()};
 
   /* Calculate the innovation. */
-
   ego.innovation = measurement - predicted_measurment;
   Data::Robot::normaliseAngle(ego.innovation(BEARING));
 
@@ -61,11 +61,13 @@ Eigen::Matrix2d CMEKF::jacobian(Filters::measurement_t measurement) {
   return J;
 }
 
-Eigen::Matrix<double, 2, 3> CMEKF::jacobian(state_t ego, state_t agent) {
+Eigen::Matrix<double, total_measurements, total_states>
+CMEKF::jacobian(state_t ego, state_t agent) {
+
   const double delta_x{agent(X) - ego(X)};
   const double delta_y{agent(Y) - ego(Y)};
 
-  Eigen::Matrix<double, 2, 3> H;
+  Eigen::Matrix<double, total_measurements, total_states> H;
   H(0, 0) = -std::cos(ego(ORIENTATION));
   H(0, 1) = -std::sin(ego(ORIENTATION));
   H(0, 2) = -delta_x * std::sin(ego(ORIENTATION)) +
