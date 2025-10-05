@@ -41,7 +41,6 @@ void CMEKF::correction(EstimationParameters &ego,
 
   /* Calculate the innovation. */
   ego.innovation = measurement - predicted_measurment;
-  Data::Robot::normaliseAngle(ego.innovation(BEARING));
 
   /* Update the state estimate. */
   ego.state_estimate += kalman_gain * ego.innovation;
@@ -91,9 +90,9 @@ Eigen::Vector2d CMEKF::relativePosition(Filters::measurement_t measurement) {
 Eigen::Vector2d CMEKF::relativePosition(state_t ego, state_t agent) {
 
   Eigen::Vector2d delta_global_pos{agent.head(2) - ego.head(2)};
-  Eigen::Rotation2Dd Rot(-ego(ORIENTATION));
+  Eigen::Rotation2Dd Rotation(-ego(ORIENTATION));
 
-  return Rot * delta_global_pos;
+  return Rotation * delta_global_pos;
 }
 
 } // namespace Filters
