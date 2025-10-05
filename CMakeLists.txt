@@ -103,6 +103,7 @@ else()
     add_library(${LIBRARY_NAME} STATIC 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/iekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/cmekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/information_filter.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
     )
