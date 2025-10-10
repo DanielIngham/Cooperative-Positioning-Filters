@@ -58,7 +58,7 @@ struct EstimationParameters {
    * therefore the prior estimation error covariance is initialised to a small
    * value.
    */
-  covariance_t error_covariance{covariance_t::Identity() * 0.001};
+  covariance_t error_covariance{covariance_t::Identity() * 1e-3};
 
   /**
    * @brief Kalman gain: 5x2 matrix.
