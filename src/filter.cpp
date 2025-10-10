@@ -776,7 +776,6 @@ void Filter::writeNormalisedInnovation() {
   }
 
   for (const auto &[id, parameter_list] : robot_parameters) {
-    std::cout << data_.getNumberOfSyncedMeasurements(id) << std::endl;
 
     const std::string filepath{directory + "/Robot_" + id +
                                "_Normalised_Innovation.dat"};
