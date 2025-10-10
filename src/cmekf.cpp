@@ -19,7 +19,7 @@ void CMEKF::correction(EstimationParameters &ego,
                                   agent_measurement_Jacobian.transpose()};
 
   /* Covert the range and bearing into relative x and y coordinates.*/
-  measurement_t measurement{relativePosition(ego.measurement)};
+  const measurement_t measurement{relativePosition(ego.measurement)};
 
   /* Jacobian of the measurement with respect to the relative position change.*/
   const measurementCovariance_t J{jacobian(ego.measurement)};
@@ -36,8 +36,8 @@ void CMEKF::correction(EstimationParameters &ego,
                               J * joint_sensor_noise * J.transpose();
 
   /* Calculate Kalman Gain. */
-  kalmanGain_t kalman_gain{ego.error_covariance * H.transpose() *
-                           ego.innovation_covariance.inverse()};
+  const kalmanGain_t kalman_gain{ego.error_covariance * H.transpose() *
+                                 ego.innovation_covariance.inverse()};
 
   /* Calculate the innovation. */
   ego.innovation = measurement - predicted_measurment;
@@ -89,10 +89,10 @@ Eigen::Vector2d CMEKF::relativePosition(Filters::measurement_t measurement) {
 
 Eigen::Vector2d CMEKF::relativePosition(state_t ego, state_t agent) {
 
-  Eigen::Vector2d delta_global_pos{agent.head(2) - ego.head(2)};
-  Eigen::Rotation2Dd Rotation(-ego(ORIENTATION));
+  const Eigen::Vector2d delta_global_pos{agent.head(2) - ego.head(2)};
+  const Eigen::Rotation2Dd rotation(-ego(ORIENTATION));
 
-  return Rotation * delta_global_pos;
+  return rotation * delta_global_pos;
 }
 
 } // namespace Filters
