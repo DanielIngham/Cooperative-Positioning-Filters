@@ -5,16 +5,19 @@
  * @author Daniel Ingham
  * @date 2025-05-01
  */
-
 #include "filter.h"
+
 #include "Agent.h"
 #include "estimation_parameters.h"
 #include "types.h"
 
 #include <DataHandler.h>
 #include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 namespace Filters {
 
@@ -34,16 +37,16 @@ Filter::Filter(Data::Handler &data) : data_(data) {
 
     const Data::Agent::ID id{robot.id()};
 
-    auto result{robot_parameters.emplace(id, EstimationParameters{
+    auto result{robot_parameters.emplace(id, ParameterList{EstimationParameters{
                                                  .id = id,
                                                  .barcode = robot.barcode(),
-                                             })};
+                                             }})};
     if (!result.second) {
       throw std::runtime_error("Unable to add Robot with ID " + id +
                                " to robot parameters");
     }
 
-    EstimationParameters &parameters{result.first->second};
+    EstimationParameters &parameters{result.first->second.front()};
 
     /* Initial state: 3x1 Matrix. */
     parameters.state_estimate(X) = robot.synced.states.front().x;
@@ -133,9 +136,11 @@ void Filter::performInference() {
               << " %" << std::flush;
 
     for (auto &robot : robots) {
+      ParameterList &parameter_list{robot_parameters.at(robot.id())};
+      parameter_list.push_back(parameter_list.back());
 
       Data::Robot::Odometry &odometry{robot.synced.odometry[k]};
-      EstimationParameters &parameters{robot_parameters.at(robot.id())};
+      EstimationParameters &parameters{parameter_list.back()};
 
       prediction(odometry, parameters);
 
@@ -187,6 +192,11 @@ void Filter::processMeasurements(Data::Robot::List &robots, size_t index) {
       continue;
     }
 
+    /* Populate the measurement matrix required for the correction step.
+     * Remove any noise bias from the measurement.
+     */
+    EstimationParameters &parameters{robot_parameters.at(robot.id()).back()};
+
     for (unsigned short j{}; j < current_measurement->subjects.size(); j++) {
 
       /* Find the subject for whom the barcode belongs to. */
@@ -197,11 +207,6 @@ void Filter::processMeasurements(Data::Robot::List &robots, size_t index) {
       if (!measured_agent) {
         continue;
       }
-
-      /* Populate the measurement matrix required for the correction step.
-       * Remove any noise bias from the measurement.
-       */
-      EstimationParameters &parameters{robot_parameters.at(robot.id())};
 
       parameters.measurement[RANGE] = current_measurement->ranges.at(j);
       parameters.measurement[BEARING] = current_measurement->bearings.at(j);
@@ -651,14 +656,14 @@ augmentedState_t Filter::calculateNormalisedEstimationResidual(
 
 matrix3D_t Filter::computePseudoInverse(const matrix3D_t &matrix_3d) {
 
-  // Compute pseudo-inverse using SVD
+  /* Compute pseudo-inverse using SVD */
   Eigen::JacobiSVD<matrix3D_t> svd{matrix_3d,
                                    Eigen::ComputeFullU | Eigen::ComputeFullV};
 
-  // Set tolerance for singular values (adjust as needed)
+  /* Set tolerance for singular values (adjust as needed) */
   static constexpr double tolerance{1e-10};
 
-  // Get singular values and compute pseudo-inverse
+  /* Get singular values and compute pseudo-inverse */
   auto singular_values{svd.singularValues()};
   Eigen::VectorXd singular_values_inv{singular_values.size()};
 
@@ -670,21 +675,21 @@ matrix3D_t Filter::computePseudoInverse(const matrix3D_t &matrix_3d) {
     }
   }
 
-  // Reconstruct pseudo-inverse: V * Σ^+ * U^T
+  /* Reconstruct pseudo-inverse */
   return svd.matrixV() * singular_values_inv.asDiagonal() *
          svd.matrixU().transpose();
 }
 
 matrix6D_t Filter::computePseudoInverse(const matrix6D_t &matrix_6d) {
 
-  // Compute pseudo-inverse using SVD
+  /* Compute pseudo-inverse using SVD */
   Eigen::JacobiSVD<matrix6D_t> svd{matrix_6d,
                                    Eigen::ComputeFullU | Eigen::ComputeFullV};
 
-  // Set tolerance for singular values (adjust as needed)
+  /* Set tolerance for singular values (adjust as needed) */
   static constexpr double tolerance{1e-10};
 
-  // Get singular values and compute pseudo-inverse
+  /* Get singular values and compute pseudo-inverse */
   auto singular_values{svd.singularValues()};
   Eigen::VectorXd singular_values_inv{singular_values.size()};
 
@@ -696,13 +701,13 @@ matrix6D_t Filter::computePseudoInverse(const matrix6D_t &matrix_6d) {
     }
   }
 
-  // Reconstruct pseudo-inverse: V * Σ^+ * U^T
+  /* Reconstruct pseudo-inverse. */
   return svd.matrixV() * singular_values_inv.asDiagonal() *
          svd.matrixU().transpose();
 }
 
 /**
- *  Finds the estimation parameters corresponding to a give barcode.
+ *  Finds the latest estimation parameters corresponding to a give barcode.
  *  @param barcode Barcode of the agent of interests.
  *  @returns Pointer to the agents estimation parameters.
  */
@@ -710,8 +715,10 @@ EstimationParameters const *
 Filter::getEstimationParameters(const Data::Agent::Barcode &barcode) const {
 
   for (const auto &[id, robot] : robot_parameters) {
-    if (robot.barcode == barcode) {
-      return &robot;
+    const EstimationParameters &latest_parameters{robot.back()};
+
+    if (latest_parameters.barcode == barcode) {
+      return &latest_parameters;
     }
   }
 
@@ -722,6 +729,125 @@ Filter::getEstimationParameters(const Data::Agent::Barcode &barcode) const {
   }
 
   return nullptr;
+}
+
+void Filter::writeInnovation() {
+  const std::string directory{data_.getDataInferenceDirectory()};
+
+  if (!std::filesystem::exists(directory)) {
+    bool success{std::filesystem::create_directories(directory)};
+    if (!success)
+      throw std::runtime_error("Unable to create directory: " + directory);
+  }
+
+  for (const auto &[id, parameter_list] : robot_parameters) {
+    const std::string filepath{directory + "/Robot_" + id + "_Innovation.dat"};
+
+    /* Open the file in append mode */
+    std::ofstream outFile(filepath, std::ios::app);
+
+    if (!outFile)
+      throw std::runtime_error("Failed to open file: " + filepath);
+
+    const Data::Robot *robot{&data_.getRobot(id)};
+
+    for (size_t k{1U}; k < data_.getNumberOfSyncedDatapoints(); k++) {
+
+      if (!data_.getMeasurement(robot, k))
+        continue;
+
+      outFile << parameter_list.at(k).innovation[RANGE] << '\t'
+              << parameter_list.at(k).innovation[BEARING] << '\n';
+    }
+
+    outFile.close();
+  }
+}
+
+void Filter::writeNormalisedInnovation() {
+
+  const std::string directory{data_.getDataInferenceDirectory()};
+
+  if (!std::filesystem::exists(directory)) {
+    bool success{std::filesystem::create_directories(directory)};
+
+    if (!success)
+      throw std::runtime_error("Unable to open directory: " + directory);
+  }
+
+  for (const auto &[id, parameter_list] : robot_parameters) {
+    std::cout << data_.getNumberOfSyncedMeasurements(id) << std::endl;
+
+    const std::string filepath{directory + "/Robot_" + id +
+                               "_Normalised_Innovation.dat"};
+
+    const Data::Robot *robot{&data_.getRobot(id)};
+
+    for (size_t k{1U}; k < data_.getNumberOfSyncedDatapoints(); k++) {
+      if (!data_.getMeasurement(robot, k))
+        continue;
+
+      const measurement_t normalised_innovation{
+          normaliseInnovation(parameter_list.at(k).innovation,
+                              parameter_list.at(k).innovation_covariance)};
+
+      /* Open the file in append mode */
+      std::ofstream outFile(filepath, std::ios::app);
+      if (!outFile)
+        throw std::runtime_error("Failed to open file: " + filepath);
+
+      outFile << normalised_innovation[RANGE] << '\t'
+              << normalised_innovation[BEARING] << '\n';
+
+      outFile.close();
+    }
+  }
+}
+
+void Filter::writeNEES() {
+
+  const std::string directory{data_.getDataInferenceDirectory()};
+
+  if (!std::filesystem::exists(directory)) {
+    bool success{std::filesystem::create_directories(directory)};
+    if (!success)
+      throw std::runtime_error("Unable to create directory: " + directory);
+  }
+
+  for (const auto &[id, parameter_list] : robot_parameters) {
+    const std::string file_path{directory + "/Robot_" + id + "_NEES.dat"};
+
+    const Data::Robot &robot{data_.getRobot(id)};
+
+    for (size_t k{1U}; k < data_.getNumberOfSyncedDatapoints(); k++) {
+
+      if (!data_.getMeasurement(&robot, k))
+        continue;
+
+      const EstimationParameters &parameters{parameter_list.at(k)};
+
+      state_t groundtruth;
+      groundtruth << robot.groundtruth.states.at(k).x,
+          robot.groundtruth.states.at(k).y,
+          robot.groundtruth.states.at(k).orientation;
+
+      state_t error{groundtruth - parameters.state_estimate};
+      Data::Robot::normaliseAngle(error(ORIENTATION));
+
+      const double nees{error.transpose() *
+                        parameters.error_covariance.inverse() * error};
+
+      /* Open the file in append mode */
+      std::ofstream outFile(file_path, std::ios::app);
+
+      if (!outFile)
+        throw std::runtime_error("Failed to open file " + file_path);
+
+      outFile << nees << '\n';
+
+      outFile.close();
+    }
+  }
 }
 
 } // namespace Filters

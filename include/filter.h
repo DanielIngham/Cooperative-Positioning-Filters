@@ -27,6 +27,9 @@ public:
   Filter &operator=(const Filter &) = delete;
   virtual ~Filter();
 
+  using ParameterList = std::vector<EstimationParameters>;
+  using ParameterMap = std::map<Data::Agent::ID, ParameterList>;
+
   void performInference();
 
   virtual void prediction(const Data::Robot::Odometry &,
@@ -83,6 +86,10 @@ public:
   [[nodiscard]] EstimationParameters const *
   getEstimationParameters(const Data::Agent::Barcode &barcode) const;
 
+  void writeInnovation();
+  void writeNormalisedInnovation();
+  void writeNEES();
+
 private:
 protected:
   /**
@@ -94,7 +101,7 @@ protected:
   /**
    * @brief Houses all estimation parameters for all robots.
    */
-  std::map<Data::Agent::ID, EstimationParameters> robot_parameters;
+  std::map<Data::Agent::ID, ParameterList> robot_parameters;
 
   /**
    * @brief Houses all estimation parameters for all landmarks.
