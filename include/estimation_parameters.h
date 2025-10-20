@@ -61,7 +61,7 @@ struct EstimationParameters {
   covariance_t error_covariance{covariance_t::Identity() * 1e-3};
 
   /**
-   * @brief Kalman gain: 5x2 matrix.
+   * @brief Kalman gain: 6x2 matrix.
    * @note The reason the Kalman gain matrix has 5 elements is because the
    * cooperative localisation (positioning) requires the estimation
    * covariances of both the ego and measured robots position [3+2]. See
