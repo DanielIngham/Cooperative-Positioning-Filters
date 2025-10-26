@@ -32,30 +32,30 @@ InformationFilter::~InformationFilter() {}
  * Information filter to perform the prediction step.
  */
 void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
-                                   EstimationParameters &ego_robot) {
+                                   EstimationParameters &parameters) {
 
   const double sample_period{data_.getSamplePeriod()};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  calculateMotionJacobian(odometry, ego_robot, sample_period);
+  calculateMotionJacobian(odometry, parameters, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  calculateProcessJacobian(ego_robot, sample_period);
+  calculateProcessJacobian(parameters, sample_period);
 
   /* Make the prediction using the motion model: 3x1 matrix. */
-  motionModel(odometry, ego_robot, sample_period);
+  motionModel(odometry, parameters.state_estimate, sample_period);
 
   /* Propagate the estimation information: 3x3 matrix. */
-  ego_robot.error_covariance =
-      ego_robot.motion_jacobian * ego_robot.precision_matrix.inverse() *
-          ego_robot.motion_jacobian.transpose() +
-      ego_robot.process_jacobian * ego_robot.process_noise *
-          ego_robot.process_jacobian.transpose();
+  parameters.error_covariance =
+      parameters.motion_jacobian * parameters.precision_matrix.inverse() *
+          parameters.motion_jacobian.transpose() +
+      parameters.process_jacobian * parameters.process_noise *
+          parameters.process_jacobian.transpose();
 
-  ego_robot.precision_matrix = ego_robot.error_covariance.inverse();
+  parameters.precision_matrix = parameters.error_covariance.inverse();
 
-  ego_robot.information_vector =
-      ego_robot.precision_matrix * ego_robot.state_estimate;
+  parameters.information_vector =
+      parameters.precision_matrix * parameters.state_estimate;
 }
 
 #ifdef DECOUPLED

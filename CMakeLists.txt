@@ -96,6 +96,13 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	    ${MAIN_SOURCE}
     )
 
+    # Information Filter
+    add_filter_target(PARTICLE 
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/particle.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    ${MAIN_SOURCE}
+    )
+
 else()
     message(STATUS "Configuring filters as a library.")
     set(LIBRARY_NAME Filters)

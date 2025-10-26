@@ -251,19 +251,14 @@ void Filter::processMeasurements(Data::Robot::List &robots, size_t index) {
  * distributed random variables \f$\mathcal{N}(0,w)\f$ (see
  * Filter::EstimationParameters::process_noise).
  */
-void Filter::motionModel(const Data::Robot::Odometry &odometry,
-                         EstimationParameters &estimation_parameters,
+void Filter::motionModel(const Data::Robot::Odometry &odometry, state_t &state,
                          const double sample_period) {
 
-  estimation_parameters.state_estimate
-      << estimation_parameters.state_estimate(X) +
-             odometry.forward_velocity * sample_period *
-                 std::cos(estimation_parameters.state_estimate(ORIENTATION)),
-      estimation_parameters.state_estimate(Y) +
-          odometry.forward_velocity * sample_period *
-              std::sin(estimation_parameters.state_estimate(ORIENTATION)),
-      estimation_parameters.state_estimate(ORIENTATION) +
-          odometry.angular_velocity * sample_period;
+  state << state(X) + odometry.forward_velocity * sample_period *
+                          std::cos(state(ORIENTATION)),
+      state(Y) + odometry.forward_velocity * sample_period *
+                     std::sin(state(ORIENTATION)),
+      state(ORIENTATION) + odometry.angular_velocity * sample_period;
 }
 
 /**

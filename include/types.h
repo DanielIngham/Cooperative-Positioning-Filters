@@ -55,7 +55,10 @@ using augmentedPrecision_t = matrix6D_t;
 using measurement_t = vector2D_t;
 using measurementCovariance_t = matrix2D_t;
 
-/* Measurement Type Definitions. */
+/* Input Type Definitions. */
+using input_t = Eigen::Vector2d;
+
+/* Kalman Gain Type Definitions. */
 using kalmanGain_t = Eigen::Matrix<double, total_states, total_measurements>;
 
 using augmentedKalmanGain_t =

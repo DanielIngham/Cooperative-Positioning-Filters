@@ -45,7 +45,7 @@ void EKF::prediction(const Data::Robot::Odometry &odometry,
   calculateProcessJacobian(parameters, sample_period);
 
   /* Make the prediction using the motion model: 3x1 matrix. */
-  motionModel(odometry, parameters, sample_period);
+  motionModel(odometry, parameters.state_estimate, sample_period);
 
   /* Propagate the estimation error covariance: 3x3 matrix. */
   parameters.error_covariance =

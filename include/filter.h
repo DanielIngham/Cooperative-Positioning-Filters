@@ -20,6 +20,7 @@
 namespace Filters {
 class Filter {
 public:
+  Filter() = delete;
   explicit Filter(Data::Handler &data);
   Filter(Filter &&) = default;
   Filter(const Filter &) = default;
@@ -38,7 +39,7 @@ public:
   virtual void correction(EstimationParameters &,
                           const EstimationParameters &) = 0;
 
-  static void motionModel(const Data::Robot::Odometry &, EstimationParameters &,
+  static void motionModel(const Data::Robot::Odometry &, state_t &,
                           const double);
 
   static void calculateMotionJacobian(const Data::Robot::Odometry &,
