@@ -7,9 +7,6 @@
  */
 
 #include "iekf.h"
-#include "filter.h"
-
-#include <stdexcept>
 
 namespace Filters {
 /**
@@ -31,8 +28,8 @@ IEKF::~IEKF() {}
  * @param[in] other_agent The estimation parameters of the obejct that was
  * measured by the ego robot.
  */
-void IEKF::correction(EstimationParameters &ego_robot,
-                      const EstimationParameters &other_agent) {
+void IEKF::correction(EstimationParameters &ego,
+                      const EstimationParameters &agent) {
 
 #ifdef ROBUST
   robustCorrection(ego_robot, other_agent);
@@ -40,58 +37,54 @@ void IEKF::correction(EstimationParameters &ego_robot,
 #endif // ROBUST
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t intial_state_estimate{createAugmentedVector(
-      ego_robot.state_estimate, other_agent.state_estimate)};
+  augmentedState_t intial_state_estimate{
+      createAugmentedVector(ego.state_estimate, agent.state_estimate)};
 
   /* Create a vector to hold the iterative state estimate. */
   augmentedState_t iterative_state_estimate{intial_state_estimate};
 
   /* Create and populate new 5x5 error covariance matrix. */
-  augmentedCovariance_t error_covariance{createAugmentedMatrix(
-      ego_robot.error_covariance, other_agent.error_covariance)};
+  augmentedCovariance_t error_covariance{
+      createAugmentedMatrix(ego.error_covariance, agent.error_covariance)};
 
   /* Perform the iterative update.  */
   for (int i{}; i < max_iterations_; ++i) {
 
     /* Calculate measurement Jacobian */
-    calculateMeasurementJacobian(ego_robot, other_agent);
+    calculateMeasurementJacobian(ego, agent);
 
     /* Calculate Covariance Innovation: */
-    ego_robot.innovation_covariance =
-        ego_robot.measurement_jacobian * error_covariance *
-            ego_robot.measurement_jacobian.transpose() +
-        ego_robot.measurement_noise;
+    ego.innovation_covariance = ego.measurement_jacobian * error_covariance *
+                                    ego.measurement_jacobian.transpose() +
+                                ego.measurement_noise;
 
     /* Calculate Kalman Gain */
-    ego_robot.kalman_gain = error_covariance *
-                            ego_robot.measurement_jacobian.transpose() *
-                            ego_robot.innovation_covariance.inverse();
+    ego.kalman_gain = error_covariance * ego.measurement_jacobian.transpose() *
+                      ego.innovation_covariance.inverse();
 
     /* Populate the predicted measurement matrix. */
     measurement_t predicted_measurement{
-        measurementModel(ego_robot, other_agent)};
+        measurementModel(ego.state_estimate, agent.state_estimate)};
 
     /* Calculate the measurement residual. */
-    ego_robot.innovation = ego_robot.measurement - predicted_measurement;
+    ego.innovation = ego.measurement - predicted_measurement;
 
     /* Normalise the bearing residual */
-    Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
+    Data::Robot::normaliseAngle(ego.innovation(BEARING));
 
     /* Keep track of the previous estimate for the calculation of estimation
      * change at the end of the loop. */
     augmentedState_t old_estimate{iterative_state_estimate};
 
-    ego_robot.estimation_residual =
-        intial_state_estimate - iterative_state_estimate;
+    ego.estimation_residual = intial_state_estimate - iterative_state_estimate;
 
-    Data::Robot::normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
+    Data::Robot::normaliseAngle(ego.estimation_residual(ORIENTATION));
 
     /* Update the iterative state estimate. */
     iterative_state_estimate =
         intial_state_estimate +
-        ego_robot.kalman_gain *
-            (ego_robot.innovation -
-             ego_robot.measurement_jacobian * (ego_robot.estimation_residual));
+        ego.kalman_gain * (ego.innovation - ego.measurement_jacobian *
+                                                (ego.estimation_residual));
 
     /* Break if the change between iterations converges */
     double change{(iterative_state_estimate - old_estimate).norm()};
@@ -102,12 +95,12 @@ void IEKF::correction(EstimationParameters &ego_robot,
   }
 
   /* Resize matrices back to normal */
-  ego_robot.state_estimate = iterative_state_estimate.head<total_states>();
+  ego.state_estimate = iterative_state_estimate.head<total_states>();
 
-  error_covariance -= ego_robot.kalman_gain * ego_robot.innovation_covariance *
-                      ego_robot.kalman_gain.transpose();
+  error_covariance -=
+      ego.kalman_gain * ego.innovation_covariance * ego.kalman_gain.transpose();
 
-  ego_robot.error_covariance = error_covariance.topLeftCorner<3, 3>();
+  ego.error_covariance = error_covariance.topLeftCorner<3, 3>();
 }
 
 /**

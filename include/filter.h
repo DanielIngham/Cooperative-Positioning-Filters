@@ -47,8 +47,8 @@ public:
 
   static void calculateProcessJacobian(EstimationParameters &, const double);
 
-  [[nodiscard]] static measurement_t
-  measurementModel(const EstimationParameters &, const EstimationParameters &);
+  [[nodiscard]] static measurement_t measurementModel(const state_t &,
+                                                      const state_t &);
 
   static void calculateMeasurementJacobian(EstimationParameters &,
                                            const EstimationParameters &);

@@ -26,7 +26,9 @@
 #include "cmekf.h"
 #endif // INFO_TARGET
 
-using std::make_unique;
+#ifdef PARTICLE_TARGET
+#include "particle.h"
+#endif
 
 int main(int argc, char *argv[]) {
 
@@ -41,10 +43,10 @@ int main(int argc, char *argv[]) {
 #endif // DECOUPLED
 
 #ifdef ROBUST
-  std::cout << " robust " << std::endl;
+  std::cout << "robust " << std::endl;
 #endif // ROBUST
 
-  std::cout << " mode. " << std::endl;
+  std::cout << "mode. " << std::endl;
 
   Data::Handler data;
 
@@ -53,19 +55,21 @@ int main(int argc, char *argv[]) {
   std::unique_ptr<Filters::Filter> filter;
 
 #ifdef EKF_TARGET
-  filter = make_unique<Filters::EKF>(data);
+  filter = std::make_unique<Filters::EKF>(data);
 
 #elif defined(IEKF_TARGET)
-  filter = make_unique<Filters::IEKF>(data);
+  filter = std::make_unique<Filters::IEKF>(data);
 
 #elif defined(INFO_TARGET)
 
-  filter = make_unique<Filters::InformationFilter>(data);
+  filter = std::make_unique<Filters::InformationFilter>(data);
 
 #elif defined(CMEKF_TARGET)
 
-  filter = make_unique<Filters::CMEKF>(data);
+  filter = std::make_unique<Filters::CMEKF>(data);
 
+#elif defined(PARTICLE_TARGET)
+  filter = std::make_unique<Filters::Particle>(1000, data);
 #else
   throw std::runtime_error("Filter target not selected");
 

@@ -84,7 +84,8 @@ void EKF::correction(EstimationParameters &ego,
                            ego.innovation_covariance.inverse()};
 
   /* Calculate the innovation. */
-  measurement_t predicted_measurment{measurementModel(ego, agent)};
+  measurement_t predicted_measurment{
+      measurementModel(ego.state_estimate, agent.state_estimate)};
 
   ego.innovation = ego.measurement - predicted_measurment;
   Data::Robot::normaliseAngle(ego.innovation(BEARING));
@@ -137,8 +138,8 @@ void EKF::correction(EstimationParameters &ego_robot,
       ego_robot.state_estimate, other_agent.state_estimate);
 
   /* Populate the predicted measurement matrix. */
-  measurement_t predicted_measurement =
-      measurementModel(ego_robot, other_agent);
+  measurement_t predicted_measurement{
+      measurementModel(ego.state_estimate, agent.state_estimate)};
 
   /* Calculate the innovation: the difference between the measurement
    * and the predicted measurement based on the estimated states of both

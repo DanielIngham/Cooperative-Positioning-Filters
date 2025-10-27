@@ -59,26 +59,26 @@ void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
 }
 
 #ifdef DECOUPLED
-void InformationFilter::correction(EstimationParameters &ego_robot,
-                                   const EstimationParameters &other_agent) {
+void InformationFilter::correction(EstimationParameters &ego,
+                                   const EstimationParameters &agent) {
 
   const measurementJacobian_t ego_measurement_Jacobian{
-      egoMeasurementJacobian(ego_robot, other_agent)};
+      egoMeasurementJacobian(ego, agent)};
 
   const measurementJacobian_t agent_measurement_Jacobian{
-      agentMeasurementJacobian(ego_robot, other_agent)};
+      agentMeasurementJacobian(ego, agent)};
 
   /* Calculate the joint measurment noise. */
   const measurementCovariance_t joint_measurement_noise{
-      ego_robot.measurement_noise + agent_measurement_Jacobian *
-                                        other_agent.precision_matrix.inverse() *
-                                        agent_measurement_Jacobian.transpose()};
+      ego.measurement_noise + agent_measurement_Jacobian *
+                                  agent.precision_matrix.inverse() *
+                                  agent_measurement_Jacobian.transpose()};
 
   /* Calculate the measurement residual. */
   const measurement_t predicted_measurement{
-      measurementModel(ego_robot, other_agent)};
+      measurementModel(ego.state_estimate, agent.state_estimate)};
 
-  ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
+  ego.innovation = (ego.measurement - predicted_measurement);
 
   /* Calculate the precision contribution */
   const precision_t precision_matrix_contribution{
@@ -88,15 +88,13 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
   /* Calculate the information contribution */
   const information_t information_vector_contribution{
       ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
-      (ego_robot.innovation +
-       ego_measurement_Jacobian * ego_robot.state_estimate)};
+      (ego.innovation + ego_measurement_Jacobian * ego.state_estimate)};
 
-  ego_robot.precision_matrix += precision_matrix_contribution;
+  ego.precision_matrix += precision_matrix_contribution;
 
-  ego_robot.information_vector += information_vector_contribution;
+  ego.information_vector += information_vector_contribution;
 
-  ego_robot.state_estimate =
-      ego_robot.precision_matrix.inverse() * ego_robot.information_vector;
+  ego.state_estimate = ego.precision_matrix.inverse() * ego.information_vector;
 }
 #endif
 
@@ -109,64 +107,63 @@ void InformationFilter::correction(EstimationParameters &ego_robot,
  * should be updated using a robust cost function.
  */
 #ifdef COUPLED
-void InformationFilter::correction(EstimationParameters &ego_robot,
-                                   const EstimationParameters &other_agent) {
+void InformationFilter::correction(EstimationParameters &ego,
+                                   const EstimationParameters &agent) {
 
   /* Create the augmented information vector and precision matrix */
-  augmentedInformation_t information_vector = createAugmentedVector(
-      ego_robot.information_vector, other_agent.information_vector);
+  augmentedInformation_t information_vector{
+      createAugmentedVector(ego.information_vector, agent.information_vector)};
 
-  augmentedPrecision_t precision_matrix = createAugmentedMatrix(
-      ego_robot.precision_matrix, other_agent.precision_matrix);
+  augmentedPrecision_t precision_matrix{
+      createAugmentedMatrix(ego.precision_matrix, agent.precision_matrix)};
 
   /* Calculate the augmented estimated state of the system.  */
-  augmentedState_t estimated_state =
-      computePseudoInverse(precision_matrix) * information_vector;
+  augmentedState_t estimated_state{computePseudoInverse(precision_matrix) *
+                                   information_vector};
 
   /* Calculate measurement Jacobian. */
-  calculateMeasurementJacobian(ego_robot, other_agent);
+  calculateMeasurementJacobian(ego, agent);
 
   /* Populate the predicted measurement matrix. */
-  measurement_t predicted_measurement =
-      measurementModel(ego_robot, other_agent);
+  measurement_t predicted_measurement{
+      measurementModel(ego.state_estimate, agent.state_estimate)};
 
   /* Calculate the measurement residual. */
-  ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
+  ego.innovation = (ego.measurement - predicted_measurement);
 
   /* Normalise the angle residual. */
-  Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
+  Data::Robot::normaliseAngle(ego.innovation(BEARING));
 
   /* Calculate the precision contribution */
-  augmentedPrecision_t precision_matrix_contribution =
-      ego_robot.measurement_jacobian.transpose() *
-      ego_robot.measurement_noise.inverse() * ego_robot.measurement_jacobian;
+  augmentedPrecision_t precision_matrix_contribution{
+      ego.measurement_jacobian.transpose() * ego.measurement_noise.inverse() *
+      ego.measurement_jacobian};
 
   /* Calculate the information contribution */
-  augmentedInformation_t information_vector_contribution =
-      ego_robot.measurement_jacobian.transpose() *
-      ego_robot.measurement_noise.inverse() *
-      (ego_robot.innovation + ego_robot.measurement_jacobian * estimated_state);
+  augmentedInformation_t information_vector_contribution{
+      ego.measurement_jacobian.transpose() * ego.measurement_noise.inverse() *
+      (ego.innovation + ego.measurement_jacobian * estimated_state)};
 
   /* Add only the contribution of the of the other agent. */
   precision_matrix_contribution
       .bottomRightCorner<total_states, total_states>() +=
-      other_agent.precision_matrix;
+      agent.precision_matrix;
 
   /* Add the information contribution. */
   information_vector_contribution.tail<total_states>() +=
-      other_agent.information_vector;
+      agent.information_vector;
 
   /* Schur complement-based error covariance marginalisation. This is used to
    * marginalise the 6x6 matrix to a 3x3 matrix */
-  ego_robot.precision_matrix += marginalise(precision_matrix_contribution);
+  ego.precision_matrix += marginalise(precision_matrix_contribution);
 
   /* Marginalise the 6x1 augmented information vector to a 3x1 state vector. */
-  ego_robot.information_vector += marginalise(information_vector_contribution,
-                                              precision_matrix_contribution);
+  ego.information_vector += marginalise(information_vector_contribution,
+                                        precision_matrix_contribution);
 
   /* Retrieve the original state estimate. */
-  ego_robot.state_estimate = computePseudoInverse(ego_robot.precision_matrix) *
-                             ego_robot.information_vector;
+  ego.state_estimate =
+      computePseudoInverse(ego.precision_matrix) * ego.information_vector;
 }
 #endif // COUPLED
 

@@ -343,16 +343,12 @@ void Filter::calculateProcessJacobian(
  * distributed measurement noise (See
  * Filter::EstimationParameters.measurement_noise).
  */
-measurement_t
-Filter::measurementModel(const EstimationParameters &ego_robot,
-                         const EstimationParameters &other_agent) {
+measurement_t Filter::measurementModel(const state_t &ego_state,
+                                       const state_t &agent_state) {
 
   /* Calculate the terms */
-  const double x_difference{other_agent.state_estimate(X) -
-                            ego_robot.state_estimate(X)};
-
-  const double y_difference{other_agent.state_estimate(Y) -
-                            ego_robot.state_estimate(Y)};
+  const double x_difference{agent_state(X) - ego_state(X)};
+  const double y_difference{agent_state(Y) - ego_state(Y)};
 
   double denominator{
       std::sqrt(x_difference * x_difference + y_difference * y_difference)};
@@ -366,8 +362,7 @@ Filter::measurementModel(const EstimationParameters &ego_robot,
   measurement_t predicted_measurement{
       (measurement_t() << std::sqrt((x_difference * x_difference) +
                                     (y_difference * y_difference)),
-       std::atan2(y_difference, x_difference) -
-           ego_robot.state_estimate(ORIENTATION))
+       std::atan2(y_difference, x_difference) - ego_state(ORIENTATION))
           .finished()};
 
   Data::Robot::normaliseAngle(predicted_measurement(BEARING));
