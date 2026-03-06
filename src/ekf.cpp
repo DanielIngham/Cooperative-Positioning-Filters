@@ -161,13 +161,51 @@ void EKF::correction(EstimationParameters &ego_robot,
 }
 #endif // COUPLED
 
-/**
- * @brief A robust version of the correction function that uses the Huber cost
- * function to increase estimation error covariance of measurements that seem
- * to be outliers.
- * @param[in,out] ego_robot The estimation parameters of the ego robot.
- * @param[in] other_agent The estimation parameters of the agent that was
- * measured by the ego robot.
- */
+#if RANGE_ONLY
+void EKF::correction(EstimationParameters &ego,
+                     const EstimationParameters &agent) {
+
+  const vector3D_t ego_measurement_Jacobian{
+      egoRangeMeasurementJacobian(ego, agent)};
+
+  const vector3D_t agent_measurement_Jacobian{
+      agentRangeMeasurementJacobian(ego, agent)};
+
+  /* Calculate joint sensor measurment noise, which is the sum of the
+   * measurment noise and the estimate error covariance of the measured agent.
+   */
+  double ego_measurement_noise{ego.measurement_noise(0)};
+
+  double joint_sensor_noise{ego_measurement_noise +
+                            agent_measurement_Jacobian.transpose() *
+                                agent.error_covariance *
+                                agent_measurement_Jacobian};
+
+  /* Calculate innovation Covariance.  */
+  double innovation_covariance{ego_measurement_Jacobian.transpose() *
+                                   ego.error_covariance *
+                                   ego_measurement_Jacobian +
+                               joint_sensor_noise};
+
+  /* Calculate Kalman Gain. */
+  vector3D_t kalman_gain{(ego.error_covariance * ego_measurement_Jacobian) /
+                         innovation_covariance};
+
+  /* Calculate the innovation. */
+  const double predicted_measurement{
+      rangeMeasurementModel(ego.state_estimate, agent.state_estimate)};
+
+  const double measurement_range{ego.measurement(RANGE)};
+  const double innovation{measurement_range - predicted_measurement};
+
+  /* Update the state estimate. */
+  ego.state_estimate += kalman_gain * innovation;
+
+  /* Update the estimation error covariance.  */
+  ego.error_covariance -=
+      kalman_gain * innovation_covariance * kalman_gain.transpose();
+}
+
+#endif // BEARING_ONLY
 
 } // namespace Filters

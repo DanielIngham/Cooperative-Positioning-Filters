@@ -13,11 +13,13 @@
 
 #include <DataHandler.h>
 #include <chrono>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace Filters {
 
@@ -370,6 +372,16 @@ measurement_t Filter::measurementModel(const state_t &ego_state,
   return predicted_measurement;
 }
 
+double Filter::rangeMeasurementModel(const state_t &agent, const state_t &ego) {
+  const double x_difference{agent(X) - ego(X)};
+  const double y_difference{agent(Y) - ego(Y)};
+
+  double range{
+      std::sqrt(std::pow(x_difference, 2) + std::pow(y_difference, 2))};
+
+  return range;
+}
+
 /**
  * @brief Jacobian of the measurement model evaluated in terms of the systems
  * states: x,y, and heading.
@@ -459,6 +471,46 @@ Filter::agentMeasurementJacobian(const EstimationParameters &ego,
   jacobian(1, 0) = -y_difference / (denominator * denominator);
   jacobian(1, 1) = x_difference / (denominator * denominator);
   jacobian(1, 2) = 0;
+
+  return jacobian;
+}
+
+vector3D_t
+Filter::egoRangeMeasurementJacobian(const EstimationParameters &ego,
+                                    const EstimationParameters &agent) {
+  const double x_difference{agent.state_estimate(X) - ego.state_estimate(X)};
+
+  const double y_difference{agent.state_estimate(Y) - ego.state_estimate(Y)};
+
+  double range{
+      std::sqrt(std::pow(x_difference, 2) + std::pow(y_difference, 2))};
+
+  static constexpr double min_range{1e-6};
+  range = std::max(range, min_range);
+
+  vector3D_t jacobian;
+  jacobian(X) = -x_difference / range;
+  jacobian(Y) = -y_difference / range;
+  jacobian(ORIENTATION) = .0;
+
+  return jacobian;
+}
+
+vector3D_t
+Filter::agentRangeMeasurementJacobian(const EstimationParameters &ego,
+                                      const EstimationParameters &agent) {
+  const double x_difference{ego.state_estimate(X) - agent.state_estimate(X)};
+  const double y_difference{ego.state_estimate(Y) - agent.state_estimate(Y)};
+  double range =
+      std::sqrt(std::pow(x_difference, 2) + std::pow(y_difference, 2));
+
+  static constexpr double min_range{1e-6};
+  range = std::max(range, min_range);
+
+  vector3D_t jacobian;
+  jacobian(X) = x_difference / range;
+  jacobian(Y) = y_difference / range;
+  jacobian(ORIENTATION) = .0;
 
   return jacobian;
 }

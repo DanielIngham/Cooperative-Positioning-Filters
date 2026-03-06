@@ -11,6 +11,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
 
+option(RANGE_ONLY "Use bearing only update" ON)
+option(DECOUPLED "Use coupled correction step" OFF)
 option(COUPLED "Use coupled correction step" OFF)
 option(ROBUST "Use Robust correction step" OFF)
 option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
@@ -47,8 +49,10 @@ function(configure_target_options TARGET_NAME)
 
     if(COUPLED)
         target_compile_definitions(${TARGET_NAME} PRIVATE COUPLED)
-    else()
+    elseif(DECOUPLED)
         target_compile_definitions(${TARGET_NAME} PRIVATE DECOUPLED)
+    else()
+	target_compile_definitions(${TARGET_NAME} PRIVATE RANGE_ONLY)
     endif()
 
     if (SAVE_INPUT)

@@ -50,6 +50,9 @@ public:
   [[nodiscard]] static measurement_t measurementModel(const state_t &,
                                                       const state_t &);
 
+  [[nodiscard]] static double rangeMeasurementModel(const state_t &,
+                                                    const state_t &);
+
   static void calculateMeasurementJacobian(EstimationParameters &,
                                            const EstimationParameters &);
 
@@ -60,6 +63,14 @@ public:
   [[nodiscard]] static measurementJacobian_t
   agentMeasurementJacobian(const EstimationParameters &,
                            const EstimationParameters &);
+
+  [[nodiscard]] static vector3D_t
+  egoRangeMeasurementJacobian(const EstimationParameters &,
+                              const EstimationParameters &);
+
+  [[nodiscard]] static vector3D_t
+  agentRangeMeasurementJacobian(const EstimationParameters &,
+                                const EstimationParameters &);
 
   [[nodiscard]] static matrix3D_t marginalise(const matrix6D_t &);
 
