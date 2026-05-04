@@ -5,9 +5,9 @@
  * @author Daniel Ingham
  * @date 2025-05-01
  */
-#include "ekf.h"
-#include "filter.h"
-#include "types.h"
+#include "CLFilters/ekf.hpp"
+#include "CLFilters/common/types.hpp"
+#include "CLFilters/filter.hpp"
 
 #include <cmath>
 

@@ -8,7 +8,7 @@
 #ifndef INCLUDE_INCLUDE_INFORMATION_H_
 #define INCLUDE_INCLUDE_INFORMATION_H_
 
-#include "filter.h"
+#include "CLFilters/filter.hpp"
 
 #include <DataHandler.h>
 

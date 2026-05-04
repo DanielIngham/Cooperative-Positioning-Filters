@@ -8,26 +8,26 @@
 #include <iostream>
 #include <memory>
 
-#include "filter.h"
+#include "CLFilters/filter.hpp"
 
 #ifdef EKF_TARGET
-#include "ekf.h"
+#include "CLFilters/ekf.hpp"
 #endif // EKF_TARGET
 
 #ifdef IEKF_TARGET
-#include "iekf.h"
+#include "CLFilters/iekf.hpp"
 #endif // IEKF_TARGET
 
 #ifdef INFO_TARGET
-#include "information_filter.h"
+#include "CLFilters/information_filter.hpp"
 #endif // INFO_TARGET
 
 #ifdef CMEKF_TARGET
-#include "cmekf.h"
+#include "CLFilters/cmekf.hpp"
 #endif // INFO_TARGET
 
 #ifdef PARTICLE_TARGET
-#include "particle.h"
+#include "CLFilters/particle.hpp"
 #endif
 
 int main(int argc, char *argv[]) {

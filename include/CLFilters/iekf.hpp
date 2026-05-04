@@ -8,7 +8,7 @@
  * @author Daniel Ingham
  * @date 2025-05-20
  */
-#include "ekf.h"
+#include "CLFilters/ekf.hpp"
 
 #include <DataHandler.h>
 #include <Eigen/Dense>

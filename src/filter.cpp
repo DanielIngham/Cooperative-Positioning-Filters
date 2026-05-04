@@ -5,11 +5,11 @@
  * @author Daniel Ingham
  * @date 2025-05-01
  */
-#include "filter.h"
+#include "CLFilters/filter.hpp"
 
 #include "Agent.h"
-#include "estimation_parameters.h"
-#include "types.h"
+#include "CLFilters/common/estimation_parameters.hpp"
+#include "CLFilters/common/types.hpp"
 
 #include <DataHandler.h>
 #include <chrono>

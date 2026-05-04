@@ -6,9 +6,9 @@
  * @date 2025-06-21
  */
 
-#include "information_filter.h"
-#include "filter.h"
-#include "types.h"
+#include "CLFilters/information_filter.hpp"
+#include "CLFilters/common/types.hpp"
+#include "CLFilters/filter.hpp"
 
 namespace Filters {
 /**

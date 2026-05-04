@@ -1,10 +1,8 @@
-#include "particle.h"
-#include "types.h"
+#include "CLFilters/particle.hpp"
+#include "CLFilters/common/types.hpp"
+
 #include <DataHandler.h>
-#include <algorithm>
 #include <cmath>
-#include <iostream>
-#include <iterator>
 #include <numeric>
 #include <random>
 

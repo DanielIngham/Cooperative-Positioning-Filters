@@ -14,8 +14,8 @@
 #include <map>
 
 #include "Agent.h"
-#include "estimation_parameters.h"
-#include "types.h"
+#include "CLFilters/common/estimation_parameters.hpp"
+#include "CLFilters/common/types.hpp"
 
 namespace Filters {
 class Filter {

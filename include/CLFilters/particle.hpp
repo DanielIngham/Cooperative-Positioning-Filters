@@ -1,6 +1,7 @@
 #pragma once
-#include "filter.h"
-#include "types.h"
+#include "CLFilters/common/types.hpp"
+#include "CLFilters/filter.hpp"
+
 #include <Eigen/Dense>
 #include <Eigen/src/Core/Matrix.h>
 #include <random>

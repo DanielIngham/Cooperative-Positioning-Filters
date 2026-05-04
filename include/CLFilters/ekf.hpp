@@ -9,7 +9,7 @@
 #ifndef INCLUDE_INCLUDE_EKF_H_
 #define INCLUDE_INCLUDE_EKF_H_
 
-#include "filter.h"
+#include "CLFilters/filter.hpp"
 
 #include <DataHandler.h>
 #include <Eigen/Dense>
