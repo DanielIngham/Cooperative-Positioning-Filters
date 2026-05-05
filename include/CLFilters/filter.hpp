@@ -5,17 +5,17 @@
  * @author Daniel Ingham
  * @date 2025-05-01
  */
+#pragma once
 
-#ifndef INCLUDE_SRC_FILTER_H_
-#define INCLUDE_SRC_FILTER_H_
+#include "CLFilters/common/estimation_parameters.hpp"
+#include "CLFilters/common/types.hpp"
+#include "CLFilters/models/measurement.hpp"
+#include "CLFilters/models/process.hpp"
 
+#include <Agent.h>
 #include <DataHandler.h>
 #include <Eigen/Dense>
 #include <map>
-
-#include "Agent.h"
-#include "CLFilters/common/estimation_parameters.hpp"
-#include "CLFilters/common/types.hpp"
 
 namespace Filters {
 class Filter {
@@ -31,6 +31,10 @@ public:
   using ParameterList = std::vector<EstimationParameters>;
   using ParameterMap = std::map<Data::Agent::ID, ParameterList>;
 
+  /**
+   * @brief Performs robot state inference using the EKF bayesian inference
+   * framework for all robots provided.
+   */
   void performInference();
 
   virtual void prediction(const Data::Robot::Odometry &,
@@ -38,50 +42,6 @@ public:
 
   virtual void correction(EstimationParameters &,
                           const EstimationParameters &) = 0;
-
-  static void motionModel(const Data::Robot::Odometry &, state_t &,
-                          const double);
-
-  static void calculateMotionJacobian(const Data::Robot::Odometry &,
-                                      EstimationParameters &, const double);
-
-  static void calculateProcessJacobian(EstimationParameters &, const double);
-
-  [[nodiscard]] static measurement_t measurementModel(const state_t &,
-                                                      const state_t &);
-
-  [[nodiscard]] static double rangeMeasurementModel(const state_t &,
-                                                    const state_t &);
-
-  static void calculateMeasurementJacobian(EstimationParameters &,
-                                           const EstimationParameters &);
-
-  [[nodiscard]] static measurementJacobian_t
-  egoMeasurementJacobian(const EstimationParameters &,
-                         const EstimationParameters &);
-
-  [[nodiscard]] static measurementJacobian_t
-  agentMeasurementJacobian(const EstimationParameters &,
-                           const EstimationParameters &);
-
-  [[nodiscard]] static vector3D_t
-  egoRangeMeasurementJacobian(const EstimationParameters &,
-                              const EstimationParameters &);
-
-  [[nodiscard]] static vector3D_t
-  agentRangeMeasurementJacobian(const EstimationParameters &,
-                                const EstimationParameters &);
-
-  [[nodiscard]] static matrix3D_t marginalise(const matrix6D_t &);
-
-  [[nodiscard]] static state_t marginalise(const vector6D_t &,
-                                           const matrix6D_t &);
-
-  [[nodiscard]] static augmentedInformation_t
-  createAugmentedVector(const state_t &, const state_t &);
-
-  [[nodiscard]] static augmentedCovariance_t
-  createAugmentedMatrix(const covariance_t &, const covariance_t &);
 
   [[nodiscard]] static measurement_t
   normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
@@ -91,9 +51,6 @@ public:
 
   [[nodiscard]] static augmentedState_t
   calculateNormalisedEstimationResidual(const EstimationParameters &);
-
-  [[nodiscard]] static matrix3D_t computePseudoInverse(const matrix3D_t &);
-  [[nodiscard]] static matrix6D_t computePseudoInverse(const matrix6D_t &);
 
   [[nodiscard]] EstimationParameters const *
   getEstimationParameters(const Data::Agent::Barcode &barcode) const;
@@ -123,5 +80,3 @@ protected:
   virtual void processMeasurements(Data::Robot::List &robots, size_t index);
 };
 } // namespace Filters
-
-#endif // INCLUDE_SRC_FILTER_H_

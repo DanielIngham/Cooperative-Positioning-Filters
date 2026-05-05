@@ -20,6 +20,12 @@ namespace Filters {
  */
 class InformationFilter : public Filter {
 public:
+  /**
+   * @brief InformationFilter class constructor.
+   * @details This constructor sets up the prior states and parameters to
+   * perform Extended Information filtering.
+   * @param[in] data Class containing all robot and landmark data.
+   */
   InformationFilter(Data::Handler &data);
   InformationFilter(InformationFilter &&) = default;
   InformationFilter(const InformationFilter &) = default;
@@ -27,9 +33,24 @@ public:
   InformationFilter &operator=(const InformationFilter &) = delete;
   ~InformationFilter() override;
 
+  /**
+   * @brief performs the prediction step of the Information filter.
+   * @param[in] odometry The prior inputs into the system comprising a forward
+   * and angular velocity.
+   * @param[in,out] ego_robot The parameters required by the
+   * Information filter to perform the prediction step.
+   */
   void prediction(const Data::Robot::Odometry &,
                   EstimationParameters &) override;
 
+  /**
+   * @brief Performs Information Filter correct step.
+   * @param[in,out] ego_robot The parameters required by the Extended
+   * Kalman filter to perform the correction step.
+   * @param[in] other_agent The robot that was measured by the ego robot.
+   * @param[in] robust Flag which determines whether the information and
+   * precision should be updated using a robust cost function.
+   */
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
 

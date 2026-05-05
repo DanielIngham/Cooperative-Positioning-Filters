@@ -7,16 +7,13 @@
  */
 
 #include "CLFilters/information_filter.hpp"
+#include "CLFilters/common/matrix_operations.hpp"
 #include "CLFilters/common/types.hpp"
 #include "CLFilters/filter.hpp"
+#include "CLFilters/models/measurement.hpp"
+#include "CLFilters/models/process.hpp"
 
 namespace Filters {
-/**
- * @brief InformationFilter class constructor.
- * @details This constructor sets up the prior states and parameters to perform
- * Extended Information filtering.
- * @param[in] data Class containing all robot and landmark data.
- */
 InformationFilter::InformationFilter(Data::Handler &data) : Filter(data) {}
 
 /**
@@ -24,26 +21,20 @@ InformationFilter::InformationFilter(Data::Handler &data) : Filter(data) {}
  */
 InformationFilter::~InformationFilter() {}
 
-/**
- * @brief performs the prediction step of the Information filter.
- * @param[in] odometry The prior inputs into the system comprising a forward and
- * angular velocity.
- * @param[in,out] ego_robot The parameters required by the
- * Information filter to perform the prediction step.
- */
 void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
                                    EstimationParameters &parameters) {
 
   const double sample_period{data_.getSamplePeriod()};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  calculateMotionJacobian(odometry, parameters, sample_period);
+  Models::Process::calculateMotionJacobian(odometry, parameters, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  calculateProcessJacobian(parameters, sample_period);
+  Models::Process::calculateProcessJacobian(parameters, sample_period);
 
   /* Make the prediction using the motion model: 3x1 matrix. */
-  motionModel(odometry, parameters.state_estimate, sample_period);
+  Models::Process::motionModel(odometry, parameters.state_estimate,
+                               sample_period);
 
   /* Propagate the estimation information: 3x3 matrix. */
   parameters.error_covariance =
@@ -63,10 +54,10 @@ void InformationFilter::correction(EstimationParameters &ego,
                                    const EstimationParameters &agent) {
 
   const measurementJacobian_t ego_measurement_Jacobian{
-      egoMeasurementJacobian(ego, agent)};
+      Models::Measurement::egoMeasurementJacobian(ego, agent)};
 
   const measurementJacobian_t agent_measurement_Jacobian{
-      agentMeasurementJacobian(ego, agent)};
+      Models::Measurement::agentMeasurementJacobian(ego, agent)};
 
   /* Calculate the joint measurment noise. */
   const measurementCovariance_t joint_measurement_noise{
@@ -76,7 +67,8 @@ void InformationFilter::correction(EstimationParameters &ego,
 
   /* Calculate the measurement residual. */
   const measurement_t predicted_measurement{
-      measurementModel(ego.state_estimate, agent.state_estimate)};
+      Models::Measurement::measurementModel(ego.state_estimate,
+                                            agent.state_estimate)};
 
   ego.innovation = (ego.measurement - predicted_measurement);
 
@@ -98,35 +90,29 @@ void InformationFilter::correction(EstimationParameters &ego,
 }
 #endif
 
-/**
- * @brief Performs Information Filter correct step.
- * @param[in,out] ego_robot The parameters required by the Extended
- * Kalman filter to perform the correction step.
- * @param[in] other_agent The robot that was measured by the ego robot.
- * @param[in] robust Flag which determines whether the information and precision
- * should be updated using a robust cost function.
- */
 #ifdef COUPLED
 void InformationFilter::correction(EstimationParameters &ego,
                                    const EstimationParameters &agent) {
 
   /* Create the augmented information vector and precision matrix */
   augmentedInformation_t information_vector{
-      createAugmentedVector(ego.information_vector, agent.information_vector)};
+      MatrixOperations::createAugmentedVector(ego.information_vector,
+                                              agent.information_vector)};
 
-  augmentedPrecision_t precision_matrix{
-      createAugmentedMatrix(ego.precision_matrix, agent.precision_matrix)};
+  augmentedPrecision_t precision_matrix{MatrixOperations::createAugmentedMatrix(
+      ego.precision_matrix, agent.precision_matrix)};
 
   /* Calculate the augmented estimated state of the system.  */
-  augmentedState_t estimated_state{computePseudoInverse(precision_matrix) *
-                                   information_vector};
+  augmentedState_t estimated_state{
+      MatrixOperations::computePseudoInverse(precision_matrix) *
+      information_vector};
 
   /* Calculate measurement Jacobian. */
-  calculateMeasurementJacobian(ego, agent);
+  Models::Measurement::calculateMeasurementJacobian(ego, agent);
 
   /* Populate the predicted measurement matrix. */
-  measurement_t predicted_measurement{
-      measurementModel(ego.state_estimate, agent.state_estimate)};
+  measurement_t predicted_measurement{Models::Measurement::measurementModel(
+      ego.state_estimate, agent.state_estimate)};
 
   /* Calculate the measurement residual. */
   ego.innovation = (ego.measurement - predicted_measurement);
@@ -155,15 +141,17 @@ void InformationFilter::correction(EstimationParameters &ego,
 
   /* Schur complement-based error covariance marginalisation. This is used to
    * marginalise the 6x6 matrix to a 3x3 matrix */
-  ego.precision_matrix += marginalise(precision_matrix_contribution);
+  ego.precision_matrix +=
+      MatrixOperations::marginalise(precision_matrix_contribution);
 
   /* Marginalise the 6x1 augmented information vector to a 3x1 state vector. */
-  ego.information_vector += marginalise(information_vector_contribution,
-                                        precision_matrix_contribution);
+  ego.information_vector += MatrixOperations::marginalise(
+      information_vector_contribution, precision_matrix_contribution);
 
   /* Retrieve the original state estimate. */
   ego.state_estimate =
-      computePseudoInverse(ego.precision_matrix) * ego.information_vector;
+      MatrixOperations::computePseudoInverse(ego.precision_matrix) *
+      ego.information_vector;
 }
 #endif // COUPLED
 

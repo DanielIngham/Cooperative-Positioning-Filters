@@ -1,5 +1,11 @@
 #pragma once
 
+#include <Agent.h>
+#include <DataHandler.h>
+
+#include "CLFilters/common/estimation_parameters.hpp"
+#include "CLFilters/common/types.hpp"
+
 namespace Filters::Models {
 class Process {
 public:
@@ -9,6 +15,14 @@ public:
   Process &operator=(Process &&) = delete;
   Process &operator=(const Process &) = delete;
   ~Process() = default;
+
+  static void motionModel(const Data::Robot::Odometry &, state_t &,
+                          const double);
+
+  static void calculateMotionJacobian(const Data::Robot::Odometry &,
+                                      EstimationParameters &, const double);
+
+  static void calculateProcessJacobian(EstimationParameters &, const double);
 
 private:
 };

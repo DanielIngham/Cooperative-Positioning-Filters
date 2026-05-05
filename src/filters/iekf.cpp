@@ -7,6 +7,8 @@
  */
 
 #include "CLFilters/iekf.hpp"
+#include "CLFilters/common/matrix_operations.hpp"
+#include "CLFilters/models/measurement.hpp"
 
 namespace Filters {
 /**
@@ -38,20 +40,22 @@ void IEKF::correction(EstimationParameters &ego,
 
   /* Create the state matrix for both robot: 5x1 matrix. */
   augmentedState_t intial_state_estimate{
-      createAugmentedVector(ego.state_estimate, agent.state_estimate)};
+      MatrixOperations::createAugmentedVector(ego.state_estimate,
+                                              agent.state_estimate)};
 
   /* Create a vector to hold the iterative state estimate. */
   augmentedState_t iterative_state_estimate{intial_state_estimate};
 
   /* Create and populate new 5x5 error covariance matrix. */
   augmentedCovariance_t error_covariance{
-      createAugmentedMatrix(ego.error_covariance, agent.error_covariance)};
+      MatrixOperations::createAugmentedMatrix(ego.error_covariance,
+                                              agent.error_covariance)};
 
   /* Perform the iterative update.  */
   for (int i{}; i < max_iterations_; ++i) {
 
     /* Calculate measurement Jacobian */
-    calculateMeasurementJacobian(ego, agent);
+    Models::Measurement::calculateMeasurementJacobian(ego, agent);
 
     /* Calculate Covariance Innovation: */
     ego.innovation_covariance = ego.measurement_jacobian * error_covariance *
@@ -63,8 +67,8 @@ void IEKF::correction(EstimationParameters &ego,
                       ego.innovation_covariance.inverse();
 
     /* Populate the predicted measurement matrix. */
-    measurement_t predicted_measurement{
-        measurementModel(ego.state_estimate, agent.state_estimate)};
+    measurement_t predicted_measurement{Models::Measurement::measurementModel(
+        ego.state_estimate, agent.state_estimate)};
 
     /* Calculate the measurement residual. */
     ego.innovation = ego.measurement - predicted_measurement;

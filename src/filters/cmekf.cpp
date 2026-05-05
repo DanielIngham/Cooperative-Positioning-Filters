@@ -1,5 +1,6 @@
 #include "CLFilters/cmekf.hpp"
 #include "CLFilters/common/types.hpp"
+#include "CLFilters/models/measurement.hpp"
 
 #include <Plotter.h>
 #include <cmath>
@@ -11,7 +12,7 @@ void CMEKF::correction(EstimationParameters &ego,
                        const EstimationParameters &agent) {
 
   const measurementJacobian_t agent_measurement_Jacobian{
-      agentMeasurementJacobian(ego, agent)};
+      Models::Measurement::agentMeasurementJacobian(ego, agent)};
 
   measurementCovariance_t joint_sensor_noise{
       ego.measurement_noise + agent_measurement_Jacobian *

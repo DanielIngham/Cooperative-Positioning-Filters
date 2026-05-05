@@ -6,8 +6,11 @@
  * @date 2025-05-01
  */
 #include "CLFilters/ekf.hpp"
+#include "CLFilters/common/matrix_operations.hpp"
 #include "CLFilters/common/types.hpp"
 #include "CLFilters/filter.hpp"
+#include "CLFilters/models/measurement.hpp"
+#include "CLFilters/models/process.hpp"
 
 #include <cmath>
 
@@ -39,13 +42,14 @@ void EKF::prediction(const Data::Robot::Odometry &odometry,
   const double sample_period{data_.getSamplePeriod()};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  calculateMotionJacobian(odometry, parameters, sample_period);
+  Models::Process::calculateMotionJacobian(odometry, parameters, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  calculateProcessJacobian(parameters, sample_period);
+  Models::Process::calculateProcessJacobian(parameters, sample_period);
 
   /* Make the prediction using the motion model: 3x1 matrix. */
-  motionModel(odometry, parameters.state_estimate, sample_period);
+  Models::Process::motionModel(odometry, parameters.state_estimate,
+                               sample_period);
 
   /* Propagate the estimation error covariance: 3x3 matrix. */
   parameters.error_covariance =
@@ -60,10 +64,10 @@ void EKF::correction(EstimationParameters &ego,
                      const EstimationParameters &agent) {
 
   const measurementJacobian_t ego_measurement_Jacobian{
-      egoMeasurementJacobian(ego, agent)};
+      Models::Measurement::egoMeasurementJacobian(ego, agent)};
 
   const measurementJacobian_t agent_measurement_Jacobian{
-      agentMeasurementJacobian(ego, agent)};
+      Models::Measurement::agentMeasurementJacobian(ego, agent)};
 
   /* Calculate joint sensor measurment noise, which is the sum of the
    * measurment noise and the estimate error covariance of the measured agent.
@@ -84,8 +88,8 @@ void EKF::correction(EstimationParameters &ego,
                            ego.innovation_covariance.inverse()};
 
   /* Calculate the innovation. */
-  measurement_t predicted_measurment{
-      measurementModel(ego.state_estimate, agent.state_estimate)};
+  measurement_t predicted_measurment{Models::Measurement::measurementModel(
+      ego.state_estimate, agent.state_estimate)};
 
   ego.innovation = ego.measurement - predicted_measurment;
   Data::Robot::normaliseAngle(ego.innovation(BEARING));
@@ -108,15 +112,17 @@ void EKF::correction(EstimationParameters &ego,
  * should be updated using a robust cost function.
  */
 #if COUPLED
+
 void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_agent) {
 
   /* Calculate measurement Jacobian */
-  calculateMeasurementJacobian(ego_robot, other_agent);
+  Models::Measurement::calculateMeasurementJacobian(ego_robot, other_agent);
 
   /* Create and populate new 5x5 error covariance matrix. */
-  augmentedCovariance_t error_covariance = createAugmentedMatrix(
-      ego_robot.error_covariance, other_agent.error_covariance);
+  augmentedCovariance_t error_covariance =
+      MatrixOperations::createAugmentedMatrix(ego_robot.error_covariance,
+                                              other_agent.error_covariance);
 
   /* Calculate Covariance Innovation: */
   ego_robot.innovation_covariance =
@@ -134,12 +140,12 @@ void EKF::correction(EstimationParameters &ego_robot,
                       ego_robot.kalman_gain.transpose();
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t state_estimate = createAugmentedVector(
+  augmentedState_t state_estimate = MatrixOperations::createAugmentedVector(
       ego_robot.state_estimate, other_agent.state_estimate);
 
   /* Populate the predicted measurement matrix. */
-  measurement_t predicted_measurement{
-      measurementModel(ego.state_estimate, agent.state_estimate)};
+  measurement_t predicted_measurement{Models::Measurement::measurementModel(
+      ego_robot.state_estimate, other_agent.state_estimate)};
 
   /* Calculate the innovation: the difference between the measurement
    * and the predicted measurement based on the estimated states of both
@@ -166,10 +172,10 @@ void EKF::correction(EstimationParameters &ego,
                      const EstimationParameters &agent) {
 
   const vector3D_t ego_measurement_Jacobian{
-      egoRangeMeasurementJacobian(ego, agent)};
+      Models::Measurement::egoRangeMeasurementJacobian(ego, agent)};
 
   const vector3D_t agent_measurement_Jacobian{
-      agentRangeMeasurementJacobian(ego, agent)};
+      Models::Measurement::agentRangeMeasurementJacobian(ego, agent)};
 
   /* Calculate joint sensor measurment noise, which is the sum of the
    * measurment noise and the estimate error covariance of the measured agent.
@@ -192,8 +198,8 @@ void EKF::correction(EstimationParameters &ego,
                          innovation_covariance};
 
   /* Calculate the innovation. */
-  const double predicted_measurement{
-      rangeMeasurementModel(ego.state_estimate, agent.state_estimate)};
+  const double predicted_measurement{Models::Measurement::rangeMeasurementModel(
+      ego.state_estimate, agent.state_estimate)};
 
   const double measurement_range{ego.measurement(RANGE)};
   const double innovation{measurement_range - predicted_measurement};

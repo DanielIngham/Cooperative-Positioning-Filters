@@ -83,7 +83,8 @@ bool Particle::Particles::reweight(const EstimationParameters &ego,
                                    const EstimationParameters &agent) {
   for (auto &[state, weight] : samples_) {
     const measurement_t difference{
-        ego.measurement - measurementModel(state, agent.state_estimate)};
+        ego.measurement -
+        Models::Measurement::measurementModel(state, agent.state_estimate)};
     weight *= Gaussian(difference, ego.measurement_noise);
   }
 

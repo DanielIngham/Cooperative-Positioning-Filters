@@ -12,14 +12,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
 
 option(RANGE_ONLY "Use bearing only update" ON)
-option(DECOUPLED "Use coupled correction step" OFF)
+option(DECOUPLED "Use coupled correction step" ON)
 option(COUPLED "Use coupled correction step" OFF)
 option(ROBUST "Use Robust correction step" OFF)
 option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
 option(SAVE_INPUT "Saves the input data" OFF)
 
 function(add_filter_target TARGET_NAME)
-    add_executable(${TARGET_NAME} ${ARGN})
+    add_executable(${TARGET_NAME} 
+	${ARGN}
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/process.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/measurement.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/common/matrix_operations.cpp"
+    )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)
 
@@ -72,38 +77,38 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 
     # EKF
     add_filter_target(EKF 
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
     # IEKF
     add_filter_target(IEKF 
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/iekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/iekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
     # Converted measurement 
     add_filter_target(CMEKF 
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/cmekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/cmekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
     # Information Filter
     add_filter_target(INFO 
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/information_filter.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/information_filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
     # Information Filter
     add_filter_target(PARTICLE 
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/particle.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/particle.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
@@ -112,11 +117,11 @@ else()
     set(LIBRARY_NAME Filters)
 
     add_library(${LIBRARY_NAME} STATIC 
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/iekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/ekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/cmekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/information_filter.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/iekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/cmekf.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/information_filter.cpp"
+	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
     )
 
     configure_target_options(${LIBRARY_NAME})
