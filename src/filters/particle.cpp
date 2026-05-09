@@ -1,7 +1,7 @@
 #include "CLFilters/particle.hpp"
 #include "CLFilters/common/types.hpp"
 
-#include <DataHandler.h>
+#include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
 #include <numeric>
 #include <random>

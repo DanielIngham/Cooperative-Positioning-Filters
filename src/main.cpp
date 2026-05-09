@@ -1,7 +1,7 @@
-#include <ArgumentHandler.h>
-#include <DataHandler.h>
-#include <Plotter.h>
-#include <Robot.h>
+#include <UtiasMrclam/DataHandler.hpp>
+#include <UtiasMrclam/Plotter.hpp>
+#include <UtiasMrclam/agents/Robot.hpp>
+#include <UtiasMrclam/utils/ArgumentHandler.hpp>
 
 #include <cctype>
 #include <cstdlib>

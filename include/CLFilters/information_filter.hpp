@@ -10,7 +10,7 @@
 
 #include "CLFilters/filter.hpp"
 
-#include <DataHandler.h>
+#include <UtiasMrclam/DataHandler.hpp>
 
 namespace Filters {
 

@@ -7,11 +7,11 @@
  */
 #include "CLFilters/filter.hpp"
 
-#include "Agent.h"
 #include "CLFilters/common/estimation_parameters.hpp"
 #include "CLFilters/common/types.hpp"
 
-#include <DataHandler.h>
+#include <UtiasMrclam/DataHandler.hpp>
+#include <UtiasMrclam/agents/Agent.hpp>
 #include <chrono>
 #include <cmath>
 #include <filesystem>

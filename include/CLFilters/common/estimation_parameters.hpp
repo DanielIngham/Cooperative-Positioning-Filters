@@ -2,7 +2,7 @@
 
 #include "CLFilters/common/types.hpp"
 
-#include <DataHandler.h>
+#include <UtiasMrclam/DataHandler.hpp>
 
 namespace Filters {
 

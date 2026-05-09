@@ -2,7 +2,7 @@
 #include "CLFilters/common/types.hpp"
 #include "CLFilters/models/measurement.hpp"
 
-#include <Plotter.h>
+#include <UtiasMrclam/Plotter.hpp>
 #include <cmath>
 
 namespace Filters {

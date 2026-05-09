@@ -10,8 +10,8 @@
  */
 #include "CLFilters/ekf.hpp"
 
-#include <DataHandler.h>
 #include <Eigen/Dense>
+#include <UtiasMrclam/DataHandler.hpp>
 
 namespace Filters {
 /**

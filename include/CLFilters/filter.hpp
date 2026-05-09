@@ -12,9 +12,9 @@
 #include "CLFilters/models/measurement.hpp"
 #include "CLFilters/models/process.hpp"
 
-#include <Agent.h>
-#include <DataHandler.h>
 #include <Eigen/Dense>
+#include <UtiasMrclam/DataHandler.hpp>
+#include <UtiasMrclam/agents/Agent.hpp>
 #include <map>
 
 namespace Filters {

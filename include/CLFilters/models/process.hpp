@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Agent.h>
-#include <DataHandler.h>
+#include <UtiasMrclam/DataHandler.hpp>
+#include <UtiasMrclam/agents/Agent.hpp>
 
 #include "CLFilters/common/estimation_parameters.hpp"
 #include "CLFilters/common/types.hpp"

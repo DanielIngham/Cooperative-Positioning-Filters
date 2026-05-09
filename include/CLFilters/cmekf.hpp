@@ -2,8 +2,8 @@
 #include "CLFilters/common/types.hpp"
 #include "CLFilters/ekf.hpp"
 
-#include <DataHandler.h>
 #include <Eigen/src/Core/Matrix.h>
+#include <UtiasMrclam/DataHandler.hpp>
 
 namespace Filters {
 class CMEKF : public EKF {
