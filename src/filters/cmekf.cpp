@@ -1,11 +1,11 @@
-#include "CLFilters/cmekf.hpp"
-#include "CLFilters/common/types.hpp"
-#include "CLFilters/models/measurement.hpp"
+#include "CL/filters/cmekf.hpp"
+#include "CL/common/types.hpp"
+#include "CL/models/measurement.hpp"
 
 #include <UtiasMrclam/Plotter.hpp>
 #include <cmath>
 
-namespace Filters {
+namespace CL::filter {
 CMEKF::CMEKF(Data::Handler &data) : EKF(data) {}
 
 void CMEKF::correction(EstimationParameters &ego,
@@ -51,7 +51,7 @@ void CMEKF::correction(EstimationParameters &ego,
       kalman_gain * ego.innovation_covariance * kalman_gain.transpose();
 }
 
-Eigen::Matrix2d CMEKF::jacobian(Filters::measurement_t measurement) {
+Eigen::Matrix2d CMEKF::jacobian(measurement_t measurement) {
   measurementCovariance_t J;
   J(0, 0) = std::cos(measurement(BEARING));
   J(0, 1) = -measurement(RANGE) * std::sin(measurement(BEARING));
@@ -81,7 +81,7 @@ CMEKF::jacobian(state_t ego, state_t agent) {
   return H;
 }
 
-Eigen::Vector2d CMEKF::relativePosition(Filters::measurement_t measurement) {
+Eigen::Vector2d CMEKF::relativePosition(measurement_t measurement) {
   Eigen::Vector2d delta_local_pos;
   delta_local_pos(X) = measurement(RANGE) * std::cos(measurement(BEARING));
   delta_local_pos(Y) = measurement(RANGE) * std::sin(measurement(BEARING));
@@ -91,9 +91,9 @@ Eigen::Vector2d CMEKF::relativePosition(Filters::measurement_t measurement) {
 Eigen::Vector2d CMEKF::relativePosition(state_t ego, state_t agent) {
 
   const Eigen::Vector2d delta_global_pos{agent.head(2) - ego.head(2)};
-  const Eigen::Rotation2Dd rotation(-ego(ORIENTATION));
+  const Eigen::Rotation2Dd rotation{-ego(ORIENTATION)};
 
   return rotation * delta_global_pos;
 }
 
-} // namespace Filters
+} // namespace CL::filter

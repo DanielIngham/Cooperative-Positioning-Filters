@@ -1,6 +1,6 @@
-#include "CLFilters/models/measurement.hpp"
+#include "CL/models/measurement.hpp"
 
-namespace Filters::Models {
+namespace CL::Models {
 
 /**
  * @brief Uses the non-linear measurement model to predict what the measurement
@@ -193,4 +193,4 @@ Measurement::agentRangeMeasurementJacobian(const EstimationParameters &ego,
   return jacobian;
 }
 
-} // namespace Filters::Models
+} // namespace CL::Models

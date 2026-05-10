@@ -1,11 +1,11 @@
 #pragma once
-#include "CLFilters/common/types.hpp"
-#include "CLFilters/ekf.hpp"
+#include "CL/common/types.hpp"
+#include "CL/filters/ekf.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
 #include <UtiasMrclam/DataHandler.hpp>
 
-namespace Filters {
+namespace CL::filter {
 class CMEKF : public EKF {
 public:
   CMEKF(Data::Handler &data);
@@ -27,4 +27,4 @@ protected:
   Eigen::Vector2d relativePosition(state_t ego, state_t agent);
 };
 
-} // namespace Filters
+} // namespace CL::filter

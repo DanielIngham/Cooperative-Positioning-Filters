@@ -8,26 +8,27 @@
 #include <iostream>
 #include <memory>
 
-#include "CLFilters/filter.hpp"
+#include "CL/Inference.hpp"
+#include "CL/filters/filter.hpp"
 
 #ifdef EKF_TARGET
-#include "CLFilters/ekf.hpp"
+#include "CL/filters/ekf.hpp"
 #endif // EKF_TARGET
 
 #ifdef IEKF_TARGET
-#include "CLFilters/iekf.hpp"
+#include "CL/filters/iekf.hpp"
 #endif // IEKF_TARGET
 
 #ifdef INFO_TARGET
-#include "CLFilters/information_filter.hpp"
+#include "CL/filters/information_filter.hpp"
 #endif // INFO_TARGET
 
 #ifdef CMEKF_TARGET
-#include "CLFilters/cmekf.hpp"
+#include "CL/filters/cmekf.hpp"
 #endif // INFO_TARGET
 
 #ifdef PARTICLE_TARGET
-#include "CLFilters/particle.hpp"
+#include "CL/filters/particle.hpp"
 #endif
 
 int main(int argc, char *argv[]) {
@@ -52,24 +53,24 @@ int main(int argc, char *argv[]) {
 
   ArgumentHandler::setArguments(argc, argv, data);
 
-  std::unique_ptr<Filters::Filter> filter;
+  std::unique_ptr<CL::filter::Filter> filter;
 
 #ifdef EKF_TARGET
-  filter = std::make_unique<Filters::EKF>(data);
+  filter = std::make_unique<CL::filter::EKF>(data);
 
 #elif defined(IEKF_TARGET)
-  filter = std::make_unique<Filters::IEKF>(data);
+  filter = std::make_unique<CL::filter::IEKF>(data);
 
 #elif defined(INFO_TARGET)
 
-  filter = std::make_unique<Filters::InformationFilter>(data);
+  filter = std::make_unique<CL::filter::InformationFilter>(data);
 
 #elif defined(CMEKF_TARGET)
 
-  filter = std::make_unique<Filters::CMEKF>(data);
+  filter = std::make_unique<CL::filter::CMEKF>(data);
 
 #elif defined(PARTICLE_TARGET)
-  filter = std::make_unique<Filters::Particle>(1000, data);
+  filter = std::make_unique<CL::filter::Particle>(1000, data);
 #else
   throw std::runtime_error("Filter target not selected");
 

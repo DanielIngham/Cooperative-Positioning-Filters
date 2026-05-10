@@ -1,6 +1,6 @@
-#include "CLFilters/common/matrix_operations.hpp"
+#include "CL/common/matrix_operations.hpp"
 
-namespace Filters {
+namespace CL {
 
 matrix3D_t MatrixOperations::marginalise(const matrix6D_t &matrix_6d) {
 
@@ -109,4 +109,4 @@ MatrixOperations::createAugmentedMatrix(const covariance_t &ego_robot,
 
   return matrix;
 }
-} // namespace Filters
+} // namespace CL

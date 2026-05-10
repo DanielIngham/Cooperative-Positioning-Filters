@@ -8,12 +8,12 @@
  * @author Daniel Ingham
  * @date 2025-05-20
  */
-#include "CLFilters/ekf.hpp"
+#include "CL/filters/ekf.hpp"
 
 #include <Eigen/Dense>
 #include <UtiasMrclam/DataHandler.hpp>
 
-namespace Filters {
+namespace CL::filter {
 /**
  * @class IEKF
  * @brief Itertative Extended Kalman Filter (IEKF).
@@ -43,5 +43,5 @@ public:
 private:
   const unsigned short max_iterations_{5U};
 };
-} // namespace Filters
+} // namespace CL::filter
 #endif // INCLUDE_INCLUDE_IEKF_H_

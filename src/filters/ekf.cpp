@@ -5,16 +5,16 @@
  * @author Daniel Ingham
  * @date 2025-05-01
  */
-#include "CLFilters/ekf.hpp"
-#include "CLFilters/common/matrix_operations.hpp"
-#include "CLFilters/common/types.hpp"
-#include "CLFilters/filter.hpp"
-#include "CLFilters/models/measurement.hpp"
-#include "CLFilters/models/process.hpp"
+#include "CL/filters/ekf.hpp"
+#include "CL/common/matrix_operations.hpp"
+#include "CL/common/types.hpp"
+#include "CL/filters/filter.hpp"
+#include "CL/models/measurement.hpp"
+#include "CL/models/process.hpp"
 
 #include <cmath>
 
-namespace Filters {
+namespace CL::filter {
 
 /**
  * @brief EKF class constructor.
@@ -214,4 +214,4 @@ void EKF::correction(EstimationParameters &ego,
 
 #endif // BEARING_ONLY
 
-} // namespace Filters
+} // namespace CL::filter

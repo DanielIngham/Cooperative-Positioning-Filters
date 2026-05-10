@@ -1,12 +1,12 @@
 #pragma once
-#include "CLFilters/common/types.hpp"
-#include "CLFilters/filter.hpp"
+#include "CL/common/types.hpp"
+#include "CL/filters/filter.hpp"
 
 #include <Eigen/Dense>
 #include <Eigen/src/Core/Matrix.h>
 #include <random>
 
-namespace Filters {
+namespace CL::filter {
 
 class Particle : public Filter {
 public:
@@ -58,4 +58,4 @@ private:
   std::map<Data::Agent::ID, Particles> particles_;
 };
 
-} // namespace Filters
+} // namespace CL::filter

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "CLFilters/common/estimation_parameters.hpp"
-#include "CLFilters/common/types.hpp"
+#include "CL/common/estimation_parameters.hpp"
+#include "CL/common/types.hpp"
 
-namespace Filters::Models {
+namespace CL::Models {
 class Measurement {
 public:
   Measurement() = default;
@@ -40,4 +40,4 @@ public:
 
 private:
 };
-} // namespace Filters::Models
+} // namespace CL::Models

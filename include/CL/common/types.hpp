@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-namespace Filters {
+namespace CL {
 
 /**
  * @brief The total number of system states: x coordinate [m], y-coordinate
@@ -87,4 +87,4 @@ using huberMeasurementWeights_t =
 using huberStateThresholds_t = Eigen::Matrix<double, total_states, 1>;
 using huberStateWeights_t = Eigen::Matrix<double, total_states, total_states>;
 
-} // namespace Filters
+} // namespace CL

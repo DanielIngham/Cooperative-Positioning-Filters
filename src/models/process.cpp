@@ -1,6 +1,6 @@
-#include "CLFilters/models/process.hpp"
+#include "CL/models/process.hpp"
 
-namespace Filters::Models {
+namespace CL::Models {
 /**
  * @brief The unicycle motion model used to perform motion predictions.
  *
@@ -96,4 +96,4 @@ void Process::calculateProcessJacobian(
       0, 0, sample_period;
 }
 
-} // namespace Filters::Models
+} // namespace CL::Models

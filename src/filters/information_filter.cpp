@@ -6,14 +6,14 @@
  * @date 2025-06-21
  */
 
-#include "CLFilters/information_filter.hpp"
-#include "CLFilters/common/matrix_operations.hpp"
-#include "CLFilters/common/types.hpp"
-#include "CLFilters/filter.hpp"
-#include "CLFilters/models/measurement.hpp"
-#include "CLFilters/models/process.hpp"
+#include "CL/filters/information_filter.hpp"
+#include "CL/common/matrix_operations.hpp"
+#include "CL/common/types.hpp"
+#include "CL/filters/filter.hpp"
+#include "CL/models/measurement.hpp"
+#include "CL/models/process.hpp"
 
-namespace Filters {
+namespace CL::filter {
 InformationFilter::InformationFilter(Data::Handler &data) : Filter(data) {}
 
 /**
@@ -155,4 +155,4 @@ void InformationFilter::correction(EstimationParameters &ego,
 }
 #endif // COUPLED
 
-} // namespace Filters
+} // namespace CL::filter

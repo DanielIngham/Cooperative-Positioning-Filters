@@ -7,17 +7,17 @@
  */
 #pragma once
 
-#include "CLFilters/common/estimation_parameters.hpp"
-#include "CLFilters/common/types.hpp"
-#include "CLFilters/models/measurement.hpp"
-#include "CLFilters/models/process.hpp"
+#include "CL/common/estimation_parameters.hpp"
+#include "CL/common/types.hpp"
+#include "CL/models/measurement.hpp"
+#include "CL/models/process.hpp"
 
 #include <Eigen/Dense>
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/agents/Agent.hpp>
 #include <map>
 
-namespace Filters {
+namespace CL::filter {
 class Filter {
 public:
   Filter() = delete;
@@ -36,12 +36,6 @@ public:
    * framework for all robots provided.
    */
   void performInference();
-
-  virtual void prediction(const Data::Robot::Odometry &,
-                          EstimationParameters &) = 0;
-
-  virtual void correction(EstimationParameters &,
-                          const EstimationParameters &) = 0;
 
   [[nodiscard]] static measurement_t
   normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
@@ -77,6 +71,12 @@ protected:
    */
   std::map<Data::Agent::ID, EstimationParameters> landmark_parameters;
 
+  virtual void prediction(const Data::Robot::Odometry &,
+                          EstimationParameters &) = 0;
+
+  virtual void correction(EstimationParameters &,
+                          const EstimationParameters &) = 0;
+
   virtual void processMeasurements(Data::Robot::List &robots, size_t index);
 };
-} // namespace Filters
+} // namespace CL::filter

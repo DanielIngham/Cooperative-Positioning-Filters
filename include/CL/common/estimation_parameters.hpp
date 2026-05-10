@@ -1,10 +1,10 @@
 #pragma once
 
-#include "CLFilters/common/types.hpp"
+#include "CL/common/types.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 
-namespace Filters {
+namespace CL {
 
 /**
  * @struct EstimationParameters
@@ -134,4 +134,4 @@ struct EstimationParameters {
    */
   precision_t precision_matrix{error_covariance.inverse()};
 };
-} // namespace Filters
+} // namespace CL

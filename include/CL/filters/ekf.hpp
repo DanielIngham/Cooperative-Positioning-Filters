@@ -9,12 +9,12 @@
 #ifndef INCLUDE_INCLUDE_EKF_H_
 #define INCLUDE_INCLUDE_EKF_H_
 
-#include "CLFilters/filter.hpp"
+#include "CL/filters/filter.hpp"
 
 #include <Eigen/Dense>
 #include <UtiasMrclam/DataHandler.hpp>
 
-namespace Filters {
+namespace CL::filter {
 
 /**
  * @class EKF
@@ -42,5 +42,5 @@ public:
 private:
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 };
-} // namespace Filters
+} // namespace CL::filter
 #endif // INCLUDE_INCLUDE_EKF_H_

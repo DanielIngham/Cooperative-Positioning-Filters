@@ -3,10 +3,10 @@
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/agents/Agent.hpp>
 
-#include "CLFilters/common/estimation_parameters.hpp"
-#include "CLFilters/common/types.hpp"
+#include "CL/common/estimation_parameters.hpp"
+#include "CL/common/types.hpp"
 
-namespace Filters::Models {
+namespace CL::Models {
 class Process {
 public:
   Process() = default;
@@ -27,4 +27,4 @@ public:
 private:
 };
 
-} // namespace Filters::Models
+} // namespace CL::Models

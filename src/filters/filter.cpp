@@ -5,13 +5,14 @@
  * @author Daniel Ingham
  * @date 2025-05-01
  */
-#include "CLFilters/filter.hpp"
+#include "CL/filters/filter.hpp"
 
-#include "CLFilters/common/estimation_parameters.hpp"
-#include "CLFilters/common/types.hpp"
+#include "CL/common/estimation_parameters.hpp"
+#include "CL/common/types.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/agents/Agent.hpp>
+#include <UtiasMrclam/utils/Utils.hpp>
 #include <chrono>
 #include <cmath>
 #include <filesystem>
@@ -21,7 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace Filters {
+namespace CL::filter {
 
 /**
  * @brief Assigns fields data based on datahandler input.
@@ -184,7 +185,7 @@ void Filter::processMeasurements(Data::Robot::List &robots, size_t index) {
      * indpendent robots/landmarks are independent of one another.
      */
     const Data::Robot::Measurement *current_measurement{
-        Data::Handler::getMeasurement(&robot, index)};
+        utias::mrclam::utils::getMeasurement(&robot, index)};
 
     if (!current_measurement) {
       continue;
@@ -356,7 +357,7 @@ void Filter::writeInnovation() {
 
     for (size_t k{1U}; k < data_.getNumberOfSyncedDatapoints(); k++) {
 
-      if (!data_.getMeasurement(robot, k))
+      if (!utias::mrclam::utils::getMeasurement(robot, k))
         continue;
 
       outFile << parameter_list.at(k).innovation[RANGE] << '\t'
@@ -386,7 +387,7 @@ void Filter::writeNormalisedInnovation() {
     const Data::Robot *robot{&data_.getRobot(id)};
 
     for (size_t k{1U}; k < data_.getNumberOfSyncedDatapoints(); k++) {
-      if (!data_.getMeasurement(robot, k))
+      if (!utias::mrclam::utils::getMeasurement(robot, k))
         continue;
 
       const measurement_t normalised_innovation{
@@ -423,7 +424,7 @@ void Filter::writeNEES() {
 
     for (size_t k{1U}; k < data_.getNumberOfSyncedDatapoints(); k++) {
 
-      if (!data_.getMeasurement(&robot, k))
+      if (!utias::mrclam::utils::getMeasurement(&robot, k))
         continue;
 
       const EstimationParameters &parameters{parameter_list.at(k)};
@@ -452,4 +453,4 @@ void Filter::writeNEES() {
   }
 }
 
-} // namespace Filters
+} // namespace CL::filter

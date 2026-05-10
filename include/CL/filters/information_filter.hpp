@@ -8,11 +8,11 @@
 #ifndef INCLUDE_INCLUDE_INFORMATION_H_
 #define INCLUDE_INCLUDE_INFORMATION_H_
 
-#include "CLFilters/filter.hpp"
+#include "CL/filters/filter.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 
-namespace Filters {
+namespace CL::filter {
 
 /**
  * @class InformationFilter
@@ -56,5 +56,5 @@ public:
 
 private:
 };
-} // namespace Filters
+} // namespace CL::filter
 #endif // INCLUDE_INCLUDE_INFORMATION_H_

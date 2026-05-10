@@ -1,8 +1,8 @@
 #pragma once
 
-#include "CLFilters/common/types.hpp"
+#include "CL/common/types.hpp"
 
-namespace Filters {
+namespace CL {
 class MatrixOperations {
 public:
   MatrixOperations() = default;
@@ -72,4 +72,4 @@ public:
 
 private:
 };
-} // namespace Filters
+} // namespace CL

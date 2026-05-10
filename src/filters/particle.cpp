@@ -1,12 +1,12 @@
-#include "CLFilters/particle.hpp"
-#include "CLFilters/common/types.hpp"
+#include "CL/filters/particle.hpp"
+#include "CL/common/types.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
 #include <numeric>
 #include <random>
 
-namespace Filters {
+namespace CL::filter {
 
 Particle::Particle(size_t samples, Data::Handler &data) : Filter{data} {
   std::random_device rd;
@@ -187,4 +187,4 @@ double Particle::Particles::Gaussian(const Eigen::VectorXd &difference,
                   difference);
 }
 
-} // namespace Filters
+} // namespace CL::filter

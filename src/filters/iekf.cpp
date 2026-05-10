@@ -6,11 +6,11 @@
  * @date 2025-05-01
  */
 
-#include "CLFilters/iekf.hpp"
-#include "CLFilters/common/matrix_operations.hpp"
-#include "CLFilters/models/measurement.hpp"
+#include "CL/filters/iekf.hpp"
+#include "CL/common/matrix_operations.hpp"
+#include "CL/models/measurement.hpp"
 
-namespace Filters {
+namespace CL::filter {
 /**
  * @brief IEKF class constructor.
  * @details This constructor sets up the prior states and parameters to perform
@@ -233,4 +233,4 @@ void IEKF::correction(EstimationParameters &ego,
 //   ego_robot.error_covariance = error_covariance.topLeftCorner<3, 3>();
 // }
 
-} // namespace Filters
+} // namespace CL::filter
