@@ -7,11 +7,11 @@
  */
 
 #include "CL/filters/information_filter.hpp"
-#include "CL/common/matrix_operations.hpp"
 #include "CL/common/types.hpp"
 #include "CL/filters/filter.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
+#include "CL/utils/matrix_operations.hpp"
 
 namespace CL::filter {
 InformationFilter::InformationFilter(Data::Handler &data) : Filter(data) {}
@@ -24,17 +24,16 @@ InformationFilter::~InformationFilter() {}
 void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
                                    EstimationParameters &parameters) {
 
-  const double sample_period{data_.getSamplePeriod()};
-
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  Models::Process::calculateMotionJacobian(odometry, parameters, sample_period);
+  Models::Process::calculateMotionJacobian(odometry, parameters,
+                                           sample_period_);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  Models::Process::calculateProcessJacobian(parameters, sample_period);
+  Models::Process::calculateProcessJacobian(parameters, sample_period_);
 
   /* Make the prediction using the motion model: 3x1 matrix. */
   Models::Process::motionModel(odometry, parameters.state_estimate,
-                               sample_period);
+                               sample_period_);
 
   /* Propagate the estimation information: 3x3 matrix. */
   parameters.error_covariance =

@@ -23,7 +23,8 @@ function(add_filter_target TARGET_NAME)
 	${ARGN}
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/process.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/measurement.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/common/matrix_operations.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/matrix_operations.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/performance_eval.cpp"
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)

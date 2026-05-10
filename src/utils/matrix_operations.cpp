@@ -1,7 +1,6 @@
-#include "CL/common/matrix_operations.hpp"
+#include "CL/utils/matrix_operations.hpp"
 
 namespace CL {
-
 matrix3D_t MatrixOperations::marginalise(const matrix6D_t &matrix_6d) {
 
   matrix3D_t bottomRight{

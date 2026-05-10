@@ -7,22 +7,26 @@
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/agents/Robot.hpp>
+#include <cassert>
+#include <memory>
+#include <stdexcept>
+#include <string>
 
 namespace CL {
 
-template <typename T> class Robot {
-  static_assert(std::is_base_of_v<filter::Filter, T>,
-                "Filter must derive from Filter abstract base class");
+class Robot {
 
 public:
   Robot() = delete;
   Robot(Robot &&) = default;
-  Robot(const Robot &) = default;
-  Robot &operator=(Robot &&) = default;
-  Robot &operator=(const Robot &) = default;
+  Robot(const Robot &) = delete;
+  Robot &operator=(Robot &&) = delete;
+  Robot &operator=(const Robot &) = delete;
   ~Robot() = default;
 
-  Robot(Data::Robot &data) {
+  Robot(Data::Robot &data, filter::Filter *filter)
+      : filter_{filter}, odometry_{data.synced.odometry},
+        measurements_{data.synced.measurements} {
 
     /* TODO: REMOVE later.
      * We want to stop saving data into the data handler down the line, but for
@@ -50,10 +54,25 @@ public:
         parameters.precision_matrix * parameters.state_estimate;
   }
 
+  const EstimationParameters &getCurrentState() { return estimates_.back(); }
+
+  const EstimationParameters &broadcastEstimate(size_t index) {
+    assert(index == estimates_.size() - 1);
+
+    /* Extend the time-series by duplicating the last element in place. */
+    auto &current_estimate{estimates_.emplace_back(estimates_.back())};
+
+    const Data::Robot::Odometry &current_odometry{odometry_.at(index)};
+
+    filter_->prediction(current_odometry, current_estimate);
+
+    return current_estimate;
+  };
+
 private:
-  T filter_;
+  std::unique_ptr<filter::Filter> filter_;
   std::vector<EstimationParameters> estimates_;
-  std::vector<Data::Robot::Odometry> odometry_;
-  std::vector<Data::Robot::Measurement> measurements_;
+  std::vector<Data::Robot::Odometry> &odometry_;
+  std::vector<Data::Robot::Measurement> &measurements_;
 };
 } // namespace CL

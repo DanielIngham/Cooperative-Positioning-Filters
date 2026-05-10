@@ -7,8 +7,9 @@
  */
 
 #include "CL/filters/iekf.hpp"
-#include "CL/common/matrix_operations.hpp"
 #include "CL/models/measurement.hpp"
+#include "CL/utils/matrix_operations.hpp"
+#include "CL/utils/utils.hpp"
 
 namespace CL::filter {
 /**
@@ -74,7 +75,7 @@ void IEKF::correction(EstimationParameters &ego,
     ego.innovation = ego.measurement - predicted_measurement;
 
     /* Normalise the bearing residual */
-    Data::Robot::normaliseAngle(ego.innovation(BEARING));
+    utils::normaliseAngle(ego.innovation(BEARING));
 
     /* Keep track of the previous estimate for the calculation of estimation
      * change at the end of the loop. */
@@ -82,7 +83,7 @@ void IEKF::correction(EstimationParameters &ego,
 
     ego.estimation_residual = intial_state_estimate - iterative_state_estimate;
 
-    Data::Robot::normaliseAngle(ego.estimation_residual(ORIENTATION));
+    utils::normaliseAngle(ego.estimation_residual(ORIENTATION));
 
     /* Update the iterative state estimate. */
     iterative_state_estimate =
@@ -167,13 +168,13 @@ void IEKF::correction(EstimationParameters &ego,
 //     ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
 //
 //     /* Normalise the bearing residual */
-//     Data::Robot::normaliseAngle(ego_robot.innovation(BEARING));
+//     utils::normaliseAngle(ego_robot.innovation(BEARING));
 //
 //     /* Calculate the new estimation residual. */
 //     ego_robot.estimation_residual =
 //         initial_state_estimate - iterative_state_estimate;
 //
-//     Data::Robot::normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
+//     utils::normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
 //
 //     /* Calculate the new robust estimation error covariance. */
 //     augmentedCovariance_t reweighted_error_covariance{

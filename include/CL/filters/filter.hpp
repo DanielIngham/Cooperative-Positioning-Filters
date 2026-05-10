@@ -37,6 +37,14 @@ public:
    */
   void performInference();
 
+  virtual void prediction(const Data::Robot::Odometry &,
+                          EstimationParameters &) = 0;
+
+  virtual void correction(EstimationParameters &,
+                          const EstimationParameters &) = 0;
+
+  virtual void processMeasurements(Data::Robot::List &robots, size_t index);
+
   [[nodiscard]] static measurement_t
   normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
 
@@ -49,17 +57,9 @@ public:
   [[nodiscard]] EstimationParameters const *
   getEstimationParameters(const Data::Agent::Barcode &barcode) const;
 
-  void writeInnovation();
-  void writeNormalisedInnovation();
-  void writeNEES();
-
 private:
 protected:
-  /**
-   * @brief Data class housing all the data pertaining to cooperative
-   * localisation (positioning).
-   */
-  Data::Handler &data_;
+  double sample_period_{0.02};
 
   /**
    * @brief Houses all estimation parameters for all robots.
@@ -71,12 +71,9 @@ protected:
    */
   std::map<Data::Agent::ID, EstimationParameters> landmark_parameters;
 
-  virtual void prediction(const Data::Robot::Odometry &,
-                          EstimationParameters &) = 0;
+  size_t total_datapoints_;
 
-  virtual void correction(EstimationParameters &,
-                          const EstimationParameters &) = 0;
-
-  virtual void processMeasurements(Data::Robot::List &robots, size_t index);
+  /* Perform prediction for each robot using odometry values. */
+  Data::Robot::List &robots_;
 };
 } // namespace CL::filter

@@ -27,10 +27,8 @@ Particle::Particle(size_t samples, Data::Handler &data) : Filter{data} {
 void Particle::prediction(const Data::Robot::Odometry &odometry,
                           EstimationParameters &ego) {
 
-  const double sample_period{data_.getSamplePeriod()};
-
   Particles &particles{particles_.at(ego.id)};
-  particles.propagate(odometry, ego, sample_period, gen_);
+  particles.propagate(odometry, ego, sample_period_, gen_);
 
   ego.state_estimate = particles.mmse();
 }

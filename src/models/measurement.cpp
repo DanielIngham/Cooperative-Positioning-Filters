@@ -1,4 +1,5 @@
 #include "CL/models/measurement.hpp"
+#include "CL/utils/utils.hpp"
 
 namespace CL::Models {
 
@@ -44,7 +45,7 @@ measurement_t Measurement::measurementModel(const state_t &ego_state,
        std::atan2(y_difference, x_difference) - ego_state(ORIENTATION))
           .finished()};
 
-  Data::Robot::normaliseAngle(predicted_measurement(BEARING));
+  utils::normaliseAngle(predicted_measurement(BEARING));
 
   return predicted_measurement;
 }
