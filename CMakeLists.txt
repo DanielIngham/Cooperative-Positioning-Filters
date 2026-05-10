@@ -25,6 +25,9 @@ function(add_filter_target TARGET_NAME)
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/measurement.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/matrix_operations.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/performance_eval.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/inference.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/landmark.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/robot.cpp"
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)

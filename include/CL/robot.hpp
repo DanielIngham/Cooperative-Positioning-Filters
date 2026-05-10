@@ -24,7 +24,7 @@ public:
   Robot &operator=(const Robot &) = delete;
   ~Robot() = default;
 
-  Robot(Data::Robot &data, filter::Filter *filter)
+  Robot(filter::Filter *filter, Data::Robot &data)
       : filter_{filter}, odometry_{data.synced.odometry},
         measurements_{data.synced.measurements} {
 

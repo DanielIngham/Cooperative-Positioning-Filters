@@ -8,7 +8,6 @@
 #include <iostream>
 #include <memory>
 
-#include "CL/Inference.hpp"
 #include "CL/filters/filter.hpp"
 
 #ifdef EKF_TARGET

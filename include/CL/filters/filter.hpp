@@ -9,8 +9,6 @@
 
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
-#include "CL/models/measurement.hpp"
-#include "CL/models/process.hpp"
 
 #include <Eigen/Dense>
 #include <UtiasMrclam/DataHandler.hpp>
@@ -43,8 +41,6 @@ public:
   virtual void correction(EstimationParameters &,
                           const EstimationParameters &) = 0;
 
-  virtual void processMeasurements(Data::Robot::List &robots, size_t index);
-
   [[nodiscard]] static measurement_t
   normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
 
@@ -57,9 +53,17 @@ public:
   [[nodiscard]] EstimationParameters const *
   getEstimationParameters(const Data::Agent::Barcode &barcode) const;
 
+  void writeInnovation();
+  void writeNormalisedInnovation();
+  void writeNEES();
+
 private:
 protected:
-  double sample_period_{0.02};
+  /**
+   * @brief Data class housing all the data pertaining to cooperative
+   * localisation (positioning).
+   */
+  Data::Handler &data_;
 
   /**
    * @brief Houses all estimation parameters for all robots.
@@ -71,9 +75,8 @@ protected:
    */
   std::map<Data::Agent::ID, EstimationParameters> landmark_parameters;
 
-  size_t total_datapoints_;
+  virtual void processMeasurements(Data::Robot::List &robots, size_t index);
 
-  /* Perform prediction for each robot using odometry values. */
-  Data::Robot::List &robots_;
+  double sample_period_;
 };
 } // namespace CL::filter

@@ -1,5 +1,6 @@
 #include "CL/filters/particle.hpp"
 #include "CL/common/types.hpp"
+#include "CL/models/measurement.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
