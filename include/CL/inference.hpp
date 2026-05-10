@@ -15,10 +15,7 @@
 
 namespace CL {
 
-template <typename T> class Inference {
-  static_assert(std::is_base_of_v<filter::Filter, T>,
-                "Filter must derive from Filter abstract base class");
-
+class Inference {
 public:
   Inference() = delete;
   Inference(Inference &&) = default;
