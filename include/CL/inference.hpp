@@ -14,7 +14,6 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
-#include <set>
 #include <type_traits>
 #include <vector>
 
@@ -62,14 +61,14 @@ public:
       /* Set of robot state estimates broadcasted over the VANET.
        * TODO: maybe make this an attribute of the class and turn it into a map.
        */
-      std::set<EstimationParameters> vanet_broadcasts{};
+      std::map<unsigned short, EstimationParameters> vanet_broadcasts{};
 
+      for (Landmark &landmark : landmarks_) {
+        vanet_broadcasts[landmark.getBarcode().val()] =
+            landmark.broadcastEstimate(k);
+      }
       for (Robot &robot : robots_) {
-        // robot.publishDataOverNetwork()?
-        // create a collection of Estimation parameters based on this
-        // then share that to each robot as part of the update step.
-        // Kind of simulating the idea that each agent
-        vanet_broadcasts.insert(robot.broadcastEstimate(k));
+        vanet_broadcasts[robot.getBarcode().val()] = robot.broadcastEstimate(k);
 
         // ParameterList &parameter_list{robot_parameters.at(robot.id())};
         // /* Extend the time-series by duplicating the last element in
@@ -84,19 +83,17 @@ public:
         //
         // double normalised_angle{parameters.state_estimate(ORIENTATION)};
         // Data::Robot::normaliseAngle(normalised_angle);
-
         /* Update the robot state data structure. */
-        // robot.synced.states[k] = Data::Robot::State{
+        // synced_states[index] = Data::Robot::State{
         //     .time = robot.groundtruth.states[k].time,
         //     .x = parameters.state_estimate(X),
         //     .y = parameters.state_estimate(Y),
         //     .orientation = normalised_angle,
         // };
       }
-      // TODO: Add landmarks vanet_broadcasts
-      // Maybe make vanet_broadcasts a map with the agent ID as the key?
 
       for (auto &robot : robots_) {
+        robot.recieveVanetMessages(k);
 
         /* Loop through the measurements taken and perform the measurement
          * update for each robot.

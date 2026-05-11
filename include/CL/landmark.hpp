@@ -4,12 +4,13 @@
 
 #pragma once
 
+#include "CL/agent.hpp"
 #include "CL/common/estimation_parameters.hpp"
 #include "UtiasMrclam/agents/Landmark.hpp"
 
 namespace CL {
 
-class Landmark {
+class Landmark : public Agent {
 public:
   Landmark() = default;
   Landmark(Landmark &&) = default;
@@ -20,7 +21,8 @@ public:
 
   Landmark(const Data::Landmark &data);
 
+  const EstimationParameters &broadcastEstimate(size_t index) override;
+
 private:
-  EstimationParameters estimation_;
 };
 } // namespace CL
