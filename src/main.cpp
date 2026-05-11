@@ -3,12 +3,15 @@
 #include <UtiasMrclam/agents/Robot.hpp>
 #include <UtiasMrclam/utils/ArgumentHandler.hpp>
 
+#include "CL/inference.hpp"
+
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
 
 #include "CL/filters/filter.hpp"
+#include "CL/utils/performance_eval.hpp"
 
 #ifdef EKF_TARGET
 #include "CL/filters/ekf.hpp"
@@ -75,10 +78,15 @@ int main(int argc, char *argv[]) {
 
 #endif // EKF_TARGET
 
-  filter->performInference();
+  // filter->performInference();
 
-  /* Check for SAVE_INPUT definition that determines if the input data should
-   * be plot.*/
+  CL::Inference<CL::filter::EKF> test{data};
+  test.compute();
+  CL::utils::PerformanceEvaluator::populateSyncedStates(test.getRobots(), data);
+  data.calculateStateError();
+
+  /* Check for SAVE_INPUT definition that determines if the input data
+   * should be plot.*/
 
   Data::Plotter plotter;
 

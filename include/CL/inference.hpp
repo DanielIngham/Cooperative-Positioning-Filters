@@ -7,7 +7,6 @@
 #include "CL/filters/filter.hpp"
 #include "CL/landmark.hpp"
 #include "CL/robot.hpp"
-#include "CL/utils/utils.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/utils/Utils.hpp>
@@ -50,6 +49,8 @@ public:
     }
   }
 
+  const std::vector<Robot> &getRobots() { return robots_; }
+
   void compute() {
     /* Start the timer for measuring the execution time of a child filter. */
     const auto timer_start{std::chrono::high_resolution_clock::now()};
@@ -58,97 +59,41 @@ public:
       std::cout << "\rPerforming Inference: " << k * 100 / total_datapoints_
                 << " %" << std::flush;
 
-      /* Set of robot state estimates broadcasted over the VANET.
-       * TODO: maybe make this an attribute of the class and turn it into a map.
-       */
-      std::map<unsigned short, EstimationParameters> vanet_broadcasts{};
-
-      for (Landmark &landmark : landmarks_) {
-        vanet_broadcasts[landmark.getBarcode().val()] =
-            landmark.broadcastEstimate(k);
-      }
-      for (Robot &robot : robots_) {
-        vanet_broadcasts[robot.getBarcode().val()] = robot.broadcastEstimate(k);
-
-        // ParameterList &parameter_list{robot_parameters.at(robot.id())};
-        // /* Extend the time-series by duplicating the last element in
-        // place.
-        //  */
-        // parameter_list.push_back(parameter_list.back());
-        //
-        // Data::Robot::Odometry &odometry{robot.synced.odometry[k]};
-        // EstimationParameters &parameters{parameter_list.back()};
-        //
-        // prediction(odometry, parameters);
-        //
-        // double normalised_angle{parameters.state_estimate(ORIENTATION)};
-        // Data::Robot::normaliseAngle(normalised_angle);
-        /* Update the robot state data structure. */
-        // synced_states[index] = Data::Robot::State{
-        //     .time = robot.groundtruth.states[k].time,
-        //     .x = parameters.state_estimate(X),
-        //     .y = parameters.state_estimate(Y),
-        //     .orientation = normalised_angle,
-        // };
-      }
-
-      for (auto &robot : robots_) {
-        robot.recieveVanetMessages(k);
-
-        /* Loop through the measurements taken and perform the measurement
-         * update for each robot.
-         * NOTE: This operation uses the assumption that the measurements fo the
-         * indpendent robots/landmarks are independent of one another.
-         */
-        const Data::Robot::Measurement *current_measurement{
-            utias::mrclam::utils::getMeasurement(&robot, index)};
-
-        if (!current_measurement) {
-          continue;
-        }
-
-        /* Populate the measurement matrix required for the correction step.
-         * Remove any noise bias from the measurement.
-         */
-        EstimationParameters &parameters{
-            robot_parameters.at(robot.id()).back()};
-
-        for (unsigned short j{}; j < current_measurement->subjects.size();
-             j++) {
-
-          /* Find the subject for whom the barcode belongs to. */
-          const Data::Agent::Barcode &barcode{current_measurement->subjects[j]};
-          EstimationParameters const *measured_agent{
-              getEstimationParameters(barcode)};
-
-          if (!measured_agent) {
-            continue;
-          }
-
-          parameters.measurement[RANGE] = current_measurement->ranges.at(j);
-          parameters.measurement[BEARING] = current_measurement->bearings.at(j);
-
-          correction(parameters, *measured_agent);
-
-          double normalised_angle{parameters.state_estimate(ORIENTATION)};
-
-          utils::normaliseAngle(normalised_angle);
-
-          /* Update the robot state data structure. */
-          robot.synced.states.at(index) = {
-              .time = robot.groundtruth.states[index].time,
-              .x = parameters.state_estimate(X),
-              .y = parameters.state_estimate(Y),
-              .orientation = normalised_angle,
-          };
-        }
-      }
+      receiveVanetMessages(k);
+      distributeVanetMessages(k);
     }
+
+    const auto timer_end{std::chrono::high_resolution_clock::now()};
+    const auto execution_duration{
+        std::chrono::duration_cast<std::chrono::milliseconds>(timer_end -
+                                                              timer_start)};
+    std::cout << '\r' << std::flush;
+    std::cout << "\033[1;32mInference Complete:\033[0m ["
+              << execution_duration.count() << " ms]" << std::endl;
   }
 
 private:
   std::vector<Robot> robots_;
   std::vector<Landmark> landmarks_;
   size_t total_datapoints_{};
+
+  std::map<unsigned short, EstimationParameters> vanet_broadcasts_{};
+
+  void receiveVanetMessages(size_t index) {
+    for (Landmark &landmark : landmarks_) {
+      vanet_broadcasts_[landmark.getBarcode().val()] =
+          landmark.broadcastEstimate(index);
+    }
+
+    for (Robot &robot : robots_) {
+      vanet_broadcasts_[robot.getBarcode().val()] =
+          robot.broadcastEstimate(index);
+    }
+  }
+
+  void distributeVanetMessages(size_t index) {
+    for (Robot &robot : robots_)
+      robot.recieveVanetMessages(index, vanet_broadcasts_);
+  }
 };
 } // namespace CL

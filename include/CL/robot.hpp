@@ -10,6 +10,7 @@
 #include <UtiasMrclam/agents/Robot.hpp>
 #include <cassert>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 
@@ -25,20 +26,25 @@ public:
   Robot &operator=(const Robot &) = delete;
   ~Robot() = default;
 
-  Robot(std::unique_ptr<filter::Filter> filter_ptr, Data::Robot &data);
+  Robot(std::unique_ptr<filter::Filter> filter_ptr, const Data::Robot &data);
 
+  /**
+   * Uses odometry to compute the predictive density for its state, create a
+   * "broadcast" its estimate over the vanet.
+   * @param index The current index in the UTIAS MRCLAM synced set.
+   */
   const EstimationParameters &broadcastEstimate(size_t index) override;
-  const EstimationParameters &recieveVanetMessages(size_t index);
+  void recieveVanetMessages(
+      size_t index, std::map<unsigned short, EstimationParameters> &vanet_msgs);
+
+  const std::vector<EstimationParameters> &getEstimates() const;
 
 private:
   std::unique_ptr<filter::Filter> filter_;
   std::vector<EstimationParameters> estimates_;
-  std::vector<Data::Robot::Odometry> &odometry_;
-  std::vector<Data::Robot::Measurement> &measurements_;
-  std::vector<Data::Robot::State> &synced_states_;
+  const std::vector<Data::Robot::Odometry> &odometry_;
+  const std::vector<Data::Robot::Measurement> &measurements_;
 
   double sample_period_;
-
-  void updateSyncedStates(size_t index, const EstimationParameters &estimate);
 };
 } // namespace CL

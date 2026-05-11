@@ -13,6 +13,7 @@
 #include "CL/utils/utils.hpp"
 
 #include <cmath>
+#include <iostream>
 
 #ifdef COUPLED
 #include "CL/utils/matrix_operations.hpp"
@@ -65,6 +66,7 @@ void EKF::prediction(const Data::Robot::Odometry &odometry,
 #if DECOUPLED
 void EKF::correction(EstimationParameters &ego,
                      const EstimationParameters &agent) {
+  std::cerr << "Updating estimate" << std::endl;
 
   const measurementJacobian_t ego_measurement_Jacobian{
       Models::Measurement::egoMeasurementJacobian(ego, agent)};
