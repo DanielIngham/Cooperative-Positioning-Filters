@@ -28,6 +28,7 @@ function(add_filter_target TARGET_NAME)
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/inference.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/landmark.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/robot.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent.cpp"
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)
