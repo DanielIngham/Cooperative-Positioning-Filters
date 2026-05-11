@@ -1,8 +1,9 @@
 #include "CL/landmark.hpp"
+#include "CL/agent.hpp"
 
 namespace CL {
 
-Landmark::Landmark(const Data::Landmark &data) {
+Landmark::Landmark(const Data::Landmark &data) : Agent(data.barcode()) {
   estimation_ = {.id = data.id(), .barcode = data.barcode()};
 
   estimation_.state_estimate << data.x(), data.y(), 0.0;
@@ -29,5 +30,9 @@ Landmark::Landmark(const Data::Landmark &data) {
   estimation_.information_vector =
       estimation_.precision_matrix * estimation_.state_estimate;
 };
+
+const EstimationParameters &Landmark::broadcastEstimate(size_t index) {
+  return estimation_;
+}
 
 } // namespace CL

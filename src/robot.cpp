@@ -1,10 +1,13 @@
 #include "CL/robot.hpp"
+#include "CL/agent.hpp"
 
 namespace CL {
 
 Robot::Robot(std::unique_ptr<filter::Filter> filter_ptr, Data::Robot &data)
-    : filter_{std::move(filter_ptr)}, odometry_{data.synced.odometry},
-      measurements_{data.synced.measurements} {
+    : Agent(data.barcode()), filter_{std::move(filter_ptr)},
+      odometry_{data.synced.odometry}, measurements_{data.synced.measurements},
+      synced_states_{data.synced.states} {
+  synced_states_.front() = data.groundtruth.states.front();
 
   /* TODO: REMOVE later.
    * We want to stop saving data into the data handler down the line, but for
@@ -46,4 +49,8 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
   return current_estimate;
 };
 
+const EstimationParameters &Robot::recieveVanetMessages(size_t index) {}
+
+void Robot::updateSyncedStates(size_t index,
+                               const EstimationParameters &estimate) {}
 } // namespace CL
