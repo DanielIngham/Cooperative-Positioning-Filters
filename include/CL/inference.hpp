@@ -55,7 +55,7 @@ public:
     /* Start the timer for measuring the execution time of a child filter. */
     const auto timer_start{std::chrono::high_resolution_clock::now()};
 
-    for (size_t k{1}; k < total_datapoints_; k++) {
+    for (size_t k{1}; k < total_datapoints_; ++k) {
       std::cout << "\rPerforming Inference: " << k * 100 / total_datapoints_
                 << " %" << std::flush;
 

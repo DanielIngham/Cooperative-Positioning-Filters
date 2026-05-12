@@ -78,12 +78,7 @@ int main(int argc, char *argv[]) {
 
 #endif // EKF_TARGET
 
-  // filter->performInference();
-
-  CL::Inference<CL::filter::EKF> test{data};
-  test.compute();
-  CL::utils::PerformanceEvaluator::populateSyncedStates(test.getRobots(), data);
-  data.calculateStateError();
+  filter->performInference();
 
   /* Check for SAVE_INPUT definition that determines if the input data
    * should be plot.*/

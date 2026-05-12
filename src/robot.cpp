@@ -18,7 +18,7 @@ Robot::Robot(std::unique_ptr<filter::Filter> filter_ptr,
   /* TODO: REMOVE later.
    * We want to stop saving data into the data handler down the line, but for
    * now it must remain for testing. */
-  auto parameters{estimates_.emplace_back(data.id(), data.barcode())};
+  auto &parameters{estimates_.emplace_back(data.id(), data.barcode())};
   /* Initial state: 3x1 Matrix. */
   parameters.state_estimate(X) = data.groundtruth.states.front().x;
   parameters.state_estimate(Y) = data.groundtruth.states.front().y;
@@ -49,7 +49,7 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
    * NOTE: The assertion ensures that the estimates are not empty and therefore
    * this subtraction should be a safe operation.
    */
-  for (size_t i{estimates_.size() - 1}; i <= index; i++) {
+  for (size_t i{estimates_.size() - 1}; i < index; i++) {
 
     /* Extend the time-series by duplicating the last element in place. */
     auto &current_estimate{estimates_.emplace_back(estimates_.back())};
@@ -58,6 +58,8 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
 
     filter_->prediction(current_odometry, current_estimate);
   }
+
+  std::cerr << "Prediction: " << estimates_.back().state_estimate << std::endl;
 
   return estimates_.back();
 };
@@ -81,9 +83,11 @@ void Robot::recieveVanetMessages(
   EstimationParameters &parameters{estimates_.at(index)};
 
   std::cerr << "Before\n" << parameters.state_estimate << std::endl;
+  std::cerr << "Total subjects: " << current_measurement->subjects.size()
+            << std::endl;
   /* Loop through the list of measurements. It is assumed that the data
    * associations are known. */
-  for (unsigned short i{}; i < current_measurement->subjects.size(); i++) {
+  for (unsigned short i{}; i < current_measurement->subjects.size(); ++i) {
 
     /* Find the subject for whom the barcode belongs to and check if they are on
      * the VANET. */

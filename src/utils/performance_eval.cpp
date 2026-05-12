@@ -9,23 +9,26 @@ namespace CL::utils {
 
 void PerformanceEvaluator::populateSyncedStates(
     const std::vector<Robot> &robots, Data::Handler &data) {
-  auto handler_robots{data.getRobots()};
-  for (const auto &robot : handler_robots) {
+  auto &handler_robots{data.getRobots()};
+  for (auto &robot : handler_robots) {
     const Robot *robot_ptr{getAssociatedRobot(robot.barcode(), robots)};
     if (!robot_ptr)
       continue;
+    populateSyncedStates(*robot_ptr, robot);
   }
 }
 
 void PerformanceEvaluator::populateSyncedStates(const Robot &robot,
                                                 Data::Robot &data) {
+
   const std::vector<EstimationParameters> &estimates{robot.getEstimates()};
   std::vector<Data::Robot::State> &synced_states{data.synced.states};
+
   assert(estimates.size() == synced_states.size());
 
   for (size_t i{}; i < synced_states.size(); i++) {
     synced_states.at(i) = {
-        .time = .0, // We don't hold onto the time in the EstimationParameters
+        .time = .0, // We don't hold onto the time in the
         .x = estimates.at(i).state_estimate[X],
         .y = estimates.at(i).state_estimate[Y],
         .orientation = estimates.at(i).state_estimate[ORIENTATION],
