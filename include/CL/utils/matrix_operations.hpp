@@ -1,5 +1,9 @@
+/**
+ * @file matrix_operations.hpp
+ */
 #pragma once
 
+#include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
 
 namespace CL {
@@ -69,6 +73,28 @@ public:
    */
   [[nodiscard]] static augmentedCovariance_t
   createAugmentedMatrix(const covariance_t &, const covariance_t &);
+
+  /**
+   * @brief Calculates the normalised residual of the value produced by the
+   * sensor measurement and the prior estimate passed through the non-linear
+   * measurement model.
+   * @param[in] filter The estimation parameters of the filter.
+   * @returns The normalised innovation.
+   */
+  [[nodiscard]] static measurement_t
+  normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
+
+  [[nodiscard]] static measurement_t
+  unnormaliseInnovation(const measurement_t &, const measurementCovariance_t &);
+
+  /**
+   * @brief Calculates the normalised residual of the initial estimate and
+   * updated estimate.
+   * @param[in] filter The estimation parameters of the filter.
+   * @returns The normalised estimation residual.
+   */
+  [[nodiscard]] static augmentedState_t
+  calculateNormalisedEstimationResidual(const EstimationParameters &);
 
 private:
 };
