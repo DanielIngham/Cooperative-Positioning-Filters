@@ -57,8 +57,10 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
     const double &next_time{odometry_.at(i + 1).time};
     const Data::Robot::Odometry &prior_odometry{odometry_.at(i)};
 
-    // TODO: make this cleaner and more robust.
-    double dt{next_time - prior_odometry.time};
+    const double dt{next_time - prior_odometry.time};
+
+    assert(dt > 0);
+
     filter_->prediction(prior_odometry, current_estimate, dt);
   }
 
