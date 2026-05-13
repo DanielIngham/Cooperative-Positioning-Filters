@@ -9,7 +9,7 @@
 
 namespace CL::filter {
 
-Particle::Particle(size_t samples, Data::Handler &data) : Filter{data} {
+Particle::Particle(Data::Handler &data, size_t samples) : Filter{data} {
   std::random_device rd;
   gen_.seed(rd());
 

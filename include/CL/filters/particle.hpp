@@ -11,7 +11,7 @@ namespace CL::filter {
 class Particle : public Filter {
 public:
   Particle() = delete;
-  explicit Particle(size_t samples, Data::Handler &data);
+  explicit Particle(Data::Handler &data, size_t samples = 1000);
   Particle(Particle &&) = default;
   Particle(const Particle &) = default;
   Particle &operator=(Particle &&) = delete;
