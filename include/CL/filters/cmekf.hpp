@@ -8,7 +8,7 @@
 namespace CL::filter {
 class CMEKF : public EKF {
 public:
-  CMEKF(Data::Handler &data);
+  CMEKF() = default;
   CMEKF(CMEKF &&) = default;
   CMEKF(const CMEKF &) = default;
   CMEKF &operator=(CMEKF &&) = delete;

@@ -55,7 +55,7 @@ protected:
 private:
   std::mt19937 gen_;
 
-  std::map<Data::Agent::ID, Particles> particles_;
+  Particles particles_;
 };
 
 } // namespace CL::filter

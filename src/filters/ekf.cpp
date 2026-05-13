@@ -7,32 +7,17 @@
  */
 #include "CL/filters/ekf.hpp"
 #include "CL/common/types.hpp"
-#include "CL/filters/filter.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
 #include "CL/utils/utils.hpp"
 
 #include <cmath>
-#include <iostream>
 
 #ifdef COUPLED
 #include "CL/utils/matrix_operations.hpp"
 #endif
 
 namespace CL::filter {
-
-/**
- * @brief EKF class constructor.
- * @details This constructor sets up the prior states and parameters to perform
- * Extended Kalman filtering.
- * @param[in] data Class containing all robot and landmark data.
- */
-EKF::EKF(Data::Handler &data) : Filter(data) {}
-
-/**
- * @brief Default destructor.
- */
-EKF::~EKF() {}
 
 /**
  * @brief performs the prediction step of the Extended Kalman filter.
@@ -42,18 +27,17 @@ EKF::~EKF() {}
  * Kalman filter to perform the prediction step.
  */
 void EKF::prediction(const Data::Robot::Odometry &odometry,
-                     EstimationParameters &parameters) {
+                     EstimationParameters &parameters, double sample_period) {
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  Models::Process::calculateMotionJacobian(odometry, parameters,
-                                           sample_period_);
+  Models::Process::calculateMotionJacobian(odometry, parameters, sample_period);
 
   /* Calculate the process noise Jacobian: 3x2 matrix. */
-  Models::Process::calculateProcessJacobian(parameters, sample_period_);
+  Models::Process::calculateProcessJacobian(parameters, sample_period);
 
   /* Make the prediction using the motion model: 3x1 matrix. */
   Models::Process::motionModel(odometry, parameters.state_estimate,
-                               sample_period_);
+                               sample_period);
 
   /* Propagate the estimation error covariance: 3x3 matrix. */
   parameters.error_covariance =
@@ -66,7 +50,6 @@ void EKF::prediction(const Data::Robot::Odometry &odometry,
 #if DECOUPLED
 void EKF::correction(EstimationParameters &ego,
                      const EstimationParameters &agent) {
-  std::cerr << "Updating estimate" << std::endl;
 
   const measurementJacobian_t ego_measurement_Jacobian{
       Models::Measurement::egoMeasurementJacobian(ego, agent)};

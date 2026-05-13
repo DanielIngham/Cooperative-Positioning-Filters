@@ -14,6 +14,7 @@ Particle::Particle(Data::Handler &data, size_t samples) : Filter{data} {
   gen_.seed(rd());
 
   /* Populate the samples with the prior. */
+  // TODO: Make the particle filter only influence one agent.
   for (const auto &[id, parameters] : robot_parameters) {
     auto result{particles_.emplace(
         id, Particles{samples, parameters.front().state_estimate})};

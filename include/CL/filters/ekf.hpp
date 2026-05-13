@@ -26,15 +26,16 @@ namespace CL::filter {
  */
 class EKF : public Filter {
 public:
-  explicit EKF(Data::Handler &);
+  EKF() = default;
   EKF(EKF &&) = default;
   EKF(const EKF &) = default;
   EKF &operator=(EKF &&) = delete;
   EKF &operator=(const EKF &) = delete;
-  ~EKF() override;
+  ~EKF() = default;
 
-  void prediction(const Data::Robot::Odometry &,
-                  EstimationParameters &) override;
+  void prediction(const Data::Robot::Odometry &odometry,
+                  EstimationParameters &parameters,
+                  double sample_period) override;
 
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;

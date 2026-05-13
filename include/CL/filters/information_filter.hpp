@@ -26,22 +26,23 @@ public:
    * perform Extended Information filtering.
    * @param[in] data Class containing all robot and landmark data.
    */
-  InformationFilter(Data::Handler &data);
+  InformationFilter() = default;
   InformationFilter(InformationFilter &&) = default;
   InformationFilter(const InformationFilter &) = default;
   InformationFilter &operator=(InformationFilter &&) = delete;
   InformationFilter &operator=(const InformationFilter &) = delete;
-  ~InformationFilter() override;
+  ~InformationFilter() = default;
 
   /**
    * @brief performs the prediction step of the Information filter.
    * @param[in] odometry The prior inputs into the system comprising a forward
    * and angular velocity.
-   * @param[in,out] ego_robot The parameters required by the
+   * @param[in,out] parameters The parameters required by the
    * Information filter to perform the prediction step.
    */
-  void prediction(const Data::Robot::Odometry &,
-                  EstimationParameters &) override;
+  void prediction(const Data::Robot::Odometry &odometry,
+                  EstimationParameters &parameters,
+                  double sample_period) override;
 
   /**
    * @brief Performs Information Filter correct step.

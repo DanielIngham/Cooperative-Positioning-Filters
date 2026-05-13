@@ -55,30 +55,29 @@ int main(int argc, char *argv[]) {
 
   ArgumentHandler::setArguments(argc, argv, data);
 
-  std::unique_ptr<CL::filter::Filter> filter;
-
 #ifdef EKF_TARGET
-  filter = std::make_unique<CL::filter::EKF>(data);
+  CL::Inference<CL::filter::EKF> inference{data};
 
 #elif defined(IEKF_TARGET)
-  filter = std::make_unique<CL::filter::IEKF>(data);
+  CL::Inference<CL::filter::IEKF> inference{data};
 
 #elif defined(INFO_TARGET)
-
-  filter = std::make_unique<CL::filter::InformationFilter>(data);
+  CL::Inference<CL::filter::InformationFilter> inference{data};
 
 #elif defined(CMEKF_TARGET)
-
-  filter = std::make_unique<CL::filter::CMEKF>(data);
+  CL::Inference<CL::filter::CMEKF> inference{data};
 
 #elif defined(PARTICLE_TARGET)
-  filter = std::make_unique<CL::filter::Particle>(1000, data);
+  CL::Inference<CL::filter::Particle> inference{data};
 #else
   throw std::runtime_error("Filter target not selected");
 
 #endif // EKF_TARGET
 
-  filter->performInference();
+  inference.compute();
+  CL::utils::PerformanceEvaluator::populateSyncedStates(inference.getRobots(),
+                                                        data);
+  data.calculateStateError();
 
   /* Check for SAVE_INPUT definition that determines if the input data
    * should be plot.*/

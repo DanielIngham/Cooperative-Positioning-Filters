@@ -8,75 +8,28 @@
 #pragma once
 
 #include "CL/common/estimation_parameters.hpp"
-#include "CL/common/types.hpp"
 
 #include <Eigen/Dense>
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/agents/Agent.hpp>
-#include <map>
 
 namespace CL::filter {
 class Filter {
 public:
-  Filter() = delete;
-  explicit Filter(Data::Handler &data);
+  Filter() = default;
   Filter(Filter &&) = default;
   Filter(const Filter &) = default;
   Filter &operator=(Filter &&) = delete;
   Filter &operator=(const Filter &) = delete;
-  virtual ~Filter();
+  virtual ~Filter() = default;
 
-  using ParameterList = std::vector<EstimationParameters>;
-  using ParameterMap = std::map<Data::Agent::ID, ParameterList>;
-
-  /**
-   * @brief Performs robot state inference using the EKF bayesian inference
-   * framework for all robots provided.
-   */
-  void performInference();
-
-  virtual void prediction(const Data::Robot::Odometry &,
-                          EstimationParameters &) = 0;
+  virtual void prediction(const Data::Robot::Odometry &, EstimationParameters &,
+                          double sample_period) = 0;
 
   virtual void correction(EstimationParameters &,
                           const EstimationParameters &) = 0;
 
-  [[nodiscard]] static measurement_t
-  normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
-
-  [[nodiscard]] static measurement_t
-  unnormaliseInnovation(const measurement_t &, const measurementCovariance_t &);
-
-  [[nodiscard]] static augmentedState_t
-  calculateNormalisedEstimationResidual(const EstimationParameters &);
-
-  [[nodiscard]] EstimationParameters const *
-  getEstimationParameters(const Data::Agent::Barcode &barcode) const;
-
-  void writeInnovation();
-  void writeNormalisedInnovation();
-  void writeNEES();
-
 private:
 protected:
-  /**
-   * @brief Data class housing all the data pertaining to cooperative
-   * localisation (positioning).
-   */
-  Data::Handler &data_;
-
-  /**
-   * @brief Houses all estimation parameters for all robots.
-   */
-  std::map<Data::Agent::ID, ParameterList> robot_parameters;
-
-  /**
-   * @brief Houses all estimation parameters for all landmarks.
-   */
-  std::map<Data::Agent::ID, EstimationParameters> landmark_parameters;
-
-  virtual void processMeasurements(Data::Robot::List &robots, size_t index);
-
-  double sample_period_;
 };
 } // namespace CL::filter

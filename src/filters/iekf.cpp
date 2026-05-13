@@ -12,18 +12,6 @@
 #include "CL/utils/utils.hpp"
 
 namespace CL::filter {
-/**
- * @brief IEKF class constructor.
- * @details This constructor sets up the prior states and parameters to perform
- * Iterative Extended Kalman filtering.
- * @param[in] data Class containing all robot and landmark data.
- */
-IEKF::IEKF(Data::Handler &data) : EKF(data) {}
-
-/**
- * @brief Default destructor.
- */
-IEKF::~IEKF() {}
 
 /**
  * @brief Performs the Iterative Extended Kalman correct step.

@@ -39,7 +39,7 @@ public:
     Data::Robot::List &fleet_data{data.getRobots()};
 
     for (const Data::Robot &robot_data : fleet_data) {
-      robots_.emplace_back(std::make_unique<T>(data), robot_data);
+      robots_.emplace_back(std::make_unique<T>(), robot_data);
     }
 
     const Data::Landmark::List &landmarks{data.getLandmarks()};

@@ -54,12 +54,13 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
     /* Extend the time-series by duplicating the last element in place. */
     auto &current_estimate{estimates_.emplace_back(estimates_.back())};
 
-    const Data::Robot::Odometry &current_odometry{odometry_.at(i)};
+    const double &next_time{odometry_.at(i + 1).time};
+    const Data::Robot::Odometry &prior_odometry{odometry_.at(i)};
 
-    filter_->prediction(current_odometry, current_estimate);
+    // TODO: make this cleaner and more robust.
+    double dt{next_time - prior_odometry.time};
+    filter_->prediction(prior_odometry, current_estimate, dt);
   }
-
-  std::cerr << "Prediction: " << estimates_.back().state_estimate << std::endl;
 
   return estimates_.back();
 };
@@ -69,7 +70,7 @@ void Robot::recieveVanetMessages(
 
   /* Loop through the measurements taken and perform the measurement
    * update for each robot.
-   * NOTE: This operation uses the assumption that the measurements fo the
+   * NOTE: This operation uses the assumption that the measurements for the
    * indpendent robots/landmarks are independent of one another.
    */
   const double time{odometry_.at(index).time};
@@ -82,9 +83,6 @@ void Robot::recieveVanetMessages(
 
   EstimationParameters &parameters{estimates_.at(index)};
 
-  std::cerr << "Before\n" << parameters.state_estimate << std::endl;
-  std::cerr << "Total subjects: " << current_measurement->subjects.size()
-            << std::endl;
   /* Loop through the list of measurements. It is assumed that the data
    * associations are known. */
   for (unsigned short i{}; i < current_measurement->subjects.size(); ++i) {
@@ -106,7 +104,6 @@ void Robot::recieveVanetMessages(
     double &normalised_angle{parameters.state_estimate(ORIENTATION)};
     utils::normaliseAngle(normalised_angle);
   }
-  std::cerr << "After\n" << parameters.state_estimate << std::endl;
 }
 
 const std::vector<EstimationParameters> &Robot::getEstimates() const {

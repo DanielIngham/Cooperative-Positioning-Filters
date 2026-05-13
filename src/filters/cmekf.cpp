@@ -6,7 +6,6 @@
 #include <cmath>
 
 namespace CL::filter {
-CMEKF::CMEKF(Data::Handler &data) : EKF(data) {}
 
 void CMEKF::correction(EstimationParameters &ego,
                        const EstimationParameters &agent) {
