@@ -52,6 +52,8 @@ protected:
 
     double Gaussian(const Eigen::VectorXd &mean,
                     const Eigen::MatrixXd &covariance);
+
+    bool checkWeights();
   };
 
 private:

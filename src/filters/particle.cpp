@@ -30,8 +30,9 @@ void Particle::correction(EstimationParameters &ego,
 
   bool resample{particles_.reweight(ego, agent)};
 
-  if (resample)
+  if (resample) {
     particles_.resample(gen_);
+  }
 
   ego.state_estimate = particles_.mmse();
 
@@ -87,8 +88,18 @@ bool Particle::Particles::reweight(const EstimationParameters &ego,
                         return acc + sample.second;
                       })};
 
+  if (total_weight == 0) {
+    throw std::runtime_error("The total weight of the particles equals zero.");
+  }
+
   for (auto &[state, weight] : samples_) {
     weight /= total_weight;
+  }
+
+  if (!checkWeights()) {
+    std::cerr << std::endl << total_weight << std::endl;
+    std::cerr << samples_.size() << std::endl;
+    throw std::runtime_error("Reweighting failed.");
   }
 
   double effective_samples{
@@ -129,6 +140,9 @@ void Particle::Particles::resample(std::mt19937 &gen) {
           "[CRITICAL ERROR] Particle sample size equals zero.");
     weight = 1.0 / samples_.size();
   }
+
+  if (!checkWeights())
+    throw std::runtime_error("Resampling failed.");
 }
 
 state_t Particle::Particles::mmse() {
@@ -181,6 +195,15 @@ double Particle::Particles::Gaussian(const Eigen::VectorXd &difference,
 
   return std::exp(-0.5 * difference.transpose() * covariance.inverse() *
                   difference);
+}
+
+bool Particle::Particles::checkWeights() {
+  for (const auto &[state, weight] : samples_) {
+    if (std::isnan(weight)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 } // namespace CL::filter
