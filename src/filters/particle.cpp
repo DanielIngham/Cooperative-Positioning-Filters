@@ -4,8 +4,10 @@
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
+#include <iostream>
 #include <numeric>
 #include <random>
+#include <stdexcept>
 
 namespace CL::filter {
 
@@ -32,6 +34,10 @@ void Particle::correction(EstimationParameters &ego,
     particles_.resample(gen_);
 
   ego.state_estimate = particles_.mmse();
+
+  if (ego.state_estimate.hasNaN()) {
+    throw std::runtime_error("[CRITICAL ERROR] State estimate unstable.");
+  }
 }
 
 /**
@@ -118,6 +124,9 @@ void Particle::Particles::resample(std::mt19937 &gen) {
                              })};
 
     sample = it->first;
+    if (samples_.size() == 0)
+      throw std::runtime_error(
+          "[CRITICAL ERROR] Particle sample size equals zero.");
     weight = 1.0 / samples_.size();
   }
 }
