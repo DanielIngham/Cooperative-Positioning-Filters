@@ -21,18 +21,36 @@
 #include "CL/filters/information_filter.hpp"
 #endif // INFO_TARGET
 
+#ifdef PARTICLE_TARGET
+#include "CL/filters/particle.hpp"
+#endif // PARTICLE
+
 int main(int argc, char *argv[]) {
 
   Data::Handler data;
 
   data.setDataSet(Data::Set[0]);
-  // data.setSimulation(1000);
+#ifdef EKF_TARGET
+  CL::Inference<CL::filter::EKF> inference{data};
 
-  // Filter::EKF ekf{data};
-  // ekf.performInference();
-  CL::Inference<CL::filter::EKF> test{data};
-  test.compute();
-  CL::utils::PerformanceEvaluator::populateSyncedStates(test.getRobots(), data);
+#elif defined(IEKF_TARGET)
+  CL::Inference<CL::filter::IEKF> inference{data};
+
+#elif defined(INFO_TARGET)
+  CL::Inference<CL::filter::InformationFilter> inference{data};
+
+#elif defined(CMEKF_TARGET)
+  CL::Inference<CL::filter::CMEKF> inference{data};
+
+#elif defined(PARTICLE_TARGET)
+  CL::Inference<CL::filter::Particle> inference{data};
+#else
+  throw std::runtime_error("Filter target not selected");
+#endif // EKF_TARGET
+
+  inference.compute();
+  CL::utils::PerformanceEvaluator::populateSyncedStates(inference.getRobots(),
+                                                        data);
   data.calculateStateError();
 
   Data::Plotter plot{};
