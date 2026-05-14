@@ -8,6 +8,7 @@
 #ifndef INCLUDE_INCLUDE_INFORMATION_H_
 #define INCLUDE_INCLUDE_INFORMATION_H_
 
+#include "CL/common/estimation_parameters.hpp"
 #include "CL/filters/filter.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
@@ -26,12 +27,14 @@ public:
    * perform Extended Information filtering.
    * @param[in] data Class containing all robot and landmark data.
    */
-  InformationFilter() = default;
+  InformationFilter() = delete;
   InformationFilter(InformationFilter &&) = default;
   InformationFilter(const InformationFilter &) = default;
   InformationFilter &operator=(InformationFilter &&) = delete;
   InformationFilter &operator=(const InformationFilter &) = delete;
   ~InformationFilter() = default;
+
+  InformationFilter(const EstimationParameters &prior) : Filter{prior} {};
 
   /**
    * @brief performs the prediction step of the Information filter.

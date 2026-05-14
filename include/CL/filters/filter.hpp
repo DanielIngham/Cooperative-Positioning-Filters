@@ -16,12 +16,14 @@
 namespace CL::filter {
 class Filter {
 public:
-  Filter() = default;
+  Filter() = delete;
   Filter(Filter &&) = default;
   Filter(const Filter &) = default;
-  Filter &operator=(Filter &&) = delete;
-  Filter &operator=(const Filter &) = delete;
+  Filter &operator=(Filter &&) = default;
+  Filter &operator=(const Filter &) = default;
   virtual ~Filter() = default;
+
+  explicit Filter(const EstimationParameters &prior) : prior_{prior} {};
 
   virtual void prediction(const Data::Robot::Odometry &, EstimationParameters &,
                           double sample_period) = 0;
@@ -31,5 +33,6 @@ public:
 
 private:
 protected:
+  EstimationParameters prior_;
 };
 } // namespace CL::filter

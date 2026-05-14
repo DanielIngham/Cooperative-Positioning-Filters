@@ -6,38 +6,32 @@
 #include <UtiasMrclam/utils/Utils.hpp>
 
 #include <cassert>
-#include <iostream>
 
 namespace CL {
+Robot::Robot(const Data::Robot &data)
+    : Agent(data.barcode()), odometry_{data.synced.odometry},
+      measurements_{data.synced.measurements} {
 
-Robot::Robot(std::unique_ptr<filter::Filter> filter_ptr,
-             const Data::Robot &data)
-    : Agent(data.barcode()), filter_{std::move(filter_ptr)},
-      odometry_{data.synced.odometry}, measurements_{data.synced.measurements} {
-
-  /* TODO: REMOVE later.
-   * We want to stop saving data into the data handler down the line, but for
-   * now it must remain for testing. */
-  auto &parameters{estimates_.emplace_back(data.id(), data.barcode())};
+  EstimationParameters &prior{
+      estimates_.emplace_back(data.id(), data.barcode())};
   /* Initial state: 3x1 Matrix. */
-  parameters.state_estimate(X) = data.groundtruth.states.front().x;
-  parameters.state_estimate(Y) = data.groundtruth.states.front().y;
-  parameters.state_estimate(ORIENTATION) =
+  prior.state_estimate(X) = data.groundtruth.states.front().x;
+  prior.state_estimate(Y) = data.groundtruth.states.front().y;
+  prior.state_estimate(ORIENTATION) =
       data.groundtruth.states.front().orientation;
 
   /* Populate odometry error covariance matrix: 2x2 matrix. */
-  parameters.process_noise(FORWARD_VELOCITY, FORWARD_VELOCITY) =
+  prior.process_noise(FORWARD_VELOCITY, FORWARD_VELOCITY) =
       data.forward_velocity_error.variance;
-  parameters.process_noise(ANGULAR_VELOCITY, ANGULAR_VELOCITY) =
+  prior.process_noise(ANGULAR_VELOCITY, ANGULAR_VELOCITY) =
       data.angular_velocity_error.variance;
 
   /* Populate measurement error covariance matrix: 2x2 matrix. */
-  parameters.measurement_noise(RANGE, RANGE) = data.range_error.variance;
-  parameters.measurement_noise(BEARING, BEARING) = data.bearing_error.variance;
+  prior.measurement_noise(RANGE, RANGE) = data.range_error.variance;
+  prior.measurement_noise(BEARING, BEARING) = data.bearing_error.variance;
 
   /* Populate the Initial information vector */
-  parameters.information_vector =
-      parameters.precision_matrix * parameters.state_estimate;
+  prior.information_vector = prior.precision_matrix * prior.state_estimate;
 }
 
 const EstimationParameters &Robot::broadcastEstimate(size_t index) {

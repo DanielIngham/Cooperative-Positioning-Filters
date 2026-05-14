@@ -12,7 +12,6 @@
 #include <UtiasMrclam/utils/Utils.hpp>
 #include <chrono>
 #include <iostream>
-#include <memory>
 #include <type_traits>
 #include <vector>
 
@@ -34,12 +33,13 @@ public:
    * Populates robots and landmarks with data from the data handler.
    */
   Inference(Data::Handler &data) {
+
     total_datapoints_ = data.getNumberOfSyncedDatapoints();
 
     Data::Robot::List &fleet_data{data.getRobots()};
 
     for (const Data::Robot &robot_data : fleet_data) {
-      robots_.emplace_back(std::make_unique<T>(), robot_data);
+      robots_.push_back(Robot::create<T>(robot_data));
     }
 
     const Data::Landmark::List &landmarks{data.getLandmarks()};

@@ -8,12 +8,14 @@
 namespace CL::filter {
 class CMEKF : public EKF {
 public:
-  CMEKF() = default;
+  CMEKF() = delete;
   CMEKF(CMEKF &&) = default;
   CMEKF(const CMEKF &) = default;
   CMEKF &operator=(CMEKF &&) = delete;
   CMEKF &operator=(const CMEKF &) = delete;
   ~CMEKF() = default;
+
+  CMEKF(const EstimationParameters &prior) : EKF{prior} {};
 
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;

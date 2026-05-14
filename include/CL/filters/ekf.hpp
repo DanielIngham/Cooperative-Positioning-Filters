@@ -9,6 +9,7 @@
 #ifndef INCLUDE_INCLUDE_EKF_H_
 #define INCLUDE_INCLUDE_EKF_H_
 
+#include "CL/common/estimation_parameters.hpp"
 #include "CL/filters/filter.hpp"
 
 #include <Eigen/Dense>
@@ -26,12 +27,14 @@ namespace CL::filter {
  */
 class EKF : public Filter {
 public:
-  EKF() = default;
+  EKF() = delete;
   EKF(EKF &&) = default;
   EKF(const EKF &) = default;
   EKF &operator=(EKF &&) = delete;
   EKF &operator=(const EKF &) = delete;
   ~EKF() = default;
+
+  EKF(const EstimationParameters &prior) : Filter{prior} {};
 
   void prediction(const Data::Robot::Odometry &odometry,
                   EstimationParameters &parameters,

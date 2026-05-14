@@ -1,4 +1,5 @@
 #pragma once
+#include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
 #include "CL/filters/filter.hpp"
 
@@ -11,18 +12,19 @@ namespace CL::filter {
 class Particle : public Filter {
 public:
   Particle() = delete;
-  explicit Particle(Data::Handler &data, size_t samples = 1000);
+  Particle(const EstimationParameters &prior, size_t samples = 1000);
   Particle(Particle &&) = default;
   Particle(const Particle &) = default;
   Particle &operator=(Particle &&) = delete;
   Particle &operator=(const Particle &) = delete;
   ~Particle() = default;
 
-  virtual void prediction(const Data::Robot::Odometry &,
-                          EstimationParameters &) override;
+  virtual void prediction(const Data::Robot::Odometry &odometry,
+                          EstimationParameters &ego,
+                          double sample_period) override;
 
-  virtual void correction(EstimationParameters &,
-                          const EstimationParameters &) override;
+  virtual void correction(EstimationParameters &ego,
+                          const EstimationParameters &agent) override;
 
 protected:
   struct Particles {

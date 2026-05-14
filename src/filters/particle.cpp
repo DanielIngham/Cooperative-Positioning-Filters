@@ -9,42 +9,29 @@
 
 namespace CL::filter {
 
-Particle::Particle(Data::Handler &data, size_t samples) : Filter{data} {
+Particle::Particle(const EstimationParameters &prior, size_t samples)
+    : Filter{prior}, particles_{samples, prior.state_estimate} {
   std::random_device rd;
   gen_.seed(rd());
-
-  /* Populate the samples with the prior. */
-  // TODO: Make the particle filter only influence one agent.
-  for (const auto &[id, parameters] : robot_parameters) {
-    auto result{particles_.emplace(
-        id, Particles{samples, parameters.front().state_estimate})};
-
-    if (!result.second) {
-      throw std::runtime_error("Unable to add Robot with ID " + id +
-                               " to robot parameters");
-    }
-  }
 }
 
 void Particle::prediction(const Data::Robot::Odometry &odometry,
-                          EstimationParameters &ego) {
+                          EstimationParameters &ego, double sample_period) {
 
-  Particles &particles{particles_.at(ego.id)};
-  particles.propagate(odometry, ego, sample_period_, gen_);
+  particles_.propagate(odometry, ego, sample_period, gen_);
 
-  ego.state_estimate = particles.mmse();
+  ego.state_estimate = particles_.mmse();
 }
 
 void Particle::correction(EstimationParameters &ego,
                           const EstimationParameters &agent) {
 
-  Particles &particles{particles_.at(ego.id)};
-  bool resample{particles.reweight(ego, agent)};
+  bool resample{particles_.reweight(ego, agent)};
 
   if (resample)
-    particles.resample(gen_);
+    particles_.resample(gen_);
 
-  ego.state_estimate = particles.mmse();
+  ego.state_estimate = particles_.mmse();
 }
 
 /**

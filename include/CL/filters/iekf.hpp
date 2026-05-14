@@ -28,12 +28,14 @@ namespace CL::filter {
  */
 class IEKF : public EKF {
 public:
-  IEKF() = default;
+  IEKF() = delete;
   IEKF(IEKF &&) = default;
   IEKF(const IEKF &) = default;
   IEKF &operator=(IEKF &&) = delete;
   IEKF &operator=(const IEKF &) = delete;
   ~IEKF() = default;
+
+  IEKF(const EstimationParameters &prior) : EKF{prior} {};
 
   void correction(EstimationParameters &,
                   const EstimationParameters &) override;
