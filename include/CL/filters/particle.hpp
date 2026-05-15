@@ -28,11 +28,23 @@ public:
 
 protected:
   struct Particles {
+    /**
+     * Initialises all the particles to the known prior state and sets the
+     * weights equally.
+     * @note In this implementation, it is assumed that the prior state is
+     * known, and therefore the initial samples are all set to the known prior
+     * instead of being drawn from a prior distribution.
+     */
     Particles(const size_t, const state_t &);
 
     void propagate(const Data::Robot::Odometry &, const EstimationParameters &,
                    const double, std::mt19937 &);
 
+    /**
+     * Calculates the new weights of the particles based on the likelihood of
+     * the state given the measurement.
+     * @returns A flag indicating whether the particles should be resampled.
+     */
     bool reweight(const EstimationParameters &, const EstimationParameters &);
 
     state_t mmse();

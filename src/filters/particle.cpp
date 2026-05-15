@@ -4,7 +4,6 @@
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
-#include <iostream>
 #include <numeric>
 #include <random>
 #include <stdexcept>
@@ -41,13 +40,6 @@ void Particle::correction(EstimationParameters &ego,
   }
 }
 
-/**
- * Initialises all the particles to the known prior state and sets the weights
- * equally.
- * @note In this implementation, it is assumed that the prior state is known,
- * and therefore the initial samples are all set to the known prior instead of
- * being drawn from a prior distribution.
- */
 Particle::Particles::Particles(const size_t samples, const state_t &prior) {
   const double inital_weight{1. / samples};
   for (size_t i{}; i < samples; ++i) {
@@ -68,18 +60,30 @@ void Particle::Particles::propagate(const Data::Robot::Odometry &odometry,
   }
 }
 
-/**
- * Calculates the new weights of the particles based on the likelihood of the
- * state given the measurement.
- * @returns A flag indicating whether the particles should be resampled.
- */
 bool Particle::Particles::reweight(const EstimationParameters &ego,
                                    const EstimationParameters &agent) {
+  std::vector<double> log_weights{};
+
+  Eigen::LLT<Eigen::MatrixXd> llt(ego.measurement_noise);
+
   for (auto &[state, weight] : samples_) {
     const measurement_t difference{
         ego.measurement -
         Models::Measurement::measurementModel(state, agent.state_estimate)};
-    weight *= Gaussian(difference, ego.measurement_noise);
+
+    Eigen::VectorXd y{llt.matrixL().solve(difference)};
+
+    double mahalanobis_distance{y.squaredNorm()};
+
+    log_weights.push_back(-0.5 * mahalanobis_distance);
+  }
+
+  double max_log_weight{
+      *std::max_element(log_weights.begin(), log_weights.end())};
+
+  for (size_t i{}; i < log_weights.size(); ++i) {
+    double &weights{samples_.at(i).second};
+    weights = std::exp(log_weights[i] - max_log_weight);
   }
 
   double total_weight{
@@ -96,11 +100,8 @@ bool Particle::Particles::reweight(const EstimationParameters &ego,
     weight /= total_weight;
   }
 
-  if (!checkWeights()) {
-    std::cerr << std::endl << total_weight << std::endl;
-    std::cerr << samples_.size() << std::endl;
+  if (!checkWeights())
     throw std::runtime_error("Reweighting failed.");
-  }
 
   double effective_samples{
       std::accumulate(samples_.begin(), samples_.end(), 0.0,
