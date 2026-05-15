@@ -21,6 +21,10 @@
 #include "CL/filters/information_filter.hpp"
 #endif // INFO_TARGET
 
+#ifdef CMEKF_TARGET
+#include "CL/filters/cmekf.hpp"
+#endif
+
 #ifdef PARTICLE_TARGET
 #include "CL/filters/particle.hpp"
 #endif // PARTICLE
