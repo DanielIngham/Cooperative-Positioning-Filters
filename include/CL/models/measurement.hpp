@@ -2,36 +2,28 @@
 
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
+#include <type_traits>
 
 namespace CL::Models {
 class Measurement {
 public:
-  Measurement() = default;
   Measurement(Measurement &&) = default;
   Measurement(const Measurement &) = default;
   Measurement &operator=(Measurement &&) = default;
   Measurement &operator=(const Measurement &) = default;
   ~Measurement() = default;
 
-  Measurement(const EstimationParameters &ego,
-              const EstimationParameters agent);
-
-  [[nodiscard]] static measurement_t measurementModel(const state_t &,
-                                                      const state_t &);
+  template <typename T>
+  [[nodiscard]] static T generateMeasurement(const EstimationParameters &ego,
+                                             const EstimationParameters agent) {
+    static_assert(std::is_base_of_v<Measurement, T>,
+                  "T must be child of Measurement class.");
+    T measurement{ego, agent};
+    return measurement;
+  };
 
   [[nodiscard]] static double rangeMeasurementModel(const state_t &,
                                                     const state_t &);
-
-  void calculateMeasurementJacobian(const EstimationParameters &,
-                                    const EstimationParameters &);
-
-  [[nodiscard]] static measurementJacobian_t
-  egoMeasurementJacobian(const EstimationParameters &,
-                         const EstimationParameters &);
-
-  [[nodiscard]] static measurementJacobian_t
-  agentMeasurementJacobian(const EstimationParameters &,
-                           const EstimationParameters &);
 
   [[nodiscard]] static vector3D_t
   egoRangeMeasurementJacobian(const EstimationParameters &,
@@ -64,12 +56,18 @@ public:
    */
   measurement_t getPrediction() const;
 
-private:
+protected:
+  Measurement() = default;
+
   measurement_t predicted_measurement_{};
 
   /**
    * @brief Jacobian of the measurement model: 2 x 6 matrix.
    */
   augmentedMeasurementJacobian_t measurement_jacobian_{};
+
+  virtual measurement_t model(const state_t &, const state_t &) = 0;
+
+private:
 };
 } // namespace CL::Models

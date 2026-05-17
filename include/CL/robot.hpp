@@ -25,7 +25,9 @@ public:
   Robot &operator=(const Robot &) = delete;
   ~Robot() = default;
 
-  template <typename T> static Robot create(const Data::Robot &data) {
+  template <typename T>
+  [[nodiscard]]
+  static Robot create(const Data::Robot &data) {
     static_assert(std::is_base_of_v<filter::Filter, T>,
                   "Type T must be derived from base class filter::Filter.");
     Robot robot{data};

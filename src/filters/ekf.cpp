@@ -9,6 +9,7 @@
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
+#include "CL/models/range_bearing.hpp"
 #include "CL/utils/utils.hpp"
 
 #include <cmath>
@@ -51,7 +52,9 @@ void EKF::prediction(const Data::Robot::Odometry &odometry,
 void EKF::correction(EstimationParameters &ego,
                      const EstimationParameters &agent) {
 
-  const Models::Measurement measurement{ego, agent};
+  const auto measurement{
+      Models::Measurement::generateMeasurement<Models::RangeBearing>(ego,
+                                                                     agent)};
 
   /* The joint sensor measurement noise is the sum of the measurement noise and
    * the estimate error covariance of the measured agent. */
