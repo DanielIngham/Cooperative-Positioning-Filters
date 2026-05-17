@@ -22,16 +22,6 @@ public:
     return measurement;
   };
 
-  [[nodiscard]] static double rangeMeasurementModel(const state_t &,
-                                                    const state_t &);
-
-  [[nodiscard]] static vector3D_t
-  egoRangeMeasurementJacobian(const EstimationParameters &,
-                              const EstimationParameters &);
-
-  [[nodiscard]] static vector3D_t
-  agentRangeMeasurementJacobian(const EstimationParameters &,
-                                const EstimationParameters &);
   /**
    * Getter for the ego vehicle's measurement Jacobian matrix.
    * @returns a Jacobian matrix.
