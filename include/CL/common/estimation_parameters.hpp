@@ -45,7 +45,7 @@ struct EstimationParameters {
       measurementCovariance_t::Zero()};
 
   /**
-   * @brief The difference between the prior and posterior state estimtes.
+   * @brief The difference between the predictive and posterior density.
    * @details The estimation residual is defined by the expresssion:
    * \f[\delta \mathbf{x}_k = \mathbf{x}_{k\mid k-1} - \mathbf{x}_{k\mid k}
    * \f].
@@ -104,12 +104,6 @@ struct EstimationParameters {
    * process inputs.
    */
   processJacobian_t process_jacobian{processJacobian_t::Zero()};
-
-  /**
-   * @brief Jacobian of the measurement model: 2 x 6 matrix.
-   */
-  augmentedMeasurementJacobian_t measurement_jacobian{
-      augmentedMeasurementJacobian_t::Zero()};
 
   /**
    * @brief Information vector: 3x1 matrix.

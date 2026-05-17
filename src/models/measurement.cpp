@@ -2,6 +2,30 @@
 #include "CL/utils/utils.hpp"
 
 namespace CL::Models {
+Measurement::Measurement(const EstimationParameters &ego,
+                         const EstimationParameters agent) {
+
+  calculateMeasurementJacobian(ego, agent);
+
+  predicted_measurement_ = Models::Measurement::measurementModel(
+      ego.state_estimate, agent.state_estimate);
+}
+
+measurementJacobian_t Measurement::getEgoJacobian() const {
+  return measurement_jacobian_.leftCols<3>();
+}
+
+measurementJacobian_t Measurement::getAgentJacobian() const {
+  return measurement_jacobian_.rightCols<3>();
+}
+
+augmentedMeasurementJacobian_t Measurement::getAugmentedJacobian() const {
+  return measurement_jacobian_;
+}
+
+measurement_t Measurement::getPrediction() const {
+  return predicted_measurement_;
+}
 
 /**
  * @brief Uses the non-linear measurement model to predict what the measurement
@@ -79,7 +103,8 @@ double Measurement::rangeMeasurementModel(const state_t &agent,
  * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
  */
 void Measurement::calculateMeasurementJacobian(
-    EstimationParameters &ego_robot, const EstimationParameters &other_agent) {
+    const EstimationParameters &ego_robot,
+    const EstimationParameters &other_agent) {
 
   const double x_difference{other_agent.state_estimate(X) -
                             ego_robot.state_estimate(X)};
@@ -94,7 +119,7 @@ void Measurement::calculateMeasurementJacobian(
   if (denominator < min_distance)
     denominator = min_distance;
 
-  ego_robot.measurement_jacobian << -x_difference / denominator,
+  measurement_jacobian_ << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
       y_difference / denominator, 0, y_difference / (denominator * denominator),
       -x_difference / (denominator * denominator), -1,
