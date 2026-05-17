@@ -6,7 +6,7 @@ namespace CL::Models {
 RangeBearing::RangeBearing(const EstimationParameters &ego,
                            const EstimationParameters agent) {
 
-  calculateMeasurementJacobian(ego, agent);
+  measurement_jacobian_ = calculateMeasurementJacobian(ego, agent);
 
   predicted_measurement_ = model(ego.state_estimate, agent.state_estimate);
 }
@@ -74,9 +74,9 @@ measurement_t RangeBearing::model(const state_t &ego_state,
  * & 0\end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
  * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
  */
-void RangeBearing::calculateMeasurementJacobian(
+augmentedMeasurementJacobian_t RangeBearing::calculateMeasurementJacobian(
     const EstimationParameters &ego_robot,
-    const EstimationParameters &other_agent) {
+    const EstimationParameters &other_agent) const {
 
   const double x_difference{other_agent.state_estimate(X) -
                             ego_robot.state_estimate(X)};
@@ -91,11 +91,14 @@ void RangeBearing::calculateMeasurementJacobian(
   if (denominator < min_distance)
     denominator = min_distance;
 
-  measurement_jacobian_ << -x_difference / denominator,
-      -y_difference / denominator, 0, x_difference / denominator,
-      y_difference / denominator, 0, y_difference / (denominator * denominator),
+  augmentedMeasurementJacobian_t jacobian;
+  jacobian << -x_difference / denominator, -y_difference / denominator, 0,
+      x_difference / denominator, y_difference / denominator, 0,
+      y_difference / (denominator * denominator),
       -x_difference / (denominator * denominator), -1,
       -y_difference / (denominator * denominator),
       x_difference / (denominator * denominator), 0;
+
+  return jacobian;
 }
 } // namespace CL::Models

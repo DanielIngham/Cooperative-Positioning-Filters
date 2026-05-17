@@ -1,6 +1,19 @@
+/**
+ * @file range_bearing.hpp
+ */
+#pragma once
+#include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 
 namespace CL::Models {
+
+/**
+ * Implements the functionality of the range and bearing measurement model for
+ * filtering. This includes:
+ * - Computing the predicted measurement given the state of the ego vehicle and
+ * the observed agent.
+ * - Computing the corresponding Jacobian matrix.
+ */
 class RangeBearing : public Measurement {
 public:
   RangeBearing() = delete;
@@ -14,9 +27,11 @@ public:
                const EstimationParameters agent);
 
 private:
-  measurement_t model(const state_t &ego, const state_t &agent) override;
+  [[nodiscard]] measurement_t model(const state_t &ego,
+                                    const state_t &agent) override;
 
-  void calculateMeasurementJacobian(const EstimationParameters &ego,
-                                    const EstimationParameters &agent);
+  [[nodiscard]] augmentedMeasurementJacobian_t
+  calculateMeasurementJacobian(const EstimationParameters &ego,
+                               const EstimationParameters &agent) const;
 };
 } // namespace CL::Models
