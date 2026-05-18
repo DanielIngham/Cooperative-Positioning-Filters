@@ -1,20 +1,19 @@
 #include "CL/models/measurement.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 namespace CL::Models {
 
-measurementJacobian_t Measurement::getEgoJacobian() const {
-  return measurement_jacobian_.leftCols<3>();
+Eigen::MatrixXd Measurement::getEgoJacobian() const { return ego_jacobian_; }
+
+Eigen::MatrixXd Measurement::getAgentJacobian() const {
+  return agent_jacobian_;
 }
 
-measurementJacobian_t Measurement::getAgentJacobian() const {
-  return measurement_jacobian_.rightCols<3>();
-}
-
-augmentedMeasurementJacobian_t Measurement::getAugmentedJacobian() const {
+Eigen::MatrixXd Measurement::getAugmentedJacobian() const {
   return measurement_jacobian_;
 }
 
-measurement_t Measurement::getPrediction() const {
+Eigen::MatrixXd Measurement::getPrediction() const {
   return predicted_measurement_;
 }
 

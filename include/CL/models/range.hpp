@@ -21,15 +21,10 @@ public:
   Range(const EstimationParameters &ego, const EstimationParameters agent);
 
 private:
-  [[nodiscard]] static vector3D_t
-  egoRangeMeasurementJacobian(const EstimationParameters &,
-                              const EstimationParameters &);
+  [[nodiscard]] static Eigen::Matrix<double, 1, 3>
+  egoRangeMeasurementJacobian(const EstimationParameters &ego,
+                              const EstimationParameters &agent);
 
-  [[nodiscard]] static vector3D_t
-  agentRangeMeasurementJacobian(const EstimationParameters &,
-                                const EstimationParameters &);
-
-  [[nodiscard]] measurement_t rangeMeasurementModel(const state_t &,
-                                                    const state_t &);
+  [[nodiscard]] double model(const state_t &, const state_t &);
 };
 } // namespace CL::Models

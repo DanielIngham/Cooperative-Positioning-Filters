@@ -1,5 +1,6 @@
 #include "CL/models/range_bearing.hpp"
 #include "CL/utils/utils.hpp"
+#include <cmath>
 
 namespace CL::Models {
 
@@ -7,7 +8,8 @@ RangeBearing::RangeBearing(const EstimationParameters &ego,
                            const EstimationParameters agent) {
 
   measurement_jacobian_ = calculateMeasurementJacobian(ego, agent);
-
+  ego_jacobian_ = measurement_jacobian_.leftCols<3>();
+  agent_jacobian_ = measurement_jacobian_.rightCols<3>();
   predicted_measurement_ = model(ego.state_estimate, agent.state_estimate);
 }
 
@@ -84,8 +86,7 @@ augmentedMeasurementJacobian_t RangeBearing::calculateMeasurementJacobian(
   const double y_difference{other_agent.state_estimate(Y) -
                             ego_robot.state_estimate(Y)};
 
-  double denominator{
-      std::sqrt(x_difference * x_difference + y_difference * y_difference)};
+  double denominator{std::hypot(x_difference, y_difference)};
 
   static constexpr double min_distance{1e-6};
   if (denominator < min_distance)

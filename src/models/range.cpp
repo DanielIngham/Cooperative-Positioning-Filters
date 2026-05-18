@@ -1,62 +1,48 @@
 #include "CL/models/range.hpp"
+#include "CL/common/types.hpp"
+#include <Eigen/src/Core/Matrix.h>
+#include <cmath>
 
 namespace CL::Models {
 Range::Range(const EstimationParameters &ego,
              const EstimationParameters agent) {
-  measurement_jacobian_.leftCols<3>() = egoRangeMeasurementJacobian(ego, agent);
-  measurement_jacobian_.rightCols<3>() =
-      agentRangeMeasurementJacobian(ego, agent);
-  predicted_measurement_ =
-      rangeMeasurementModel(ego.state_estimate, agent.state_estimate);
+  ego_jacobian_ = egoRangeMeasurementJacobian(ego, agent);
+
+  agent_jacobian_ = -ego_jacobian_;
+
+  measurement_jacobian_.resize(1, 6);
+  measurement_jacobian_.block<1, 3>(0, 0) = ego_jacobian_;
+  measurement_jacobian_.block<1, 3>(0, 3) = agent_jacobian_;
+
+  predicted_measurement_ = Eigen::MatrixXd::Constant(
+      1, 1, model(ego.state_estimate, agent.state_estimate));
 }
 
-vector3D_t
+Eigen::Matrix<double, 1, 3>
 Range::egoRangeMeasurementJacobian(const EstimationParameters &ego,
                                    const EstimationParameters &agent) {
-  const double x_difference{agent.state_estimate(X) - ego.state_estimate(X)};
 
+  const double x_difference{agent.state_estimate(X) - ego.state_estimate(X)};
   const double y_difference{agent.state_estimate(Y) - ego.state_estimate(Y)};
 
-  double range{
-      std::sqrt(std::pow(x_difference, 2) + std::pow(y_difference, 2))};
+  double range{std::hypot(x_difference, y_difference)};
 
   static constexpr double min_range{1e-6};
   range = std::max(range, min_range);
 
-  vector3D_t jacobian;
-  jacobian(X) = -x_difference / range;
-  jacobian(Y) = -y_difference / range;
-  jacobian(ORIENTATION) = .0;
+  Eigen::Matrix<double, 1, 3> jacobian{};
+  jacobian(0, X) = -x_difference / range;
+  jacobian(0, Y) = -y_difference / range;
+  jacobian(0, ORIENTATION) = .0;
 
   return jacobian;
 }
 
-vector3D_t
-Range::agentRangeMeasurementJacobian(const EstimationParameters &ego,
-                                     const EstimationParameters &agent) {
-  const double x_difference{ego.state_estimate(X) - agent.state_estimate(X)};
-  const double y_difference{ego.state_estimate(Y) - agent.state_estimate(Y)};
-  double range{
-      std::sqrt(std::pow(x_difference, 2) + std::pow(y_difference, 2))};
-
-  static constexpr double min_range{1e-6};
-  range = std::max(range, min_range);
-
-  vector3D_t jacobian;
-  jacobian(X) = x_difference / range;
-  jacobian(Y) = y_difference / range;
-  jacobian(ORIENTATION) = .0;
-
-  return jacobian;
-}
-
-measurement_t Range::rangeMeasurementModel(const state_t &agent,
-                                           const state_t &ego) {
+double Range::model(const state_t &agent, const state_t &ego) {
   const double x_difference{agent(X) - ego(X)};
   const double y_difference{agent(Y) - ego(Y)};
 
-  double range{
-      std::sqrt(std::pow(x_difference, 2) + std::pow(y_difference, 2))};
+  double range{std::hypot(x_difference, y_difference)};
 
   return range;
 }

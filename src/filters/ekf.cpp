@@ -9,10 +9,14 @@
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
+#include "CL/models/range.hpp"
 #include "CL/models/range_bearing.hpp"
 #include "CL/utils/utils.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <cmath>
+#include <iostream>
+#include <stdexcept>
 
 #ifdef COUPLED
 #include "CL/utils/matrix_operations.hpp"
@@ -58,7 +62,7 @@ void EKF::correction(EstimationParameters &ego,
 
   /* The joint sensor measurement noise is the sum of the measurement noise and
    * the estimate error covariance of the measured agent. */
-  measurementCovariance_t joint_sensor_noise{
+  Eigen::MatrixXd joint_sensor_noise{
       ego.measurement_noise + measurement.getAgentJacobian() *
                                   agent.error_covariance *
                                   measurement.getAgentJacobian().transpose()};
@@ -68,15 +72,29 @@ void EKF::correction(EstimationParameters &ego,
                                   measurement.getEgoJacobian().transpose() +
                               joint_sensor_noise;
 
-  kalmanGain_t kalman_gain{ego.error_covariance *
-                           measurement.getEgoJacobian().transpose() *
-                           ego.innovation_covariance.inverse()};
+  Eigen::MatrixXd kalman_gain{ego.error_covariance *
+                              measurement.getEgoJacobian().transpose() *
+                              ego.innovation_covariance.inverse()};
 
   ego.innovation = ego.measurement - measurement.getPrediction();
   utils::normaliseAngle(ego.innovation(BEARING));
 
   /* Update the state estimate. */
   ego.state_estimate += kalman_gain * ego.innovation;
+
+  if (ego.state_estimate.hasNaN()) {
+    std::cerr << "Ego Jacobian:\n" << measurement.getEgoJacobian() << std::endl;
+    std::cerr << "Agent Jacobian:\n"
+              << measurement.getAgentJacobian() << std::endl;
+    std::cerr << "Innovation Covariance:\n"
+              << ego.innovation_covariance << std::endl;
+    std::cerr << "Innovation:\n" << ego.innovation << std::endl;
+    std::cerr << "Kalman Gain:\n" << ego.kalman_gain << std::endl;
+    std::cerr << "Predicted Measurement" << measurement.getPrediction()
+              << std::endl;
+
+    throw std::runtime_error("State estimate contains a NaN");
+  }
 
   /* Update the estimation error covariance.  */
   ego.error_covariance -=
@@ -147,52 +165,5 @@ void EKF::correction(EstimationParameters &ego_robot,
       error_covariance.topLeftCorner<total_states, total_states>();
 }
 #endif // COUPLED
-
-#if RANGE_ONLY
-void EKF::correction(EstimationParameters &ego,
-                     const EstimationParameters &agent) {
-
-  const vector3D_t ego_measurement_Jacobian{
-      Models::Measurement::egoRangeMeasurementJacobian(ego, agent)};
-
-  const vector3D_t agent_measurement_Jacobian{
-      Models::Measurement::agentRangeMeasurementJacobian(ego, agent)};
-
-  /* Calculate joint sensor measurment noise, which is the sum of the
-   * measurment noise and the estimate error covariance of the measured agent.
-   */
-  double ego_measurement_noise{ego.measurement_noise(0)};
-
-  double joint_sensor_noise{ego_measurement_noise +
-                            agent_measurement_Jacobian.transpose() *
-                                agent.error_covariance *
-                                agent_measurement_Jacobian};
-
-  /* Calculate innovation Covariance.  */
-  double innovation_covariance{ego_measurement_Jacobian.transpose() *
-                                   ego.error_covariance *
-                                   ego_measurement_Jacobian +
-                               joint_sensor_noise};
-
-  /* Calculate Kalman Gain. */
-  vector3D_t kalman_gain{(ego.error_covariance * ego_measurement_Jacobian) /
-                         innovation_covariance};
-
-  /* Calculate the innovation. */
-  const double predicted_measurement{Models::Measurement::rangeMeasurementModel(
-      ego.state_estimate, agent.state_estimate)};
-
-  const double measurement_range{ego.measurement(RANGE)};
-  const double innovation{measurement_range - predicted_measurement};
-
-  /* Update the state estimate. */
-  ego.state_estimate += kalman_gain * innovation;
-
-  /* Update the estimation error covariance.  */
-  ego.error_covariance -=
-      kalman_gain * innovation_covariance * kalman_gain.transpose();
-}
-
-#endif // BEARING_ONLY
 
 } // namespace CL::filter

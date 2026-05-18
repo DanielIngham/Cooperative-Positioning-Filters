@@ -27,8 +27,7 @@ public:
                const EstimationParameters agent);
 
 private:
-  [[nodiscard]] measurement_t model(const state_t &ego,
-                                    const state_t &agent) override;
+  [[nodiscard]] measurement_t model(const state_t &ego, const state_t &agent);
 
   [[nodiscard]] augmentedMeasurementJacobian_t
   calculateMeasurementJacobian(const EstimationParameters &ego,

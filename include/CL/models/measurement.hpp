@@ -1,8 +1,9 @@
 #pragma once
 
 #include "CL/common/estimation_parameters.hpp"
-#include "CL/common/types.hpp"
 #include <type_traits>
+
+#include <Eigen/Dense>
 
 namespace CL::Models {
 class Measurement {
@@ -26,37 +27,47 @@ public:
    * Getter for the ego vehicle's measurement Jacobian matrix.
    * @returns a Jacobian matrix.
    */
-  measurementJacobian_t getEgoJacobian() const;
+  Eigen::MatrixXd getEgoJacobian() const;
 
   /**
    * Getter for the observed agents measurement Jacobian matrix.
    * @returns a Jacobian matrix;
    */
-  measurementJacobian_t getAgentJacobian() const;
+  Eigen::MatrixXd getAgentJacobian() const;
 
   /**
    * Getter for the Jacobian matrix that contains both the ego vehicle and agent
    * Jacobian matrices.
    */
-  augmentedMeasurementJacobian_t getAugmentedJacobian() const;
+  Eigen::MatrixXd getAugmentedJacobian() const;
 
   /**
    * Getter for the predicted measurement given the state of the ego vehicle and
    * the observed agent.
    */
-  measurement_t getPrediction() const;
+  Eigen::MatrixXd getPrediction() const;
 
 protected:
   Measurement() = default;
 
-  measurement_t predicted_measurement_{};
+  Eigen::MatrixXd predicted_measurement_{};
 
   /**
    * @brief Jacobian of the measurement model: 2 x 6 matrix.
    */
-  augmentedMeasurementJacobian_t measurement_jacobian_{};
+  Eigen::MatrixXd measurement_jacobian_{};
 
-  virtual measurement_t model(const state_t &, const state_t &) = 0;
+  /**
+   * Jacobian matrix of the states of the ego robot with respect to the
+   * measurement model.
+   */
+  Eigen::MatrixXd ego_jacobian_{};
+
+  /**
+   * Jacobian matrix of the states of the observed agent with respect to the
+   * measurement model.
+   */
+  Eigen::MatrixXd agent_jacobian_{};
 
 private:
 };

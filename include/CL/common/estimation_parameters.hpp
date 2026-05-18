@@ -36,13 +36,12 @@ struct EstimationParameters {
    * k-1})\f], where \f$\mathbf{z}\f$ is the measurement taken, and
    * \f$x_{k\mid k-1}\f$ is the estimated state of the robot.
    */
-  measurement_t innovation{measurement_t::Zero()};
+  Eigen::VectorXd innovation{measurement_t::Zero()};
 
   /**
    * @brief Measurement innovation covariance matrix: 2x2 matrix.
    */
-  measurementCovariance_t innovation_covariance{
-      measurementCovariance_t::Zero()};
+  Eigen::MatrixXd innovation_covariance{measurementCovariance_t::Zero()};
 
   /**
    * @brief The difference between the predictive and posterior density.
