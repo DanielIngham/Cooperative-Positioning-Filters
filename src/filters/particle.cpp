@@ -1,6 +1,7 @@
 #include "CL/filters/particle.hpp"
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
+#include "CL/models/range_bearing.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
@@ -69,7 +70,7 @@ bool Particle::Particles::reweight(const EstimationParameters &ego,
   for (auto &[state, weight] : samples_) {
     const measurement_t difference{
         ego.measurement -
-        Models::Measurement::measurementModel(state, agent.state_estimate)};
+        Models::RangeBearing::model(state, agent.state_estimate)};
 
     Eigen::VectorXd y{llt.matrixL().solve(difference)};
 

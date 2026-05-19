@@ -78,7 +78,7 @@ measurement_t RangeBearing::model(const state_t &ego_state,
  */
 augmentedMeasurementJacobian_t RangeBearing::calculateMeasurementJacobian(
     const EstimationParameters &ego_robot,
-    const EstimationParameters &other_agent) const {
+    const EstimationParameters &other_agent) {
 
   const double x_difference{other_agent.state_estimate(X) -
                             ego_robot.state_estimate(X)};

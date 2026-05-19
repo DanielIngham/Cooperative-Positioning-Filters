@@ -10,6 +10,7 @@
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
+#include "CL/models/range_bearing.hpp"
 #include "CL/utils/matrix_operations.hpp"
 
 namespace CL::filter {
@@ -19,21 +20,17 @@ void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
                                    double sample_period) {
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  Models::Process::calculateMotionJacobian(odometry, parameters, sample_period);
+  Models::Process process_model{odometry, parameters, sample_period};
+  const motionJacobian_t &motion_jacobian{process_model.getMotionJacobian()};
+  const processJacobian_t &process_jacobian{process_model.getProcessJacobian()};
 
-  /* Calculate the process noise Jacobian: 3x2 matrix. */
-  Models::Process::calculateProcessJacobian(parameters, sample_period);
+  parameters.state_estimate = process_model.getPredictedState();
 
-  /* Make the prediction using the motion model: 3x1 matrix. */
-  Models::Process::motionModel(odometry, parameters.state_estimate,
-                               sample_period);
-
-  /* Propagate the estimation information: 3x3 matrix. */
-  parameters.error_covariance =
-      parameters.motion_jacobian * parameters.precision_matrix.inverse() *
-          parameters.motion_jacobian.transpose() +
-      parameters.process_jacobian * parameters.process_noise *
-          parameters.process_jacobian.transpose();
+  parameters.error_covariance = motion_jacobian *
+                                    parameters.precision_matrix.inverse() *
+                                    motion_jacobian.transpose() +
+                                process_jacobian * parameters.process_noise *
+                                    process_jacobian.transpose();
 
   parameters.precision_matrix = parameters.error_covariance.inverse();
 
@@ -45,34 +42,28 @@ void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
 void InformationFilter::correction(EstimationParameters &ego,
                                    const EstimationParameters &agent) {
 
-  const measurementJacobian_t ego_measurement_Jacobian{
-      Models::Measurement::egoMeasurementJacobian(ego, agent)};
-
-  const measurementJacobian_t agent_measurement_Jacobian{
-      Models::Measurement::agentMeasurementJacobian(ego, agent)};
+  const auto &meas_model{
+      Models::Measurement::generateMeasurement<Models::RangeBearing>(ego,
+                                                                     agent)};
 
   /* Calculate the joint measurment noise. */
   const measurementCovariance_t joint_measurement_noise{
-      ego.measurement_noise + agent_measurement_Jacobian *
+      ego.measurement_noise + meas_model.getAgentJacobian() *
                                   agent.precision_matrix.inverse() *
-                                  agent_measurement_Jacobian.transpose()};
+                                  meas_model.getAgentJacobian().transpose()};
 
-  /* Calculate the measurement residual. */
-  const measurement_t predicted_measurement{
-      Models::Measurement::measurementModel(ego.state_estimate,
-                                            agent.state_estimate)};
-
-  ego.innovation = (ego.measurement - predicted_measurement);
+  ego.innovation = ego.measurement - meas_model.getPrediction();
 
   /* Calculate the precision contribution */
   const precision_t precision_matrix_contribution{
-      ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
-      ego_measurement_Jacobian};
+      meas_model.getEgoJacobian().transpose() *
+      joint_measurement_noise.inverse() * meas_model.getEgoJacobian()};
 
   /* Calculate the information contribution */
   const information_t information_vector_contribution{
-      ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
-      (ego.innovation + ego_measurement_Jacobian * ego.state_estimate)};
+      meas_model.getEgoJacobian().transpose() *
+      joint_measurement_noise.inverse() *
+      (ego.innovation + meas_model.getEgoJacobian() * ego.state_estimate)};
 
   ego.precision_matrix += precision_matrix_contribution;
 

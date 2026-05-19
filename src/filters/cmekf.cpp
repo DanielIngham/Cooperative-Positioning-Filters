@@ -1,6 +1,7 @@
 #include "CL/filters/cmekf.hpp"
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
+#include "CL/models/range_bearing.hpp"
 
 #include <UtiasMrclam/Plotter.hpp>
 #include <cmath>
@@ -10,13 +11,14 @@ namespace CL::filter {
 void CMEKF::correction(EstimationParameters &ego,
                        const EstimationParameters &agent) {
 
-  const measurementJacobian_t agent_measurement_Jacobian{
-      Models::Measurement::agentMeasurementJacobian(ego, agent)};
+  const auto &meas_model{
+      Models::Measurement::generateMeasurement<Models::RangeBearing>(ego,
+                                                                     agent)};
 
   measurementCovariance_t joint_sensor_noise{
-      ego.measurement_noise + agent_measurement_Jacobian *
+      ego.measurement_noise + meas_model.getAgentJacobian() *
                                   agent.error_covariance *
-                                  agent_measurement_Jacobian.transpose()};
+                                  meas_model.getAgentJacobian().transpose()};
 
   /* Covert the range and bearing into relative x and y coordinates.*/
   const measurement_t measurement{relativePosition(ego.measurement)};

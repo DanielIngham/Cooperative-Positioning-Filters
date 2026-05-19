@@ -26,11 +26,13 @@ public:
   RangeBearing(const EstimationParameters &ego,
                const EstimationParameters agent);
 
-private:
-  [[nodiscard]] measurement_t model(const state_t &ego, const state_t &agent);
+  [[nodiscard]] static measurement_t model(const state_t &ego,
+                                           const state_t &agent);
 
-  [[nodiscard]] augmentedMeasurementJacobian_t
+  [[nodiscard]] static augmentedMeasurementJacobian_t
   calculateMeasurementJacobian(const EstimationParameters &ego,
-                               const EstimationParameters &agent) const;
+                               const EstimationParameters &agent);
+
+private:
 };
 } // namespace CL::Models

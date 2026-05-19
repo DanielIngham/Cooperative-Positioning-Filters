@@ -8,6 +8,7 @@
 
 #include "CL/filters/iekf.hpp"
 #include "CL/models/measurement.hpp"
+#include "CL/models/range_bearing.hpp"
 #include "CL/utils/matrix_operations.hpp"
 #include "CL/utils/utils.hpp"
 
@@ -44,23 +45,22 @@ void IEKF::correction(EstimationParameters &ego,
   for (int i{}; i < max_iterations_; ++i) {
 
     /* Calculate measurement Jacobian */
-    Models::Measurement::calculateMeasurementJacobian(ego, agent);
-
+    const auto measurement{
+        Models::Measurement::generateMeasurement<Models::RangeBearing>(ego,
+                                                                       agent)};
     /* Calculate Covariance Innovation: */
-    ego.innovation_covariance = ego.measurement_jacobian * error_covariance *
-                                    ego.measurement_jacobian.transpose() +
-                                ego.measurement_noise;
+    ego.innovation_covariance =
+        measurement.getAugmentedJacobian() * error_covariance *
+            measurement.getAugmentedJacobian().transpose() +
+        ego.measurement_noise;
 
     /* Calculate Kalman Gain */
-    ego.kalman_gain = error_covariance * ego.measurement_jacobian.transpose() *
+    ego.kalman_gain = error_covariance *
+                      measurement.getAugmentedJacobian().transpose() *
                       ego.innovation_covariance.inverse();
 
-    /* Populate the predicted measurement matrix. */
-    measurement_t predicted_measurement{Models::Measurement::measurementModel(
-        ego.state_estimate, agent.state_estimate)};
-
     /* Calculate the measurement residual. */
-    ego.innovation = ego.measurement - predicted_measurement;
+    ego.innovation = ego.measurement - measurement.getPrediction();
 
     /* Normalise the bearing residual */
     utils::normaliseAngle(ego.innovation(BEARING));
@@ -76,7 +76,7 @@ void IEKF::correction(EstimationParameters &ego,
     /* Update the iterative state estimate. */
     iterative_state_estimate =
         intial_state_estimate +
-        ego.kalman_gain * (ego.innovation - ego.measurement_jacobian *
+        ego.kalman_gain * (ego.innovation - measurement.getAugmentedJacobian() *
                                                 (ego.estimation_residual));
 
     /* Break if the change between iterations converges */
