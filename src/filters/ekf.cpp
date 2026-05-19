@@ -34,22 +34,16 @@ namespace CL::filter {
 void EKF::prediction(const Data::Robot::Odometry &odometry,
                      EstimationParameters &parameters, double sample_period) {
 
-  /* Calculate the Motion Jacobian: 3x3 matrix. */
-  Models::Process::calculateMotionJacobian(odometry, parameters, sample_period);
+  Models::Process process{odometry, parameters, sample_period};
 
-  /* Calculate the process noise Jacobian: 3x2 matrix. */
-  Models::Process::calculateProcessJacobian(parameters, sample_period);
+  motionJacobian_t motion_jacobian{process.getMotionJacobian()};
+  processJacobian_t process_jacobian{process.getProcessJacobian()};
 
-  /* Make the prediction using the motion model: 3x1 matrix. */
-  Models::Process::motionModel(odometry, parameters.state_estimate,
-                               sample_period);
-
-  /* Propagate the estimation error covariance: 3x3 matrix. */
-  parameters.error_covariance =
-      parameters.motion_jacobian * parameters.error_covariance *
-          parameters.motion_jacobian.transpose() +
-      parameters.process_jacobian * parameters.process_noise *
-          parameters.process_jacobian.transpose();
+  parameters.state_estimate = process.getPredictedState();
+  parameters.error_covariance = motion_jacobian * parameters.error_covariance *
+                                    motion_jacobian.transpose() +
+                                process_jacobian * parameters.process_noise *
+                                    process_jacobian.transpose();
 }
 
 #if DECOUPLED

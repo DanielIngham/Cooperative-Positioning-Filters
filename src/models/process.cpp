@@ -1,6 +1,25 @@
 #include "CL/models/process.hpp"
+#include "CL/common/types.hpp"
 
 namespace CL::Models {
+
+Process::Process(const Data::Robot::Odometry &odometry,
+                 EstimationParameters &parameters, double sample_period) {
+  process_jacobian_ = calculateProcessJacobian(parameters, sample_period);
+  motion_jacobian_ =
+      calculateMotionJacobian(odometry, parameters, sample_period);
+  state_estimate_ =
+      motionModel(odometry, parameters.state_estimate, sample_period);
+}
+
+motionJacobian_t Process::getMotionJacobian() const { return motion_jacobian_; }
+
+processJacobian_t Process::getProcessJacobian() const {
+  return process_jacobian_;
+}
+
+state_t Process::getPredictedState() const { return state_estimate_; }
+
 /**
  * @brief The unicycle motion model used to perform motion predictions.
  *
@@ -24,14 +43,18 @@ namespace CL::Models {
  * distributed random variables \f$\mathcal{N}(0,w)\f$ (see
  * Filter::EstimationParameters::process_noise).
  */
-void Process::motionModel(const Data::Robot::Odometry &odometry, state_t &state,
-                          const double sample_period) {
+state_t Process::motionModel(const Data::Robot::Odometry &odometry,
+                             state_t &state, const double sample_period) {
 
-  state << state(X) + odometry.forward_velocity * sample_period *
-                          std::cos(state(ORIENTATION)),
-      state(Y) + odometry.forward_velocity * sample_period *
-                     std::sin(state(ORIENTATION)),
+  state_t state_estimates{};
+  state_estimates(X) = state(X) + odometry.forward_velocity * sample_period *
+                                      std::cos(state(ORIENTATION));
+  state_estimates(Y) = state(Y) + odometry.forward_velocity * sample_period *
+                                      std::sin(state(ORIENTATION));
+  state_estimates(ORIENTATION) =
       state(ORIENTATION) + odometry.angular_velocity * sample_period;
+
+  return state_estimates;
 }
 
 /**
@@ -55,17 +78,30 @@ void Process::motionModel(const Data::Robot::Odometry &odometry, state_t &state,
  * Filter::EstimationParameters.measurement_noise. See Filter::motionModel for
  * information on the motion model from which this was derived.
  */
-void Process::calculateMotionJacobian(
-    const Data::Robot::Odometry &odometry,
-    EstimationParameters &estimation_parameters, const double sample_period) {
+motionJacobian_t
+Process::calculateMotionJacobian(const Data::Robot::Odometry &odometry,
+                                 EstimationParameters &estimation_parameters,
+                                 const double sample_period) {
 
-  estimation_parameters.motion_jacobian << 1, 0,
+  motionJacobian_t motion_jacobian{};
+
+  motion_jacobian(X, X) = 1;
+  motion_jacobian(X, Y) = 0;
+  motion_jacobian(X, ORIENTATION) =
       -odometry.forward_velocity * sample_period *
-          std::sin(estimation_parameters.state_estimate(ORIENTATION)),
-      0, 1,
+      std::sin(estimation_parameters.state_estimate(ORIENTATION));
+
+  motion_jacobian(Y, X) = 0;
+  motion_jacobian(Y, Y) = 1;
+  motion_jacobian(Y, ORIENTATION) =
       odometry.forward_velocity * sample_period *
-          std::cos(estimation_parameters.state_estimate(ORIENTATION)),
-      0, 0, 1;
+      std::cos(estimation_parameters.state_estimate(ORIENTATION));
+
+  motion_jacobian(ORIENTATION, X) = 0;
+  motion_jacobian(ORIENTATION, Y) = 0;
+  motion_jacobian(ORIENTATION, ORIENTATION) = 1;
+
+  return motion_jacobian;
 }
 
 /**
@@ -84,16 +120,34 @@ void Process::calculateMotionJacobian(
  * ego robot. measurement_noise. See EKF::prediction for information on the
  * motion model from which this was derived.
  */
-void Process::calculateProcessJacobian(
-    EstimationParameters &estimation_parameters, const double sample_period) {
+processJacobian_t Process::calculateProcessJacobian(
+    const EstimationParameters &estimation_parameters,
+    const double sample_period) {
 
-  estimation_parameters.process_jacobian
-      << sample_period *
-             std::cos(estimation_parameters.state_estimate(ORIENTATION)),
+  processJacobian_t process_jacobian{};
+
+  process_jacobian(X, FORWARD_VELOCITY) =
+      sample_period *
+      std::cos(estimation_parameters.state_estimate(ORIENTATION));
+  process_jacobian(X, ANGULAR_VELOCITY) = 0;
+
+  process_jacobian(Y, FORWARD_VELOCITY) =
+      sample_period *
+      std::sin(estimation_parameters.state_estimate(ORIENTATION));
+  process_jacobian(Y, ANGULAR_VELOCITY) = 0;
+
+  process_jacobian(ORIENTATION, FORWARD_VELOCITY) = 0;
+  process_jacobian(ORIENTATION, ANGULAR_VELOCITY) = sample_period;
+
+  process_jacobian << sample_period *
+                          std::cos(estimation_parameters.state_estimate(
+                              ORIENTATION)),
       0,
       sample_period *
           std::sin(estimation_parameters.state_estimate(ORIENTATION)),
       0, 0, sample_period;
+
+  return process_jacobian;
 }
 
 } // namespace CL::Models

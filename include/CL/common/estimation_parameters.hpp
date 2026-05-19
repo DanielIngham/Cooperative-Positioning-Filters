@@ -93,18 +93,6 @@ struct EstimationParameters {
   measurementCovariance_t measurement_noise{measurementCovariance_t::Zero()};
 
   /**
-   * @brief Jacobian matrix of the motion model evaluated in terms of the
-   * systems states: x, y and orientation.
-   */
-  motionJacobian_t motion_jacobian{motionJacobian_t::Zero()};
-
-  /**
-   * @brief Jacobian matrix of the motion model evaluated in terms of the
-   * process inputs.
-   */
-  processJacobian_t process_jacobian{processJacobian_t::Zero()};
-
-  /**
    * @brief Information vector: 3x1 matrix.
    * @details Used by the information form of the (Extended) Kalman Filter.
    * The expression of the information vector take the form:
