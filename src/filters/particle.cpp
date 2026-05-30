@@ -74,8 +74,8 @@ bool Particle::Particles::reweight(const EstimationParameters &ego,
     Eigen::VectorXd y{llt.matrixL().solve(difference)};
 
     double mahalanobis_distance{y.squaredNorm()};
-
-    log_weights.push_back(-0.5 * mahalanobis_distance);
+    double log_prior_weight{(weight > 0.0) ? std::log(weight) : -700.0};
+    log_weights.push_back(log_prior_weight - 0.5 * mahalanobis_distance);
   }
 
   double max_log_weight{
@@ -136,9 +136,6 @@ void Particle::Particles::resample(std::mt19937 &gen) {
                              })};
 
     sample = it->first;
-    if (samples_.size() == 0)
-      throw std::runtime_error(
-          "[CRITICAL ERROR] Particle sample size equals zero.");
     weight = 1.0 / samples_.size();
   }
 
@@ -185,17 +182,6 @@ void Particle::Particles::motionModel(const Data::Robot::Odometry &odometry,
                      sample_period * std::sin(state(ORIENTATION)),
       state(ORIENTATION) +
           (odometry.angular_velocity + noise(ANGULAR_VELOCITY)) * sample_period;
-}
-
-double Particle::Particles::Gaussian(const Eigen::VectorXd &difference,
-                                     const Eigen::MatrixXd &covariance) {
-  /* Covariance matrix must be square. */
-  assert(covariance.rows() == covariance.cols());
-  /* Covariance matrix and mean vector must be correctly sized. */
-  assert(covariance.cols() == difference.size());
-
-  return std::exp(-0.5 * difference.transpose() * covariance.inverse() *
-                  difference);
 }
 
 bool Particle::Particles::checkWeights() {
