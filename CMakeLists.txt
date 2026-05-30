@@ -18,9 +18,7 @@ option(ROBUST "Use Robust correction step" OFF)
 option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
 option(SAVE_INPUT "Saves the input data" OFF)
 
-function(add_filter_target TARGET_NAME)
-    add_executable(${TARGET_NAME} 
-	${ARGN}
+set (COMMON_SRC 
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/process.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/measurement.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/matrix_operations.cpp"
@@ -29,6 +27,12 @@ function(add_filter_target TARGET_NAME)
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/landmark.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/robot.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent.cpp"
+)
+
+function(add_filter_target TARGET_NAME)
+    add_executable(${TARGET_NAME} 
+	${ARGN}
+	${COMMON_SRC}
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)
@@ -127,6 +131,7 @@ else()
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/cmekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/information_filter.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
+	    ${COMMON_SRC}
     )
 
     configure_target_options(${LIBRARY_NAME})
