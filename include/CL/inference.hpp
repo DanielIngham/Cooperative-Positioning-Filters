@@ -49,6 +49,7 @@ public:
     size_t landmark_number{};
     for (const Data::Landmark &landmark_data : landmarks) {
       if (landmark_number++ % 4 == 0) {
+        // if (false) {
         landmarks_.emplace_back(
             std::make_unique<AdversarialLandmark>(landmark_data));
         std::cerr << "Add AdversarialLandmark" << std::endl;
