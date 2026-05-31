@@ -1,10 +1,9 @@
-#include "CL/robot.hpp"
-#include "CL/agent.hpp"
-
+#include "CL/agent/robot.hpp"
+#include "CL/agent/agent.hpp"
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/utils/utils.hpp"
-#include <UtiasMrclam/utils/Utils.hpp>
 
+#include <UtiasMrclam/utils/Utils.hpp>
 #include <cassert>
 
 namespace CL {

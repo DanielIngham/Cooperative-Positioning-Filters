@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CL/agent.hpp"
+#include "CL/agent/agent.hpp"
 #include "CL/common/estimation_parameters.hpp"
 #include "UtiasMrclam/agents/Landmark.hpp"
 

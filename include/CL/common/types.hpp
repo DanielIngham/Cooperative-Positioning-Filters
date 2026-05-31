@@ -77,14 +77,4 @@ using augmentedMeasurementJacobian_t =
 
 using processCovariance_t = Eigen::Matrix<double, total_inputs, total_inputs>;
 
-/* Huber Cost Function Type Definitions. */
-using huberMeasurementThresholds_t =
-    Eigen::Matrix<double, total_measurements, 1>;
-
-using huberMeasurementWeights_t =
-    Eigen::Matrix<double, total_measurements, total_measurements>;
-
-using huberStateThresholds_t = Eigen::Matrix<double, total_states, 1>;
-using huberStateWeights_t = Eigen::Matrix<double, total_states, total_states>;
-
 } // namespace CL

@@ -18,15 +18,27 @@ option(ROBUST "Use Robust correction step" OFF)
 option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
 option(SAVE_INPUT "Saves the input data" OFF)
 
-set (COMMON_SRC 
+set (AGENT_SRC 
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/agent.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/adversarial_landmark.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/landmark.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/robot.cpp"
+)
+
+set (MODEL_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/process.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/measurement.cpp"
+)
+
+set (UTILS_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/matrix_operations.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/performance_eval.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/inference.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/landmark.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/robot.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent.cpp"
+)
+
+set (COMMON_SRC 
+	${MODEL_SRC}
+	${AGENT_SRC}
+	${UTILS_SRC}
 )
 
 function(add_filter_target TARGET_NAME)

@@ -3,15 +3,17 @@
  */
 #pragma once
 
+#include "CL/agent/adversarial_landmark.hpp"
+#include "CL/agent/landmark.hpp"
+#include "CL/agent/robot.hpp"
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/filters/filter.hpp"
-#include "CL/landmark.hpp"
-#include "CL/robot.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/utils/Utils.hpp>
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <type_traits>
 #include <vector>
 
@@ -39,17 +41,23 @@ public:
     Data::Robot::List &fleet_data{data.getRobots()};
 
     for (const Data::Robot &robot_data : fleet_data) {
-      robots_.push_back(Robot::create<T>(robot_data));
+      robots_.push_back(Robot::create<T, Robot>(robot_data));
     }
 
     const Data::Landmark::List &landmarks{data.getLandmarks()};
 
+    size_t landmark_number{};
     for (const Data::Landmark &landmark_data : landmarks) {
-      landmarks_.emplace_back(landmark_data);
+      if (landmark_number++ % 4 == 0) {
+        landmarks_.emplace_back(
+            std::make_unique<AdversarialLandmark>(landmark_data));
+        std::cerr << "Add AdversarialLandmark" << std::endl;
+      } else
+        landmarks_.emplace_back(std::make_unique<Landmark>(landmark_data));
     }
   }
 
-  const std::vector<Robot> &getRobots() { return robots_; }
+  const std::vector<std::unique_ptr<Robot>> &getRobots() { return robots_; }
 
   void compute() {
     /* Start the timer for measuring the execution time of a child filter. */
@@ -73,27 +81,27 @@ public:
   }
 
 private:
-  std::vector<Robot> robots_;
-  std::vector<Landmark> landmarks_;
+  std::vector<std::unique_ptr<Robot>> robots_;
+  std::vector<std::unique_ptr<Landmark>> landmarks_;
   size_t total_datapoints_{};
 
   std::map<unsigned short, EstimationParameters> vanet_broadcasts_{};
 
   void receiveVanetMessages(size_t index) {
-    for (Landmark &landmark : landmarks_) {
-      vanet_broadcasts_[landmark.getBarcode().val()] =
-          landmark.broadcastEstimate(index);
+    for (auto &landmark : landmarks_) {
+      vanet_broadcasts_[landmark->getBarcode().val()] =
+          landmark->broadcastEstimate(index);
     }
 
-    for (Robot &robot : robots_) {
-      vanet_broadcasts_[robot.getBarcode().val()] =
-          robot.broadcastEstimate(index);
+    for (auto &robot_ptr : robots_) {
+      vanet_broadcasts_[robot_ptr->getBarcode().val()] =
+          robot_ptr->broadcastEstimate(index);
     }
   }
 
   void distributeVanetMessages(size_t index) {
-    for (Robot &robot : robots_)
-      robot.recieveVanetMessages(index, vanet_broadcasts_);
+    for (auto &robot : robots_)
+      robot->recieveVanetMessages(index, vanet_broadcasts_);
   }
 };
 } // namespace CL

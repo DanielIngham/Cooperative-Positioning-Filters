@@ -3,12 +3,13 @@
 #include "CL/common/types.hpp"
 #include <cassert>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace CL::utils {
 
 void PerformanceEvaluator::populateSyncedStates(
-    const std::vector<Robot> &robots, Data::Handler &data) {
+    const std::vector<std::unique_ptr<Robot>> &robots, Data::Handler &data) {
   auto &handler_robots{data.getRobots()};
   for (auto &robot : handler_robots) {
     const Robot *robot_ptr{getAssociatedRobot(robot.barcode(), robots)};
@@ -36,12 +37,12 @@ void PerformanceEvaluator::populateSyncedStates(const Robot &robot,
   }
 }
 
-const Robot *
-PerformanceEvaluator::getAssociatedRobot(Data::Robot::Barcode barcode,
-                                         const std::vector<Robot> &robots) {
+const Robot *PerformanceEvaluator::getAssociatedRobot(
+    Data::Robot::Barcode barcode,
+    const std::vector<std::unique_ptr<Robot>> &robots) {
   for (const auto &robot : robots) {
-    if (robot.getBarcode() == barcode)
-      return &robot;
+    if (robot->getBarcode() == barcode)
+      return robot.get();
   }
 
   std::cerr << "[Error] Robot with barcode " << barcode

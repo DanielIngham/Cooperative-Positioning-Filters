@@ -3,11 +3,11 @@
  */
 #pragma once
 
-#include "CL/robot.hpp"
+#include "CL/agent/robot.hpp"
 #include "UtiasMrclam/agents/Robot.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
-#include <vector>
+#include <memory>
 
 namespace CL::utils {
 class PerformanceEvaluator {
@@ -23,15 +23,17 @@ public:
   void writeNormalisedInnovation();
   void writeNEES();
 
-  static void populateSyncedStates(const std::vector<Robot> &robots,
-                                   Data::Handler &data);
+  static void
+  populateSyncedStates(const std::vector<std::unique_ptr<Robot>> &robots,
+                       Data::Handler &data);
 
 private:
   /**
    * Find the robot whose barcode matches the one provided.
    */
-  static const Robot *getAssociatedRobot(Data::Robot::Barcode barcode,
-                                         const std::vector<Robot> &robots);
+  static const Robot *
+  getAssociatedRobot(Data::Robot::Barcode barcode,
+                     const std::vector<std::unique_ptr<Robot>> &robots);
 
   static void populateSyncedStates(const Robot &robots, Data::Robot &data);
 };

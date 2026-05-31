@@ -1,5 +1,5 @@
-#include "CL/landmark.hpp"
-#include "CL/agent.hpp"
+#include "CL/agent/landmark.hpp"
+#include "CL/agent/agent.hpp"
 
 namespace CL {
 

@@ -1,4 +1,4 @@
-#include "CL/agent.hpp"
+#include "CL/agent/agent.hpp"
 
 namespace CL {
 
