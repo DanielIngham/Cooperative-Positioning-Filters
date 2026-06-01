@@ -23,6 +23,7 @@ set (AGENT_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/adversarial_landmark.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/landmark.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/robot.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/faulty_robot.cpp"
 )
 
 set (MODEL_SRC
