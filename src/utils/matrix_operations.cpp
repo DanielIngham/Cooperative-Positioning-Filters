@@ -114,9 +114,8 @@ MatrixOperations::createAugmentedMatrix(const covariance_t &ego_robot,
   return matrix;
 }
 
-measurement_t MatrixOperations::normaliseInnovation(
-    const measurement_t &innovation,
-    const measurementCovariance_t &covariance) {
+measurement_t MatrixOperations::normaliseDistribution(
+    const measurement_t &residual, const measurementCovariance_t &covariance) {
 
   /* Calculate the Cholesky of the innovation */
   Eigen::LLT<measurementCovariance_t> llt{covariance};
@@ -130,12 +129,12 @@ measurement_t MatrixOperations::normaliseInnovation(
 
   measurementCovariance_t covariance_sqrt{llt.matrixL()};
 
-  measurement_t normalised_innovation{covariance_sqrt.inverse() * innovation};
+  measurement_t normalised_innovation{covariance_sqrt.inverse() * residual};
 
   return normalised_innovation;
 }
 
-measurement_t MatrixOperations::unnormaliseInnovation(
+measurement_t MatrixOperations::unnormaliseDistribution(
     const measurement_t &normalised_innovation,
     const measurementCovariance_t &covariance) {
 

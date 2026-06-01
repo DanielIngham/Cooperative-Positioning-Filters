@@ -75,17 +75,22 @@ public:
   createAugmentedMatrix(const covariance_t &, const covariance_t &);
 
   /**
-   * @brief Calculates the normalised residual of the value produced by the
-   * sensor measurement and the prior estimate passed through the non-linear
-   * measurement model.
-   * @param[in] filter The estimation parameters of the filter.
-   * @returns The normalised innovation.
+   * @brief Calculates the normalised residual which would fall part of a
+   * standard normal distribution.
+   * @param residual The difference between the mean of the distribution and the
+   * realisation of the random variable sampled from that distribution.
+   * @param covaraince The covariance matrix of the distribution from which the
+   * residual forms part of.
+   * @returns The normalised residual which is sampled from a standard normal
+   * distribution.
    */
   [[nodiscard]] static measurement_t
-  normaliseInnovation(const measurement_t &, const measurementCovariance_t &);
+  normaliseDistribution(const measurement_t &residual,
+                        const measurementCovariance_t &covariance);
 
   [[nodiscard]] static measurement_t
-  unnormaliseInnovation(const measurement_t &, const measurementCovariance_t &);
+  unnormaliseDistribution(const measurement_t &,
+                          const measurementCovariance_t &);
 
   /**
    * @brief Calculates the normalised residual of the initial estimate and
