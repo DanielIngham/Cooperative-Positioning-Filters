@@ -3,6 +3,7 @@
 #include <UtiasMrclam/agents/Robot.hpp>
 #include <UtiasMrclam/utils/ArgumentHandler.hpp>
 
+#include "CL/common/config.hpp"
 #include "CL/inference.hpp"
 
 #include <cctype>
@@ -55,8 +56,10 @@ int main(int argc, char *argv[]) {
 
   ArgumentHandler::setArguments(argc, argv, data);
 
+  CL::Config config{"config/example.yaml"};
+
 #ifdef EKF_TARGET
-  CL::Inference<CL::filter::EKF> inference{data};
+  CL::Inference<CL::filter::EKF> inference{data, config};
 
 #elif defined(IEKF_TARGET)
   CL::Inference<CL::filter::IEKF> inference{data};

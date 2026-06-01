@@ -7,6 +7,7 @@
 #include "CL/agent/faulty_robot.hpp"
 #include "CL/agent/landmark.hpp"
 #include "CL/agent/robot.hpp"
+#include "CL/common/config.hpp"
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/filters/filter.hpp"
 
@@ -36,26 +37,30 @@ public:
    * Populates robots and landmarks with data from the data handler.
    * @param data Dataset.
    */
-  Inference(Data::Handler &data) {
+  Inference(Data::Handler &data, const Config &config = {}) {
 
     total_timesteps_ = data.getNumberOfSyncedDatapoints();
 
     Data::Robot::List &fleet_data{data.getRobots()};
 
+    size_t i{};
     for (const Data::Robot &robot_data : fleet_data) {
-      // robots_.push_back(Robot::create<FilterType, Robot>(robot_data));
-      robots_.push_back(Robot::create<FilterType, FaultyRobot>(robot_data));
+      /* Populate the VANET first with cooperative robots, then with faulty
+       * robots. */
+      if (i++ < config.robots.cooperative)
+        robots_.push_back(Robot::create<FilterType, Robot>(robot_data));
+      else
+        robots_.push_back(Robot::create<FilterType, FaultyRobot>(robot_data));
     }
 
     const Data::Landmark::List &landmarks{data.getLandmarks()};
 
-    size_t landmark_number{};
+    size_t j{};
     for (const Data::Landmark &landmark_data : landmarks) {
-      if (landmark_number++ % 4 == 0) {
-        // if (false) {
+      // if (j++ % 4 == 0) {
+      if (j++ < config.landmarks.adversarial) {
         landmarks_.emplace_back(
             std::make_unique<AdversarialLandmark>(landmark_data));
-        std::cerr << "Add AdversarialLandmark" << std::endl;
       } else
         landmarks_.emplace_back(std::make_unique<Landmark>(landmark_data));
     }

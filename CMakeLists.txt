@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Eigen3 REQUIRED)
-
+find_package(yaml-cpp REQUIRED)
+message(STATUS "Used config file: ${yaml-cpp_CONFIG}")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/DataHandler")
@@ -15,7 +16,7 @@ option(RANGE_ONLY "Use bearing only update" ON)
 option(DECOUPLED "Use coupled correction step" ON)
 option(COUPLED "Use coupled correction step" OFF)
 option(ROBUST "Use Robust correction step" OFF)
-option (MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
+option(MEASUREMENT_UPDATE "Include measurement update step when filtering." ON)
 option(SAVE_INPUT "Saves the input data" OFF)
 
 set (AGENT_SRC 
@@ -24,6 +25,10 @@ set (AGENT_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/landmark.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/robot.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/agent/faulty_robot.cpp"
+)
+
+set (COMMON_SRC
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/common/config.cpp"
 )
 
 set (MODEL_SRC
@@ -36,16 +41,17 @@ set (UTILS_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/utils/performance_eval.cpp"
 )
 
-set (COMMON_SRC 
-	${MODEL_SRC}
+set (PROJ_SRC 
 	${AGENT_SRC}
+	${COMMON_SRC}
+	${MODEL_SRC}
 	${UTILS_SRC}
 )
 
 function(add_filter_target TARGET_NAME)
     add_executable(${TARGET_NAME} 
 	${ARGN}
-	${COMMON_SRC}
+	${PROJ_SRC}
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_TARGET)
@@ -64,6 +70,7 @@ function(configure_target_options TARGET_NAME)
 	PUBLIC
         DataHandler
         Eigen3::Eigen
+	yaml-cpp::yaml-cpp
     )
 
     if (MEASUREMENT_UPDATE) 
@@ -144,7 +151,7 @@ else()
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/cmekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/information_filter.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
-	    ${COMMON_SRC}
+	    ${PROJ_SRC}
     )
 
     configure_target_options(${LIBRARY_NAME})
