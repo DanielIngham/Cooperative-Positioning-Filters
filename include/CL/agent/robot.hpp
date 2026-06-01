@@ -64,17 +64,25 @@ public:
    */
   const std::vector<EstimationParameters> &getEstimates() const;
 
+  /**
+   * @returns the prior distribution of the systems state.
+   */
   const EstimationParameters &getPrior() { return estimates_.front(); }
 
 protected:
+  /**
+   * Protected constructor
+   * @data data Robot
+   */
   Robot(const Data::Robot &data);
 
-private:
   std::unique_ptr<filter::Filter> filter_;
   std::vector<EstimationParameters> estimates_;
   const std::vector<Data::Robot::Odometry> &odometry_;
   const std::vector<Data::Robot::Measurement> &measurements_;
 
   double sample_period_;
+
+private:
 };
 } // namespace CL
