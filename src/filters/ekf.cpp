@@ -47,35 +47,31 @@ void EKF::prediction(const Data::Robot::Odometry &odometry,
 void EKF::correction(EstimationParameters &ego,
                      const EstimationParameters &agent) {
 
-  const measurementJacobian_t ego_measurement_Jacobian{
-      Models::Measurement::egoMeasurementJacobian(ego, agent)};
+  Models::Measurement model{ego.state_estimate, agent.state_estimate};
 
-  const measurementJacobian_t agent_measurement_Jacobian{
-      Models::Measurement::agentMeasurementJacobian(ego, agent)};
+  /* Calculate the innovation. */
+  const measurement_t predicted_measurement{model.predictedMeasurement()};
+  const measurementJacobian_t ego_meas_Jacobian{model.egoJacobian()};
+  const measurementJacobian_t agent_meas_Jacobian{model.agentJacobian()};
 
   /* Calculate joint sensor measurment noise, which is the sum of the
    * measurment noise and the estimate error covariance of the measured agent.
    */
-  measurementCovariance_t joint_sensor_noise{
-      ego.measurement_noise + agent_measurement_Jacobian *
-                                  agent.error_covariance *
-                                  agent_measurement_Jacobian.transpose()};
+  const measurementCovariance_t joint_sensor_noise{
+      ego.measurement_noise + agent_meas_Jacobian * agent.error_covariance *
+                                  agent_meas_Jacobian.transpose()};
 
   /* Calculate innovation Covariance.  */
-  ego.innovation_covariance = ego_measurement_Jacobian * ego.error_covariance *
-                                  ego_measurement_Jacobian.transpose() +
-                              joint_sensor_noise;
+  ego.innovation_covariance =
+      ego_meas_Jacobian * ego.error_covariance * ego_meas_Jacobian.transpose() +
+      joint_sensor_noise;
 
   /* Calculate Kalman Gain. */
   kalmanGain_t kalman_gain{ego.error_covariance *
-                           ego_measurement_Jacobian.transpose() *
+                           ego_meas_Jacobian.transpose() *
                            ego.innovation_covariance.inverse()};
 
-  /* Calculate the innovation. */
-  measurement_t predicted_measurment{Models::Measurement::measurementModel(
-      ego.state_estimate, agent.state_estimate)};
-
-  ego.innovation = ego.measurement - predicted_measurment;
+  ego.innovation = ego.measurement - predicted_measurement;
   utils::normaliseAngle(ego.innovation(BEARING));
 
   /* Update the state estimate. */
