@@ -40,8 +40,8 @@ public:
                   EstimationParameters &parameters,
                   double sample_period) override;
 
-  void correction(EstimationParameters &,
-                  const EstimationParameters &) override;
+  void correction(EstimationParameters &ego,
+                  const EstimationParameters &agent) override;
 
 private:
   void robustCorrection(EstimationParameters &, const EstimationParameters &);

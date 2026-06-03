@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <stdexcept>
+#include <string>
 #include <yaml-cpp/node/node.h>
 #include <yaml-cpp/node/parse.h>
 #include <yaml-cpp/yaml.h>
@@ -16,6 +17,7 @@ Config::Config(const std::string &config_file) {
   }
 
   YAML::Node config{YAML::LoadFile(config_file)};
+
   robots = {
       .cooperative = config["robots"]["cooperative"].as<size_t>(),
       .faulty = config["robots"]["cooperative"].as<size_t>(),

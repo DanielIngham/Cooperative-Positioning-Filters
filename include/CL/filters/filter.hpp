@@ -28,8 +28,8 @@ public:
   virtual void prediction(const Data::Robot::Odometry &, EstimationParameters &,
                           double sample_period) = 0;
 
-  virtual void correction(EstimationParameters &,
-                          const EstimationParameters &) = 0;
+  virtual void correction(EstimationParameters &ego,
+                          const EstimationParameters &agent) = 0;
 
 private:
 protected:
