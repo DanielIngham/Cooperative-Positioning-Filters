@@ -28,32 +28,15 @@ public:
   /**
    * @returns Mean of the predictive density.
    */
-  state_t predictedState();
+  [[nodiscard]] state_t predictedState();
   /**
    * @returns Jacobian of the process model with respect to the system states.
    */
-  motionJacobian_t motionJacobian();
+  [[nodiscard]] motionJacobian_t motionJacobian();
   /**
    * @returns Jacobian of the process model with respect to the system inputs.
    */
-  processJacobian_t processJacobian();
-
-private:
-  /**
-   * Mean of the predictive density.
-   */
-  state_t predicted_state_;
-  /**
-   * @brief Jacobian matrix of the motion model evaluated in terms of the
-   * systems states: x, y and orientation.
-   */
-  motionJacobian_t motion_jacobian_{motionJacobian_t::Zero()};
-
-  /**
-   * @brief Jacobian matrix of the motion model evaluated in terms of the
-   * process inputs.
-   */
-  processJacobian_t process_jacobian_{processJacobian_t::Zero()};
+  [[nodiscard]] processJacobian_t processJacobian();
 
   /**
    * @brief The unicycle motion model used to perform motion predictions.
@@ -77,8 +60,9 @@ private:
    * are normally distributed random variables \f$\mathcal{N}(0,w)\f$ (see
    * Filter::EstimationParameters::process_noise).
    */
-  state_t motionModel(const Data::Robot::Odometry &odometry,
-                      const state_t &state, const double sample_period);
+  [[nodiscard]] static state_t
+  motionModel(const Data::Robot::Odometry &odometry, const state_t &state,
+              const double sample_period);
 
   /**
    * @brief Calculates the Jacobian matrix of the unicycle motion model in terms
@@ -100,7 +84,7 @@ private:
    * Filter::EstimationParameters.measurement_noise. See Filter::motionModel for
    * information on the motion model from which this was derived.
    */
-  motionJacobian_t
+  [[nodiscard]] static motionJacobian_t
   calculateMotionJacobian(const Data::Robot::Odometry &odometry,
                           const state_t &state, const double sample_period);
 
@@ -119,8 +103,25 @@ private:
    * ego robot. measurement_noise. See EKF::prediction for information on the
    * motion model from which this was derived.
    */
-  processJacobian_t calculateProcessJacobian(const state_t &state,
-                                             const double sample_period);
+  [[nodiscard]] static processJacobian_t
+  calculateProcessJacobian(const state_t &state, const double sample_period);
+
+private:
+  /**
+   * Mean of the predictive density.
+   */
+  state_t predicted_state_;
+  /**
+   * @brief Jacobian matrix of the motion model evaluated in terms of the
+   * systems states: x, y and orientation.
+   */
+  motionJacobian_t motion_jacobian_{motionJacobian_t::Zero()};
+
+  /**
+   * @brief Jacobian matrix of the motion model evaluated in terms of the
+   * process inputs.
+   */
+  processJacobian_t process_jacobian_{processJacobian_t::Zero()};
 };
 
 } // namespace CL::Models
