@@ -19,21 +19,17 @@ void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
                                    double sample_period) {
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
-  Models::Process::calculateMotionJacobian(odometry, parameters, sample_period);
-
-  /* Calculate the process noise Jacobian: 3x2 matrix. */
-  Models::Process::calculateProcessJacobian(parameters, sample_period);
-
-  /* Make the prediction using the motion model: 3x1 matrix. */
-  Models::Process::motionModel(odometry, parameters.state_estimate,
-                               sample_period);
+  Models::Process model{odometry, parameters.state_estimate, sample_period};
+  parameters.state_estimate = model.predictedState();
+  const motionJacobian_t &motion_jacobian{model.motionJacobian()};
+  const processJacobian_t &process_jacobian{model.processJacobian()};
 
   /* Propagate the estimation information: 3x3 matrix. */
-  parameters.error_covariance =
-      parameters.motion_jacobian * parameters.precision_matrix.inverse() *
-          parameters.motion_jacobian.transpose() +
-      parameters.process_jacobian * parameters.process_noise *
-          parameters.process_jacobian.transpose();
+  parameters.error_covariance = motion_jacobian *
+                                    parameters.precision_matrix.inverse() *
+                                    motion_jacobian.transpose() +
+                                process_jacobian * parameters.process_noise *
+                                    process_jacobian.transpose();
 
   parameters.precision_matrix = parameters.error_covariance.inverse();
 

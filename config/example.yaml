@@ -1,8 +1,8 @@
 robots:
-  cooperative: 1
+  cooperative: 5
   faulty: 0
 
 landmarks: 
-  cooperative: 11
-  adversarial: 4
+  cooperative: 15
+  adversarial: 0
 

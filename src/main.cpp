@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 
   ArgumentHandler::setArguments(argc, argv, data);
 
-  CL::Config config{"config/example.yaml"};
+  CL::Config config{"../config/example.yaml"};
 
 #ifdef EKF_TARGET
   CL::Inference<CL::filter::EKF> inference{data, config};

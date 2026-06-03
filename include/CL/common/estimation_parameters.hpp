@@ -94,18 +94,6 @@ struct EstimationParameters {
   measurementCovariance_t measurement_noise{measurementCovariance_t::Zero()};
 
   /**
-   * @brief Jacobian matrix of the motion model evaluated in terms of the
-   * systems states: x, y and orientation.
-   */
-  motionJacobian_t motion_jacobian{motionJacobian_t::Zero()};
-
-  /**
-   * @brief Jacobian matrix of the motion model evaluated in terms of the
-   * process inputs.
-   */
-  processJacobian_t process_jacobian{processJacobian_t::Zero()};
-
-  /**
    * @brief Jacobian of the measurement model: 2 x 6 matrix.
    */
   augmentedMeasurementJacobian_t measurement_jacobian{
