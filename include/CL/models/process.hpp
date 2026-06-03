@@ -3,7 +3,6 @@
 #include <UtiasMrclam/DataHandler.hpp>
 #include <UtiasMrclam/agents/Agent.hpp>
 
-#include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
 
 namespace CL::Models {
