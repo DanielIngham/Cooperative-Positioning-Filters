@@ -45,8 +45,8 @@ public:
    * states: x,y, and heading.
    *
    * @param[in,out] ego_robot The estimation parameters of the ego robot.
-   * @param[in] other_agent The estimation parameters of the agent that was
-   * measured by the ego robot.
+   * @param[in] obs_agent The estimation parameters of the agent that was
+   * observed by the ego robot.
    *
    * @details The formula used for the calculation of the Jacobian of the
    * measurement matrix between ego vehicle \f$i\f$ and measured agent
@@ -57,8 +57,9 @@ public:
    * & 0\end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
    * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
    */
-  static void calculateMeasurementJacobian(EstimationParameters &,
-                                           const EstimationParameters &);
+  static augmentedMeasurementJacobian_t
+  calculateMeasurementJacobian(const state_t &ego_robot,
+                               const state_t &obs_agent);
 
   /**
    * Calculates the Jacobian matrix of the measurement model with respect to the
@@ -103,8 +104,17 @@ public:
   measurementJacobian_t agentJacobian();
 
 private:
+  /** Measurement that should have occured given the estimated states of both
+   * the ego and observed agents.  */
   measurement_t predicted_measurement_{};
+  /** Jacobian of the measurement model with respect to the ego agent's
+   * state. */
   measurementJacobian_t ego_jacobian_{};
+  /** Jacobian of the measurement model with respect to the observed agent's
+   * state. */
   measurementJacobian_t agent_jacobian_{};
+  /** Jacobian of the measurement model: 2 x 6 matrix. */
+  augmentedMeasurementJacobian_t augmented_jacobian{
+      augmentedMeasurementJacobian_t::Zero()};
 };
 } // namespace CL::Models

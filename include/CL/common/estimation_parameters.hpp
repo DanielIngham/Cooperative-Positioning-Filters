@@ -62,9 +62,9 @@ struct EstimationParameters {
 
   /**
    * @brief Kalman gain: 6x2 matrix.
-   * @note The reason the Kalman gain matrix has 5 elements is because the
+   * @note The reason the Kalman gain matrix has 6 elements is because the
    * cooperative localisation (positioning) requires the estimation
-   * covariances of both the ego and measured robots position [3+2]. See
+   * covariances of both the ego and measured robots position. See
    * EKF::correction.
    */
   augmentedKalmanGain_t kalman_gain{augmentedKalmanGain_t::Zero()};
@@ -92,12 +92,6 @@ struct EstimationParameters {
    * the covariance between the range and bearing is assumed to be zero.
    */
   measurementCovariance_t measurement_noise{measurementCovariance_t::Zero()};
-
-  /**
-   * @brief Jacobian of the measurement model: 2 x 6 matrix.
-   */
-  augmentedMeasurementJacobian_t measurement_jacobian{
-      augmentedMeasurementJacobian_t::Zero()};
 
   /**
    * @brief Information vector: 3x1 matrix.

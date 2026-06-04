@@ -49,28 +49,29 @@ double Measurement::rangeMeasurementModel(const state_t &agent,
   return range;
 }
 
-void Measurement::calculateMeasurementJacobian(
-    EstimationParameters &ego_robot, const EstimationParameters &other_agent) {
+augmentedMeasurementJacobian_t
+Measurement::calculateMeasurementJacobian(const state_t &ego_robot,
+                                          const state_t &obs_agent) {
 
-  const double x_difference{other_agent.state_estimate(X) -
-                            ego_robot.state_estimate(X)};
+  augmentedMeasurementJacobian_t measurement_jacobian{};
 
-  const double y_difference{other_agent.state_estimate(Y) -
-                            ego_robot.state_estimate(Y)};
+  const double x_difference{obs_agent(X) - ego_robot(X)};
+  const double y_difference{obs_agent(Y) - ego_robot(Y)};
 
-  double denominator{
-      std::sqrt(x_difference * x_difference + y_difference * y_difference)};
+  double denominator{std::hypot(x_difference, y_difference)};
 
   static constexpr double min_distance{1e-6};
   if (denominator < min_distance)
     denominator = min_distance;
 
-  ego_robot.measurement_jacobian << -x_difference / denominator,
+  measurement_jacobian << -x_difference / denominator,
       -y_difference / denominator, 0, x_difference / denominator,
       y_difference / denominator, 0, y_difference / (denominator * denominator),
       -x_difference / (denominator * denominator), -1,
       -y_difference / (denominator * denominator),
       x_difference / (denominator * denominator), 0;
+
+  return measurement_jacobian;
 }
 
 measurementJacobian_t
@@ -156,5 +157,13 @@ Measurement::agentRangeMeasurementJacobian(const EstimationParameters &ego,
 
   return jacobian;
 }
+
+measurement_t Measurement::predictedMeasurement() {
+  return predicted_measurement_;
+}
+
+measurementJacobian_t Measurement::egoJacobian() { return ego_jacobian_; }
+
+measurementJacobian_t Measurement::agentJacobian() { return agent_jacobian_; }
 
 } // namespace CL::Models
