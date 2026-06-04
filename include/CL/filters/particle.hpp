@@ -19,9 +19,9 @@ public:
   Particle &operator=(const Particle &) = delete;
   ~Particle() = default;
 
-  virtual void prediction(const Data::Robot::Odometry &odometry,
-                          EstimationParameters &ego,
-                          double sample_period) override;
+  virtual EstimationParameters prediction(const Data::Robot::Odometry &odometry,
+                                          const EstimationParameters &ego,
+                                          double sample_period) override;
 
   virtual void correction(EstimationParameters &ego,
                           const EstimationParameters &agent) override;

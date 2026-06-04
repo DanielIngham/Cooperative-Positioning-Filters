@@ -6,6 +6,7 @@
  * @date 2025-05-01
  */
 #include "CL/filters/ekf.hpp"
+#include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
@@ -26,21 +27,27 @@ namespace CL::filter {
  * @param[in,out] estimation_parameters The parameters required by the Extended
  * Kalman filter to perform the prediction step.
  */
-void EKF::prediction(const Data::Robot::Odometry &odometry,
-                     EstimationParameters &parameters, double sample_period) {
+EstimationParameters EKF::prediction(const Data::Robot::Odometry &odometry,
+                                     const EstimationParameters &parameters,
+                                     double sample_period) {
+  EstimationParameters predictive_density{parameters};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   Models::Process model{odometry, parameters.state_estimate, sample_period};
 
-  parameters.state_estimate = model.predictedState();
   const motionJacobian_t &motion_jacobian{model.motionJacobian()};
   const processJacobian_t &process_jacobian{model.processJacobian()};
 
+  predictive_density.state_estimate = model.predictedState();
+
   /* Propagate the estimation error covariance: 3x3 matrix. */
-  parameters.error_covariance = motion_jacobian * parameters.error_covariance *
-                                    motion_jacobian.transpose() +
-                                process_jacobian * parameters.process_noise *
-                                    process_jacobian.transpose();
+  predictive_density.error_covariance =
+      motion_jacobian * parameters.error_covariance *
+          motion_jacobian.transpose() +
+      process_jacobian * parameters.process_noise *
+          process_jacobian.transpose();
+
+  return predictive_density;
 }
 
 #if DECOUPLED

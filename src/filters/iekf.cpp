@@ -27,13 +27,13 @@ void IEKF::correction(EstimationParameters &ego,
   return;
 #endif // ROBUST
 
-  /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t intial_state_estimate{
+  /* Create the state matrix for both robot. */
+  augmentedState_t inital_state_estimate{
       MatrixOperations::createAugmentedVector(ego.state_estimate,
                                               agent.state_estimate)};
 
   /* Create a vector to hold the iterative state estimate. */
-  augmentedState_t iterative_state_estimate{intial_state_estimate};
+  augmentedState_t iterative_state_estimate{inital_state_estimate};
 
   /* Create and populate new 5x5 error covariance matrix. */
   augmentedCovariance_t error_covariance{
@@ -44,15 +44,17 @@ void IEKF::correction(EstimationParameters &ego,
   for (int i{}; i < max_iterations_; ++i) {
 
     /* Calculate measurement Jacobian */
-    Models::Measurement::calculateMeasurementJacobian(ego, agent);
+    augmentedMeasurementJacobian_t measurement_jacobian{
+        Models::Measurement::calculateMeasurementJacobian(
+            ego.state_estimate, agent.state_estimate)};
 
     /* Calculate Covariance Innovation: */
-    ego.innovation_covariance = ego.measurement_jacobian * error_covariance *
-                                    ego.measurement_jacobian.transpose() +
+    ego.innovation_covariance = measurement_jacobian * error_covariance *
+                                    measurement_jacobian.transpose() +
                                 ego.measurement_noise;
 
     /* Calculate Kalman Gain */
-    ego.kalman_gain = error_covariance * ego.measurement_jacobian.transpose() *
+    ego.kalman_gain = error_covariance * measurement_jacobian.transpose() *
                       ego.innovation_covariance.inverse();
 
     /* Populate the predicted measurement matrix. */
@@ -69,15 +71,15 @@ void IEKF::correction(EstimationParameters &ego,
      * change at the end of the loop. */
     augmentedState_t old_estimate{iterative_state_estimate};
 
-    ego.estimation_residual = intial_state_estimate - iterative_state_estimate;
+    ego.estimation_residual = inital_state_estimate - iterative_state_estimate;
 
     utils::normaliseAngle(ego.estimation_residual(ORIENTATION));
 
     /* Update the iterative state estimate. */
     iterative_state_estimate =
-        intial_state_estimate +
-        ego.kalman_gain * (ego.innovation - ego.measurement_jacobian *
-                                                (ego.estimation_residual));
+        inital_state_estimate +
+        ego.kalman_gain *
+            (ego.innovation - measurement_jacobian * (ego.estimation_residual));
 
     /* Break if the change between iterations converges */
     double change{(iterative_state_estimate - old_estimate).norm()};

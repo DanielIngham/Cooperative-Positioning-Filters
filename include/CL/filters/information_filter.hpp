@@ -43,9 +43,9 @@ public:
    * @param[in,out] parameters The parameters required by the
    * Information filter to perform the prediction step.
    */
-  void prediction(const Data::Robot::Odometry &odometry,
-                  EstimationParameters &parameters,
-                  double sample_period) override;
+  EstimationParameters prediction(const Data::Robot::Odometry &odometry,
+                                  const EstimationParameters &parameters,
+                                  double sample_period) override;
 
   /**
    * @brief Performs Information Filter correct step.

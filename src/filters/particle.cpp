@@ -16,12 +16,16 @@ Particle::Particle(const EstimationParameters &prior, size_t samples)
   gen_.seed(rd());
 }
 
-void Particle::prediction(const Data::Robot::Odometry &odometry,
-                          EstimationParameters &ego, double sample_period) {
+EstimationParameters Particle::prediction(const Data::Robot::Odometry &odometry,
+                                          const EstimationParameters &ego,
+                                          double sample_period) {
+  EstimationParameters predictive_density{ego};
 
   particles_.propagate(odometry, ego, sample_period, gen_);
 
-  ego.state_estimate = particles_.mmse();
+  predictive_density.state_estimate = particles_.mmse();
+
+  return predictive_density;
 }
 
 void Particle::correction(EstimationParameters &ego,

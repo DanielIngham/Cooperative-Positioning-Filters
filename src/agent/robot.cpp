@@ -45,7 +45,6 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
   for (size_t i{estimates_.size() - 1}; i < index; i++) {
 
     /* Extend the time-series by duplicating the last element in place. */
-    auto &current_estimate{estimates_.emplace_back(estimates_.back())};
 
     const double &next_time{odometry_.at(i + 1).time};
     const Data::Robot::Odometry &prior_odometry{odometry_.at(i)};
@@ -54,7 +53,8 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
 
     assert(dt > 0);
 
-    filter_->prediction(prior_odometry, current_estimate, dt);
+    estimates_.emplace_back(
+        filter_->prediction(prior_odometry, estimates_.back(), dt));
   }
 
   return estimates_.back();

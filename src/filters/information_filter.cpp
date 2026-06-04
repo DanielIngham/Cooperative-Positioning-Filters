@@ -7,6 +7,7 @@
  */
 
 #include "CL/filters/information_filter.hpp"
+#include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
@@ -14,38 +15,40 @@
 
 namespace CL::filter {
 
-void InformationFilter::prediction(const Data::Robot::Odometry &odometry,
-                                   EstimationParameters &parameters,
-                                   double sample_period) {
+EstimationParameters
+InformationFilter::prediction(const Data::Robot::Odometry &odometry,
+                              const EstimationParameters &parameters,
+                              double sample_period) {
 
+  EstimationParameters predictive_density{parameters};
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   Models::Process model{odometry, parameters.state_estimate, sample_period};
-  parameters.state_estimate = model.predictedState();
+  predictive_density.state_estimate = model.predictedState();
   const motionJacobian_t &motion_jacobian{model.motionJacobian()};
   const processJacobian_t &process_jacobian{model.processJacobian()};
 
   /* Propagate the estimation information: 3x3 matrix. */
-  parameters.error_covariance = motion_jacobian *
-                                    parameters.precision_matrix.inverse() *
-                                    motion_jacobian.transpose() +
-                                process_jacobian * parameters.process_noise *
-                                    process_jacobian.transpose();
+  predictive_density.error_covariance =
+      motion_jacobian * parameters.precision_matrix.inverse() *
+          motion_jacobian.transpose() +
+      process_jacobian * parameters.process_noise *
+          process_jacobian.transpose();
 
-  parameters.precision_matrix = parameters.error_covariance.inverse();
+  predictive_density.precision_matrix = parameters.error_covariance.inverse();
 
-  parameters.information_vector =
+  predictive_density.information_vector =
       parameters.precision_matrix * parameters.state_estimate;
+
+  return predictive_density;
 }
 
 #ifdef DECOUPLED
 void InformationFilter::correction(EstimationParameters &ego,
                                    const EstimationParameters &agent) {
 
-  const measurementJacobian_t ego_measurement_Jacobian{
-      Models::Measurement::egoMeasurementJacobian(ego, agent)};
-
-  const measurementJacobian_t agent_measurement_Jacobian{
-      Models::Measurement::agentMeasurementJacobian(ego, agent)};
+  Models::Measurement model{ego.state_estimate, agent.state_estimate};
+  const measurementJacobian_t ego_measurement_Jacobian{model.egoJacobian()};
+  const measurementJacobian_t agent_measurement_Jacobian{model.agentJacobian()};
 
   /* Calculate the joint measurment noise. */
   const measurementCovariance_t joint_measurement_noise{

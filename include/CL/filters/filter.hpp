@@ -25,8 +25,9 @@ public:
 
   explicit Filter(const EstimationParameters &prior) : prior_{prior} {};
 
-  virtual void prediction(const Data::Robot::Odometry &, EstimationParameters &,
-                          double sample_period) = 0;
+  [[nodiscard]] virtual EstimationParameters
+  prediction(const Data::Robot::Odometry &odometry,
+             const EstimationParameters &ego, double sample_period) = 0;
 
   virtual void correction(EstimationParameters &ego,
                           const EstimationParameters &agent) = 0;

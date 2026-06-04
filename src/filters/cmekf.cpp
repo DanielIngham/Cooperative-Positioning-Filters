@@ -11,7 +11,8 @@ void CMEKF::correction(EstimationParameters &ego,
                        const EstimationParameters &agent) {
 
   const measurementJacobian_t agent_measurement_Jacobian{
-      Models::Measurement::agentMeasurementJacobian(ego, agent)};
+      Models::Measurement::agentMeasurementJacobian(ego.state_estimate,
+                                                    agent.state_estimate)};
 
   measurementCovariance_t joint_sensor_noise{
       ego.measurement_noise + agent_measurement_Jacobian *
