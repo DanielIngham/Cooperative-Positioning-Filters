@@ -31,9 +31,14 @@ set (COMMON_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/common/config.cpp"
 )
 
+
 set (MODEL_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/process.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/models/measurement.cpp"
+)
+
+set (SENSOR_SRC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sensors/odometry.cpp"
 )
 
 set (UTILS_SRC
@@ -44,6 +49,7 @@ set (UTILS_SRC
 set (PROJ_SRC 
 	${AGENT_SRC}
 	${COMMON_SRC}
+	${SENSOR_SRC}
 	${MODEL_SRC}
 	${UTILS_SRC}
 )
