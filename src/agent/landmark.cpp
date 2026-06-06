@@ -3,7 +3,9 @@
 
 namespace CL {
 
-Landmark::Landmark(const Data::Landmark &data) : Agent(data.barcode()) {
+Landmark::Landmark(const utias::mrclam::Landmark &data)
+    : Agent(data.barcode()) {
+
   estimation_ = {.id = data.id(), .barcode = data.barcode()};
 
   estimation_.state_estimate << data.x(), data.y(), 0.0;

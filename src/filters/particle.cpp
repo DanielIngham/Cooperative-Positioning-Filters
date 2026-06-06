@@ -16,9 +16,9 @@ Particle::Particle(const EstimationParameters &prior, size_t samples)
   gen_.seed(rd());
 }
 
-EstimationParameters Particle::prediction(const Data::Robot::Odometry &odometry,
-                                          const EstimationParameters &ego,
-                                          double sample_period) {
+EstimationParameters
+Particle::prediction(const utias::mrclam::Robot::Odometry &odometry,
+                     const EstimationParameters &ego, double sample_period) {
   EstimationParameters predictive_density{ego};
 
   particles_.propagate(odometry, ego, sample_period, gen_);
@@ -51,10 +51,10 @@ Particle::Particles::Particles(const size_t samples, const state_t &prior) {
   }
 }
 
-void Particle::Particles::propagate(const Data::Robot::Odometry &odometry,
-                                    const EstimationParameters &ego,
-                                    const double sample_period,
-                                    std::mt19937 &gen) {
+void Particle::Particles::propagate(
+    const utias::mrclam::Robot::Odometry &odometry,
+    const EstimationParameters &ego, const double sample_period,
+    std::mt19937 &gen) {
 
   for (auto &[state, weight] : samples_) {
     const input_t noise{
@@ -176,9 +176,9 @@ Particle::Particles::sampleMultivariateNormal(const Eigen::VectorXd &mean,
   return mean + L * z;
 }
 
-void Particle::Particles::motionModel(const Data::Robot::Odometry &odometry,
-                                      state_t &state, const input_t &noise,
-                                      const double sample_period) {
+void Particle::Particles::motionModel(
+    const utias::mrclam::Robot::Odometry &odometry, state_t &state,
+    const input_t &noise, const double sample_period) {
 
   state << state(X) + (odometry.forward_velocity + noise(FORWARD_VELOCITY)) *
                           sample_period * std::cos(state(ORIENTATION)),

@@ -156,30 +156,4 @@ measurement_t MatrixOperations::unnormaliseDistribution(
   return unnormalised_innovation;
 }
 
-augmentedState_t MatrixOperations::calculateNormalisedEstimationResidual(
-    const EstimationParameters &filter) {
-
-  /* Calculate the mean of the estimation residual (innovation). */
-  static constexpr double regularisation{1e-3};
-
-  Eigen::LLT<augmentedCovariance_t> error_covariance_cholesky(
-      filter.kalman_gain * filter.innovation_covariance *
-          filter.kalman_gain.transpose() +
-      augmentedCovariance_t::Identity() * regularisation);
-
-  if (error_covariance_cholesky.info() != Eigen::Success) {
-
-    throw std::runtime_error("[4] An error has occurred with calculating the "
-                             "Cholesky decomposition of "
-                             "the estimation error covariance");
-  }
-
-  augmentedCovariance_t error_covariance_cholesky_matrix{
-      error_covariance_cholesky.matrixL()};
-
-  augmentedState_t normalised_error_residual{
-      error_covariance_cholesky_matrix.inverse() * filter.estimation_residual};
-
-  return normalised_error_residual;
-}
 } // namespace CL

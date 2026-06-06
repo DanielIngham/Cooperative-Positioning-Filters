@@ -19,9 +19,9 @@ public:
   Particle &operator=(const Particle &) = delete;
   ~Particle() = default;
 
-  virtual EstimationParameters prediction(const Data::Robot::Odometry &odometry,
-                                          const EstimationParameters &ego,
-                                          double sample_period) override;
+  virtual EstimationParameters
+  prediction(const utias::mrclam::Robot::Odometry &odometry,
+             const EstimationParameters &ego, double sample_period) override;
 
   virtual void correction(EstimationParameters &ego,
                           const EstimationParameters &agent) override;
@@ -37,8 +37,8 @@ protected:
      */
     Particles(const size_t, const state_t &);
 
-    void propagate(const Data::Robot::Odometry &, const EstimationParameters &,
-                   const double, std::mt19937 &);
+    void propagate(const utias::mrclam::Robot::Odometry &,
+                   const EstimationParameters &, const double, std::mt19937 &);
 
     /**
      * Calculates the new weights of the particles based on the likelihood of
@@ -59,8 +59,9 @@ protected:
                                              const Eigen::MatrixXd &cov,
                                              std::mt19937 &gen);
 
-    void motionModel(const Data::Robot::Odometry &odometry, state_t &state,
-                     const input_t &noise, const double sample_period);
+    void motionModel(const utias::mrclam::Robot::Odometry &odometry,
+                     state_t &state, const input_t &noise,
+                     const double sample_period);
 
     double Gaussian(const Eigen::VectorXd &mean,
                     const Eigen::MatrixXd &covariance);

@@ -12,32 +12,34 @@
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
 #include "CL/utils/matrix_operations.hpp"
+#include "CL/utils/utils.hpp"
 
 namespace CL::filter {
 
 EstimationParameters
-InformationFilter::prediction(const Data::Robot::Odometry &odometry,
+InformationFilter::prediction(const utias::mrclam::Robot::Odometry &odometry,
                               const EstimationParameters &parameters,
                               double sample_period) {
 
   EstimationParameters predictive_density{parameters};
   /* Calculate the Motion Jacobian: 3x3 matrix. */
   Models::Process model{odometry, parameters.state_estimate, sample_period};
-  predictive_density.state_estimate = model.predictedState();
-  const motionJacobian_t &motion_jacobian{model.motionJacobian()};
-  const processJacobian_t &process_jacobian{model.processJacobian()};
+  const motionJacobian_t motion_jacobian{model.motionJacobian()};
+  const processJacobian_t process_jacobian{model.processJacobian()};
 
-  /* Propagate the estimation information: 3x3 matrix. */
+  predictive_density.state_estimate = model.predictedState();
+
   predictive_density.error_covariance =
       motion_jacobian * parameters.precision_matrix.inverse() *
           motion_jacobian.transpose() +
       process_jacobian * parameters.process_noise *
           process_jacobian.transpose();
 
-  predictive_density.precision_matrix = parameters.error_covariance.inverse();
+  predictive_density.precision_matrix =
+      predictive_density.error_covariance.inverse();
 
   predictive_density.information_vector =
-      parameters.precision_matrix * parameters.state_estimate;
+      predictive_density.precision_matrix * predictive_density.state_estimate;
 
   return predictive_density;
 }
@@ -45,23 +47,20 @@ InformationFilter::prediction(const Data::Robot::Odometry &odometry,
 #ifdef DECOUPLED
 void InformationFilter::correction(EstimationParameters &ego,
                                    const EstimationParameters &agent) {
-
   Models::Measurement model{ego.state_estimate, agent.state_estimate};
+  const measurement_t predicted_measurement{model.predictedMeasurement()};
   const measurementJacobian_t ego_measurement_Jacobian{model.egoJacobian()};
   const measurementJacobian_t agent_measurement_Jacobian{model.agentJacobian()};
 
   /* Calculate the joint measurment noise. */
-  const measurementCovariance_t joint_measurement_noise{
+  measurementCovariance_t joint_measurement_noise{
       ego.measurement_noise + agent_measurement_Jacobian *
-                                  agent.precision_matrix.inverse() *
+                                  agent.error_covariance *
                                   agent_measurement_Jacobian.transpose()};
 
-  /* Calculate the measurement residual. */
-  const measurement_t predicted_measurement{
-      Models::Measurement::measurementModel(ego.state_estimate,
-                                            agent.state_estimate)};
-
-  ego.innovation = (ego.measurement - predicted_measurement);
+  ego.innovation = ego.measurement - predicted_measurement;
+  utils::normaliseAngle(ego.innovation(BEARING));
+  ego.innovation += ego_measurement_Jacobian * ego.state_estimate;
 
   /* Calculate the precision contribution */
   const precision_t precision_matrix_contribution{
@@ -71,13 +70,15 @@ void InformationFilter::correction(EstimationParameters &ego,
   /* Calculate the information contribution */
   const information_t information_vector_contribution{
       ego_measurement_Jacobian.transpose() * joint_measurement_noise.inverse() *
-      (ego.innovation + ego_measurement_Jacobian * ego.state_estimate)};
+      ego.innovation};
 
   ego.precision_matrix += precision_matrix_contribution;
+  ego.error_covariance = ego.precision_matrix.inverse();
 
   ego.information_vector += information_vector_contribution;
 
   ego.state_estimate = ego.precision_matrix.inverse() * ego.information_vector;
+  utils::normaliseAngle(ego.state_estimate(ORIENTATION));
 }
 #endif
 

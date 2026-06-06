@@ -22,7 +22,7 @@ public:
    * @param[in] state The state estimate at the previous time index.
    * @param[in] sample_period The period between odometry measurements.
    */
-  Process(const Data::Robot::Odometry &odometry, const state_t &state,
+  Process(const utias::mrclam::Robot::Odometry &odometry, const state_t &state,
           const double sample_period);
 
   /**
@@ -61,8 +61,8 @@ public:
    * Filter::EstimationParameters::process_noise).
    */
   [[nodiscard]] static state_t
-  motionModel(const Data::Robot::Odometry &odometry, const state_t &state,
-              const double sample_period);
+  motionModel(const utias::mrclam::Robot::Odometry &odometry,
+              const state_t &state, const double sample_period);
 
   /**
    * @brief Calculates the Jacobian matrix of the unicycle motion model in terms
@@ -85,7 +85,7 @@ public:
    * information on the motion model from which this was derived.
    */
   [[nodiscard]] static motionJacobian_t
-  calculateMotionJacobian(const Data::Robot::Odometry &odometry,
+  calculateMotionJacobian(const utias::mrclam::Robot::Odometry &odometry,
                           const state_t &state, const double sample_period);
 
   /**

@@ -2,7 +2,7 @@
 #include "CL/common/types.hpp"
 
 namespace CL {
-AdversarialLandmark::AdversarialLandmark(const Data::Landmark &data)
+AdversarialLandmark::AdversarialLandmark(const utias::mrclam::Landmark &data)
     : Landmark{data} {
   state_t &falsified_state{estimation_.state_estimate};
   falsified_state(X) += 10;

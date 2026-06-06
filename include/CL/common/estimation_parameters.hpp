@@ -11,8 +11,8 @@ namespace CL {
  * @brief Houses the parameters required for performing Bayesian filtering.
  */
 struct EstimationParameters {
-  Data::Agent::ID id;
-  Data::Agent::Barcode barcode;
+  utias::mrclam::Agent::ID id;
+  utias::mrclam::Agent::Barcode barcode;
 
   /**
    * @brief Estimated robot state - x coordinate [m], y-coordinate [m], and
@@ -43,14 +43,6 @@ struct EstimationParameters {
    */
   measurementCovariance_t innovation_covariance{
       measurementCovariance_t::Zero()};
-
-  /**
-   * @brief The difference between the prior and posterior state estimtes.
-   * @details The estimation residual is defined by the expresssion:
-   * \f[\delta \mathbf{x}_k = \mathbf{x}_{k\mid k-1} - \mathbf{x}_{k\mid k}
-   * \f].
-   */
-  augmentedState_t estimation_residual{augmentedState_t::Zero()};
 
   /**
    * @brief Estimation Error Covariance: 3x3 matrix.

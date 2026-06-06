@@ -9,9 +9,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
-#include <memory>
 
-#include "CL/filters/filter.hpp"
 #include "CL/utils/performance_eval.hpp"
 
 #ifdef EKF_TARGET
@@ -52,9 +50,9 @@ int main(int argc, char *argv[]) {
 
   std::cout << "mode. " << std::endl;
 
-  Data::Handler data;
+  utias::mrclam::Handler data;
 
-  ArgumentHandler::setArguments(argc, argv, data);
+  utias::mrclam::ArgumentHandler::setArguments(argc, argv, data);
 
   CL::Config config{"../config/example.yaml"};
 
@@ -62,16 +60,18 @@ int main(int argc, char *argv[]) {
   CL::Inference<CL::filter::EKF> inference{data, config};
 
 #elif defined(IEKF_TARGET)
-  CL::Inference<CL::filter::IEKF> inference{data};
+  CL::Inference<CL::filter::IEKF> inference{data, config};
 
 #elif defined(INFO_TARGET)
-  CL::Inference<CL::filter::InformationFilter> inference{data};
+  std::cerr << "Using Information filter." << std::endl;
+  CL::Inference<CL::filter::InformationFilter> inference{data, config};
 
 #elif defined(CMEKF_TARGET)
-  CL::Inference<CL::filter::CMEKF> inference{data};
+  CL::Inference<CL::filter::CMEKF> inference{data, config};
 
 #elif defined(PARTICLE_TARGET)
-  CL::Inference<CL::filter::Particle> inference{data};
+  CL::Inference<CL::filter::Particle> inference{data, config};
+
 #else
   throw std::runtime_error("Filter target not selected");
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
   /* Check for SAVE_INPUT definition that determines if the input data
    * should be plot.*/
 
-  Data::Plotter plotter;
+  utias::mrclam::Plotter plotter;
 
 #ifdef SAVE_INPUT
   data.saveExtractedData();
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
   // plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR});
   const auto &robots{data.getRobots()};
 
-  plotter.plotPoses(robots, {Data::Type::ABSOLUTE_ERROR});
+  plotter.plotPoses(robots, {utias::mrclam::Type::ABSOLUTE_ERROR});
 
   std::cout << data.getAverageRMSE() << std::endl;
   return EXIT_SUCCESS;

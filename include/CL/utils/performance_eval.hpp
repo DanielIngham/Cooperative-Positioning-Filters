@@ -25,16 +25,17 @@ public:
 
   static void
   populateSyncedStates(const std::vector<std::unique_ptr<Robot>> &robots,
-                       Data::Handler &data);
+                       utias::mrclam::Handler &data);
 
 private:
   /**
    * Find the robot whose barcode matches the one provided.
    */
   static const Robot *
-  getAssociatedRobot(Data::Robot::Barcode barcode,
+  getAssociatedRobot(utias::mrclam::Robot::Barcode barcode,
                      const std::vector<std::unique_ptr<Robot>> &robots);
 
-  static void populateSyncedStates(const Robot &robots, Data::Robot &data);
+  static void populateSyncedStates(const Robot &robots,
+                                   utias::mrclam::Robot &data);
 };
 } // namespace CL::utils

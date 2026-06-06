@@ -9,7 +9,8 @@
 namespace CL::utils {
 
 void PerformanceEvaluator::populateSyncedStates(
-    const std::vector<std::unique_ptr<Robot>> &robots, Data::Handler &data) {
+    const std::vector<std::unique_ptr<Robot>> &robots,
+    utias::mrclam::Handler &data) {
   auto &handler_robots{data.getRobots()};
   for (auto &robot : handler_robots) {
     const Robot *robot_ptr{getAssociatedRobot(robot.barcode(), robots)};
@@ -20,10 +21,10 @@ void PerformanceEvaluator::populateSyncedStates(
 }
 
 void PerformanceEvaluator::populateSyncedStates(const Robot &robot,
-                                                Data::Robot &data) {
+                                                utias::mrclam::Robot &data) {
 
   const std::vector<EstimationParameters> &estimates{robot.getEstimates()};
-  std::vector<Data::Robot::State> &synced_states{data.synced.states};
+  std::vector<utias::mrclam::Robot::State> &synced_states{data.synced.states};
 
   assert(estimates.size() == synced_states.size());
 
@@ -38,7 +39,7 @@ void PerformanceEvaluator::populateSyncedStates(const Robot &robot,
 }
 
 const Robot *PerformanceEvaluator::getAssociatedRobot(
-    Data::Robot::Barcode barcode,
+    utias::mrclam::Robot::Barcode barcode,
     const std::vector<std::unique_ptr<Robot>> &robots) {
   for (const auto &robot : robots) {
     if (robot->getBarcode() == barcode)

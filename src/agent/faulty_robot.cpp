@@ -1,10 +1,15 @@
+/**
+ * @file faulty_robot.hpp
+ * @author Daniel Ingham
+ * @date 2026-06-06
+ */
 #include "CL/agent/faulty_robot.hpp"
 #include "CL/agent/robot.hpp"
 #include "CL/common/types.hpp"
 #include "CL/utils/utils.hpp"
 
 namespace CL {
-FaultyRobot::FaultyRobot(const Data::Robot &data) : Robot(data) {
+FaultyRobot::FaultyRobot(const utias::mrclam::Robot &data) : Robot(data) {
   EstimationParameters &prior{estimates_.front()};
 
   prior.state_estimate(X) += 5;

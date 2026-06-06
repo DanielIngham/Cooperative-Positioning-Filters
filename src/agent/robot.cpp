@@ -5,9 +5,10 @@
 
 #include <UtiasMrclam/utils/Utils.hpp>
 #include <cassert>
+#include <iostream>
 
 namespace CL {
-Robot::Robot(const Data::Robot &data)
+Robot::Robot(const utias::mrclam::Robot &data)
     : Agent(data.barcode()), odometry_{data.synced.odometry},
       measurements_{data.synced.measurements} {
 
@@ -30,6 +31,7 @@ Robot::Robot(const Data::Robot &data)
   prior.measurement_noise(BEARING, BEARING) = data.bearing_error.variance;
 
   /* Populate the Initial information vector */
+  prior.precision_matrix = prior.error_covariance.inverse();
   prior.information_vector = prior.precision_matrix * prior.state_estimate;
 }
 
@@ -47,7 +49,7 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
     /* Extend the time-series by duplicating the last element in place. */
 
     const double &next_time{odometry_.at(i + 1).time};
-    const Data::Robot::Odometry &prior_odometry{odometry_.at(i)};
+    const utias::mrclam::Robot::Odometry &prior_odometry{odometry_.at(i)};
 
     const double dt{next_time - prior_odometry.time};
 
@@ -69,7 +71,7 @@ void Robot::recieveVanetMessages(
    * indpendent robots/landmarks are independent of one another.
    */
   const double time{odometry_.at(index).time};
-  const Data::Robot::Measurement *current_measurement{
+  const utias::mrclam::Robot::Measurement *current_measurement{
       utias::mrclam::utils::getMeasurement(measurements_, time)};
 
   if (current_measurement == nullptr) {
@@ -84,7 +86,8 @@ void Robot::recieveVanetMessages(
 
     /* Find the subject for whom the barcode belongs to and check if they are on
      * the VANET. */
-    const Data::Agent::Barcode &barcode{current_measurement->subjects.at(i)};
+    const utias::mrclam::Agent::Barcode &barcode{
+        current_measurement->subjects.at(i)};
     auto measured_agent{vanet_msgs.find(barcode.val())};
 
     if (measured_agent == vanet_msgs.end()) {

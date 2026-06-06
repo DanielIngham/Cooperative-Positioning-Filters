@@ -43,7 +43,7 @@ public:
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 
 private:
-  const unsigned short max_iterations_{5U};
+  const unsigned short max_iterations_{100U};
 };
 } // namespace CL::filter
 #endif // INCLUDE_INCLUDE_IEKF_H_

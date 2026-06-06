@@ -1,9 +1,10 @@
 #include "CL/models/process.hpp"
 #include "CL/common/types.hpp"
+#include "CL/utils/utils.hpp"
 
 namespace CL::Models {
-Process::Process(const Data::Robot::Odometry &odometry, const state_t &state,
-                 const double sample_period) {
+Process::Process(const utias::mrclam::Robot::Odometry &odometry,
+                 const state_t &state, const double sample_period) {
 
   predicted_state_ = motionModel(odometry, state, sample_period);
   motion_jacobian_ = calculateMotionJacobian(odometry, state, sample_period);
@@ -16,7 +17,7 @@ motionJacobian_t Process::motionJacobian() { return motion_jacobian_; }
 
 processJacobian_t Process::processJacobian() { return process_jacobian_; }
 
-state_t Process::motionModel(const Data::Robot::Odometry &odometry,
+state_t Process::motionModel(const utias::mrclam::Robot::Odometry &odometry,
                              const state_t &state, const double sample_period) {
 
   state_t predicted_state{};
@@ -27,11 +28,13 @@ state_t Process::motionModel(const Data::Robot::Odometry &odometry,
   predicted_state(ORIENTATION) =
       state(ORIENTATION) + odometry.angular_velocity * sample_period;
 
+  utils::normaliseAngle(predicted_state(ORIENTATION));
+
   return predicted_state;
 }
 
 motionJacobian_t
-Process::calculateMotionJacobian(const Data::Robot::Odometry &odometry,
+Process::calculateMotionJacobian(const utias::mrclam::Robot::Odometry &odometry,
                                  const state_t &state,
                                  const double sample_period) {
 

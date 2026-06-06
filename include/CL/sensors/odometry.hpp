@@ -44,23 +44,21 @@ public:
    * @param forw_vel_var Forward velocity error variance.
    * @param ang_vel_var Angular velocity error variance.
    */
-  Odometry(const std::vector<Data::Robot::Odometry> &odometry,
+  Odometry(const std::vector<utias::mrclam::Robot::Odometry> &odometry,
            double forw_vel_var, double ang_vel_var);
 
-std::set < Data
-
-    private :
-    /**
-     * @brief Odometry process noise covariance matrix: 2x2 matrix.
-     * @details The process noise covariance matrix is defined by the
-     * expression:
-     * \f[ w = \begin{bmatrix} q_v & 0 \\ 0 & q_\omega \end{bmatrix}, \f] where
-     * \f$q_v\f$ denotes the forward velocity noise variance; and
-     * \f$q_\omega\f$ denotes the angular velocity noise variance.
-     * @note The process noise is assumed to be uncorrelated and therefore the
-     * covariance between the forward velocity and the angular velocity is
-     * assumed to be zero.
-     */
-    processCovariance_t cov_{processCovariance_t::Zero()};
+private:
+  /**
+   * @brief Odometry process noise covariance matrix: 2x2 matrix.
+   * @details The process noise covariance matrix is defined by the
+   * expression:
+   * \f[ w = \begin{bmatrix} q_v & 0 \\ 0 & q_\omega \end{bmatrix}, \f] where
+   * \f$q_v\f$ denotes the forward velocity noise variance; and
+   * \f$q_\omega\f$ denotes the angular velocity noise variance.
+   * @note The process noise is assumed to be uncorrelated and therefore the
+   * covariance between the forward velocity and the angular velocity is
+   * assumed to be zero.
+   */
+  processCovariance_t cov_{processCovariance_t::Zero()};
 };
 } // namespace CL::sensors

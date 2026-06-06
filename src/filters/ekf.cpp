@@ -27,9 +27,9 @@ namespace CL::filter {
  * @param[in,out] estimation_parameters The parameters required by the Extended
  * Kalman filter to perform the prediction step.
  */
-EstimationParameters EKF::prediction(const Data::Robot::Odometry &odometry,
-                                     const EstimationParameters &parameters,
-                                     double sample_period) {
+EstimationParameters
+EKF::prediction(const utias::mrclam::Robot::Odometry &odometry,
+                const EstimationParameters &parameters, double sample_period) {
   EstimationParameters predictive_density{parameters};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */

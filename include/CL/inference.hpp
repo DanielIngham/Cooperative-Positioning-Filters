@@ -37,14 +37,14 @@ public:
    * Populates robots and landmarks with data from the data handler.
    * @param data Dataset.
    */
-  Inference(Data::Handler &data, const Config &config = {}) {
+  Inference(utias::mrclam::Handler &data, const Config &config = {}) {
 
     total_timesteps_ = data.getNumberOfSyncedDatapoints();
 
-    Data::Robot::List &fleet_data{data.getRobots()};
+    utias::mrclam::Robot::List &fleet_data{data.getRobots()};
 
     size_t i{};
-    for (const Data::Robot &robot_data : fleet_data) {
+    for (const utias::mrclam::Robot &robot_data : fleet_data) {
       /* Populate the VANET first with cooperative robots, then with faulty
        * robots. */
       if (i++ < config.robots.cooperative)
@@ -53,11 +53,10 @@ public:
         robots_.push_back(Robot::create<FilterType, FaultyRobot>(robot_data));
     }
 
-    const Data::Landmark::List &landmarks{data.getLandmarks()};
+    const utias::mrclam::Landmark::List &landmarks{data.getLandmarks()};
 
     size_t j{};
-    for (const Data::Landmark &landmark_data : landmarks) {
-      // if (j++ % 4 == 0) {
+    for (const utias::mrclam::Landmark &landmark_data : landmarks) {
       if (j++ < config.landmarks.adversarial) {
         landmarks_.emplace_back(
             std::make_unique<AdversarialLandmark>(landmark_data));

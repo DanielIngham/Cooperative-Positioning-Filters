@@ -7,6 +7,7 @@
  */
 
 #include "CL/filters/iekf.hpp"
+#include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/utils/matrix_operations.hpp"
 #include "CL/utils/utils.hpp"
@@ -44,10 +45,12 @@ void IEKF::correction(EstimationParameters &ego,
   for (int i{}; i < max_iterations_; ++i) {
 
     /* Calculate measurement Jacobian */
-    augmentedMeasurementJacobian_t measurement_jacobian{
-        Models::Measurement::calculateMeasurementJacobian(
-            ego.state_estimate, agent.state_estimate)};
+    const state_t ego_state{iterative_state_estimate.head<3>()};
+    const state_t agent_state{iterative_state_estimate.tail<3>()};
 
+    augmentedMeasurementJacobian_t measurement_jacobian{
+        Models::Measurement::calculateMeasurementJacobian(ego_state,
+                                                          agent_state)};
     /* Calculate Covariance Innovation: */
     ego.innovation_covariance = measurement_jacobian * error_covariance *
                                     measurement_jacobian.transpose() +
@@ -58,8 +61,8 @@ void IEKF::correction(EstimationParameters &ego,
                       ego.innovation_covariance.inverse();
 
     /* Populate the predicted measurement matrix. */
-    measurement_t predicted_measurement{Models::Measurement::measurementModel(
-        ego.state_estimate, agent.state_estimate)};
+    measurement_t predicted_measurement{
+        Models::Measurement::measurementModel(ego_state, agent_state)};
 
     /* Calculate the measurement residual. */
     ego.innovation = ego.measurement - predicted_measurement;
@@ -71,15 +74,15 @@ void IEKF::correction(EstimationParameters &ego,
      * change at the end of the loop. */
     augmentedState_t old_estimate{iterative_state_estimate};
 
-    ego.estimation_residual = inital_state_estimate - iterative_state_estimate;
-
-    utils::normaliseAngle(ego.estimation_residual(ORIENTATION));
+    augmentedState_t estimation_residual{inital_state_estimate -
+                                         iterative_state_estimate};
+    utils::normaliseAngle(estimation_residual(ORIENTATION));
 
     /* Update the iterative state estimate. */
     iterative_state_estimate =
         inital_state_estimate +
         ego.kalman_gain *
-            (ego.innovation - measurement_jacobian * (ego.estimation_residual));
+            (ego.innovation - measurement_jacobian * (estimation_residual));
 
     /* Break if the change between iterations converges */
     double change{(iterative_state_estimate - old_estimate).norm()};

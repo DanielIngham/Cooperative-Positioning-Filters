@@ -37,7 +37,7 @@ public:
   EKF(const EstimationParameters &prior) : Filter{prior} {};
 
   [[nodiscard]] EstimationParameters
-  prediction(const Data::Robot::Odometry &odometry,
+  prediction(const utias::mrclam::Robot::Odometry &odometry,
              const EstimationParameters &parameters,
              double sample_period) override;
 

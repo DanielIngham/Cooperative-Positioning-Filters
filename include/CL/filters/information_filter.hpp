@@ -9,6 +9,7 @@
 #define INCLUDE_INCLUDE_INFORMATION_H_
 
 #include "CL/common/estimation_parameters.hpp"
+#include "CL/common/types.hpp"
 #include "CL/filters/filter.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
@@ -43,9 +44,10 @@ public:
    * @param[in,out] parameters The parameters required by the
    * Information filter to perform the prediction step.
    */
-  EstimationParameters prediction(const Data::Robot::Odometry &odometry,
-                                  const EstimationParameters &parameters,
-                                  double sample_period) override;
+  EstimationParameters
+  prediction(const utias::mrclam::Robot::Odometry &odometry,
+             const EstimationParameters &parameters,
+             double sample_period) override;
 
   /**
    * @brief Performs Information Filter correct step.
