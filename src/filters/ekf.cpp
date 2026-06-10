@@ -104,7 +104,10 @@ void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_agent) {
 
   /* Calculate measurement Jacobian */
-  Models::Measurement::calculateMeasurementJacobian(ego_robot, other_agent);
+  Models::Measurement model{ego_robot.state_estimate,
+                            other_agent.state_estimate};
+  const augmentedMeasurementJacobian_t measurement_Jacobian{
+      model.augmentedJacobian()};
 
   /* Create and populate new 5x5 error covariance matrix. */
   augmentedCovariance_t error_covariance =
@@ -112,14 +115,12 @@ void EKF::correction(EstimationParameters &ego_robot,
                                               other_agent.error_covariance);
 
   /* Calculate Covariance Innovation: */
-  ego_robot.innovation_covariance =
-      ego_robot.measurement_jacobian * error_covariance *
-          ego_robot.measurement_jacobian.transpose() +
-      ego_robot.measurement_noise;
+  ego_robot.innovation_covariance = measurement_Jacobian * error_covariance *
+                                        measurement_Jacobian.transpose() +
+                                    ego_robot.measurement_noise;
 
   /* Calculate Kalman Gain */
-  ego_robot.kalman_gain = error_covariance *
-                          ego_robot.measurement_jacobian.transpose() *
+  ego_robot.kalman_gain = error_covariance * measurement_Jacobian.transpose() *
                           ego_robot.innovation_covariance.inverse();
 
   /* Update estimation error covariance */
@@ -127,18 +128,14 @@ void EKF::correction(EstimationParameters &ego_robot,
                       ego_robot.kalman_gain.transpose();
 
   /* Create the state matrix for both robot: 5x1 matrix. */
-  augmentedState_t state_estimate = MatrixOperations::createAugmentedVector(
-      ego_robot.state_estimate, other_agent.state_estimate);
-
-  /* Populate the predicted measurement matrix. */
-  measurement_t predicted_measurement{Models::Measurement::measurementModel(
+  augmentedState_t state_estimate{MatrixOperations::createAugmentedVector(
       ego_robot.state_estimate, other_agent.state_estimate)};
 
   /* Calculate the innovation: the difference between the measurement
    * and the predicted measurement based on the estimated states of both
    * robots.
    */
-  ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
+  ego_robot.innovation = (ego_robot.measurement - model.predictedMeasurement());
 
   /* Normalise the angle residual. */
   utils::normaliseAngle(ego_robot.innovation(BEARING));
@@ -146,7 +143,7 @@ void EKF::correction(EstimationParameters &ego_robot,
   /* Update the state using the measurement. */
   state_estimate += ego_robot.kalman_gain * ego_robot.innovation;
 
-  /* Resize matrices back to normal */
+  /* Resize matrices back to normal. */
   ego_robot.state_estimate = state_estimate.head<total_states>();
 
   ego_robot.error_covariance =
