@@ -1,5 +1,6 @@
 #include "CL/agent/landmark.hpp"
 #include "CL/agent/agent.hpp"
+#include <iostream>
 
 namespace CL {
 
@@ -25,9 +26,9 @@ Landmark::Landmark(const utias::mrclam::Landmark &data)
    * both robot and landmarks use the same data structure, so they can be used
    * in the same measurement correction function.
    */
-  estimation_.precision_matrix = estimation_.error_covariance.inverse();
 
-  estimation_.precision_matrix(ORIENTATION, ORIENTATION) = 1;
+  estimation_.precision_matrix = estimation_.error_covariance.inverse();
+  estimation_.precision_matrix(ORIENTATION, ORIENTATION) = 10000;
 
   estimation_.information_vector =
       estimation_.precision_matrix * estimation_.state_estimate;
