@@ -31,9 +31,8 @@
 
 int main(int argc, char *argv[]) {
 
-  Data::Handler data;
-
-  data.setDataSet(Data::Set[0]);
+  utias::mrclam::Handler data;
+  data.setDataSet(utias::mrclam::Set[0]);
 #ifdef EKF_TARGET
   CL::Inference<CL::filter::EKF> inference{data};
 
@@ -53,13 +52,13 @@ int main(int argc, char *argv[]) {
 #endif // EKF_TARGET
 
   inference.compute();
-  CL::utils::PerformanceEvaluator::populateSyncedStates(inference.getRobots(),
-                                                        data);
-  data.calculateStateError();
+  // CL::utils::PerformanceEvaluator::populateSyncedStates(inference.getRobots(),
+  //                                                       data);
+  // data.calculateStateError();
 
-  Data::Plotter plot{};
-  const auto &robots{data.getRobots()};
-  plot.plotPoses(robots, {Data::Type::ABSOLUTE_ERROR});
+  // utias::mrclam::Plotter plot{};
+  // const auto &robots{data.getRobots()};
+  // plot.plotPoses(robots, {utias::mrclam::Type::ABSOLUTE_ERROR});
 
   // const Data::Robot::List &robots{data.getRobots()};
   // const Data::Landmark::List &landmarks{data.getLandmarks()};
