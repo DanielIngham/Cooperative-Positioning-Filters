@@ -14,6 +14,7 @@ Robot::Robot(const utias::mrclam::Robot &data)
 
   EstimationParameters &prior{
       estimates_.emplace_back(data.id(), data.barcode())};
+
   /* Initial state: 3x1 Matrix. */
   prior.state_estimate(X) = data.groundtruth.states.front().x;
   prior.state_estimate(Y) = data.groundtruth.states.front().y;
@@ -90,9 +91,8 @@ void Robot::recieveVanetMessages(
         current_measurement->subjects.at(i)};
     auto measured_agent{vanet_msgs.find(barcode.val())};
 
-    if (measured_agent == vanet_msgs.end()) {
+    if (measured_agent == vanet_msgs.end())
       continue;
-    }
 
     parameters.measurement[RANGE] = current_measurement->ranges.at(i);
     parameters.measurement[BEARING] = current_measurement->bearings.at(i);
