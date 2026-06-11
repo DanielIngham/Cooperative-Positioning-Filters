@@ -158,15 +158,19 @@ Measurement::agentRangeMeasurementJacobian(const EstimationParameters &ego,
   return jacobian;
 }
 
-measurement_t Measurement::predictedMeasurement() {
+measurement_t const &Measurement::predictedMeasurement() {
   return predicted_measurement_;
 }
 
-measurementJacobian_t Measurement::egoJacobian() { return ego_jacobian_; }
+measurementJacobian_t const &Measurement::egoJacobian() {
+  return ego_jacobian_;
+}
 
-measurementJacobian_t Measurement::agentJacobian() { return agent_jacobian_; }
+measurementJacobian_t const &Measurement::agentJacobian() {
+  return agent_jacobian_;
+}
 
-augmentedMeasurementJacobian_t Measurement::augmentedJacobian() {
+augmentedMeasurementJacobian_t const &Measurement::augmentedJacobian() {
   return augmented_jacobian;
 }
 

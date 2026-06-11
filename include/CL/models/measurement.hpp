@@ -91,23 +91,23 @@ public:
    * @returns The predicted measurement given the state of the ego agent and the
    * observed agent.
    */
-  measurement_t predictedMeasurement();
+  measurement_t const &predictedMeasurement();
   /**
    * @returns The Jacobian matrix of the measurement model with respect to the
    * ego agent's states.
    */
-  measurementJacobian_t egoJacobian();
+  measurementJacobian_t const &egoJacobian();
   /**
    * @returns The Jacobian matrix of the measurement model with respect to the
    * observed agent's states.
    */
-  measurementJacobian_t agentJacobian();
+  measurementJacobian_t const &agentJacobian();
 
   /**
    * @returns The augmented Jacobian matrix of the measurment model with respect
    * to both the ego and observed agent states.
    */
-  augmentedMeasurementJacobian_t augmentedJacobian();
+  augmentedMeasurementJacobian_t const &augmentedJacobian();
 
 private:
   /** Measurement that should have occured given the estimated states of both
