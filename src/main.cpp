@@ -91,12 +91,12 @@ int main(int argc, char *argv[]) {
   data.saveExtractedData();
 #endif // SAVE_INPUT
 
-  // plotter.plotPoses({Data::Plotter::GROUNDTRUTH, Data::Plotter::SYNCED}, 1);
-  // plotter.plotPoses({Data::Plotter::ABSOLUTE_ERROR});
   const auto &robots{data.getRobots()};
+  const auto &landmarks{data.getLandmarks()};
 
   plotter.plotPoses(robots, {utias::mrclam::Type::ABSOLUTE_ERROR});
 
   std::cout << data.getAverageRMSE() << std::endl;
+
   return EXIT_SUCCESS;
 }
