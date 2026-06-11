@@ -40,7 +40,7 @@ void IEKF::correction(EstimationParameters &ego,
   augmentedCovariance_t error_covariance{
       MatrixOperations::createAugmentedMatrix(ego.error_covariance,
                                               agent.error_covariance)};
-
+  augmentedKalmanGain_t kalman_gain{};
   /* Perform the iterative update.  */
   for (int i{}; i < max_iterations_; ++i) {
 
@@ -57,8 +57,8 @@ void IEKF::correction(EstimationParameters &ego,
                                 ego.measurement_noise;
 
     /* Calculate Kalman Gain */
-    ego.kalman_gain = error_covariance * measurement_jacobian.transpose() *
-                      ego.innovation_covariance.inverse();
+    kalman_gain = error_covariance * measurement_jacobian.transpose() *
+                  ego.innovation_covariance.inverse();
 
     /* Populate the predicted measurement matrix. */
     measurement_t predicted_measurement{
@@ -81,7 +81,7 @@ void IEKF::correction(EstimationParameters &ego,
     /* Update the iterative state estimate. */
     iterative_state_estimate =
         inital_state_estimate +
-        ego.kalman_gain *
+        kalman_gain *
             (ego.innovation - measurement_jacobian * (estimation_residual));
 
     /* Break if the change between iterations converges */
@@ -96,7 +96,7 @@ void IEKF::correction(EstimationParameters &ego,
   ego.state_estimate = iterative_state_estimate.head<total_states>();
 
   error_covariance -=
-      ego.kalman_gain * ego.innovation_covariance * ego.kalman_gain.transpose();
+      kalman_gain * ego.innovation_covariance * kalman_gain.transpose();
 
   ego.error_covariance = error_covariance.topLeftCorner<3, 3>();
 }

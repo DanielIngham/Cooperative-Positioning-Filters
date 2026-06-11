@@ -53,15 +53,6 @@ struct EstimationParameters {
   covariance_t error_covariance{covariance_t::Identity() * 1e-3};
 
   /**
-   * @brief Kalman gain: 6x2 matrix.
-   * @note The reason the Kalman gain matrix has 6 elements is because the
-   * cooperative localisation (positioning) requires the estimation
-   * covariances of both the ego and measured robots position. See
-   * EKF::correction.
-   */
-  augmentedKalmanGain_t kalman_gain{augmentedKalmanGain_t::Zero()};
-
-  /**
    * @brief Odometry process noise covariance matrix: 2x2 matrix.
    * @details The process noise covariance matrix is defined by the
    * expression:

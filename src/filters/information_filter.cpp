@@ -47,6 +47,8 @@ InformationFilter::prediction(const utias::mrclam::Robot::Odometry &odometry,
 }
 
 #ifdef DECOUPLED
+/* WARN: This filter approach is unstable due to the inversion of the joint
+ * sensor noise matrix. The coupled approach is more robust.   */
 void InformationFilter::correction(EstimationParameters &ego,
                                    const EstimationParameters &agent) {
   state_t prior_state{ego.state_estimate};
@@ -56,15 +58,9 @@ void InformationFilter::correction(EstimationParameters &ego,
   const measurementJacobian_t ego_meas_Jacobian{model.egoJacobian()};
   const measurementJacobian_t agent_meas_Jacobian{model.agentJacobian()};
 
-  // measurementCovariance_t joint_sensor_noise{
-  //     ego.measurement_noise + agent_meas_Jacobian * agent.error_covariance *
-  //                                 agent_meas_Jacobian.transpose()};
-
-  measurementCovariance_t agent_noise{measurementCovariance_t::Zero()};
-  agent_noise.diagonal() << 0.01, 0.01;
-
-  measurementCovariance_t joint_sensor_noise{ego.measurement_noise +
-                                             agent_noise};
+  measurementCovariance_t joint_sensor_noise{
+      ego.measurement_noise + agent_meas_Jacobian * agent.error_covariance *
+                                  agent_meas_Jacobian.transpose()};
 
   ego.innovation = ego.measurement - predicted_measurement;
   utils::normaliseAngle(ego.innovation(BEARING));
@@ -106,10 +102,6 @@ void InformationFilter::correction(EstimationParameters &ego,
       ego.precision_matrix, agent.precision_matrix)};
 
   /* Calculate the augmented estimated state of the system.  */
-  // augmentedState_t estimated_state{
-  //     MatrixOperations::computePseudoInverse(precision_matrix) *
-  //     information_vector};
-
   augmentedState_t estimated_state{precision_matrix.inverse() *
                                    information_vector};
 
@@ -153,9 +145,6 @@ void InformationFilter::correction(EstimationParameters &ego,
       information_vector_contribution, precision_matrix_contribution);
 
   /* Retrieve the original state estimate. */
-  // ego.state_estimate =
-  //     MatrixOperations::computePseudoInverse(ego.precision_matrix) *
-  //     ego.information_vector;
   ego.state_estimate = ego.precision_matrix.inverse() * ego.information_vector;
 }
 #endif // COUPLED

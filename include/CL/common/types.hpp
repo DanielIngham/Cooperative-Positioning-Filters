@@ -61,6 +61,13 @@ using input_t = Eigen::Vector2d;
 /* Kalman Gain Type Definitions. */
 using kalmanGain_t = Eigen::Matrix<double, total_states, total_measurements>;
 
+/**
+ * @brief Kalman gain: 6x2 matrix.
+ * @note The reason the Kalman gain matrix has 6 elements is because the
+ * cooperative localisation (positioning) requires the estimation
+ * covariances of both the ego and measured robots position. See
+ * EKF::correction.
+ */
 using augmentedKalmanGain_t =
     Eigen::Matrix<double, 2 * total_states, total_measurements>;
 
