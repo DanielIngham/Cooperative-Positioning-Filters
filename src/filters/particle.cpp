@@ -2,6 +2,7 @@
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
+#include "CL/utils/utils.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
@@ -58,14 +59,11 @@ void Particle::Particles::propagate(sensors::OdomData const &odometry,
                                     double sample_period, std::mt19937 &gen) {
 
   for (auto &[state, weight] : samples_) {
-    const input_t noise{
-        sampleMultivariateNormal(input_t::Zero(), odometry.noiseCov(), gen)};
+
+    processCovariance_t cov{odometry.noiseCov()};
+    const input_t noise{sampleMultivariateNormal(input_t::Zero(), cov, gen)};
 
     motionModel(odometry, state, noise, sample_period);
-    // auto tmp_state{state};
-    // state =
-    //     Models::Process::motionModel(odometry, tmp_state, sample_period,
-    //     noise);
   }
 }
 
