@@ -4,6 +4,8 @@
 #pragma once
 
 #include "CL/common/types.hpp"
+#include "CL/sensors/odom_data.hpp"
+
 #include <Eigen/Dense>
 #include <UtiasMrclam/agents/Robot.hpp>
 
@@ -20,32 +22,22 @@ public:
   Odometry &operator=(const Odometry &) = default;
   ~Odometry() = default;
 
-  struct Data {
-    /**
-     * Time stamp corresponding to the sensor reading.
-     */
-    double time_{};
-
-    /**
-     * Vector containing the forward and angular velocity components of the
-     * input.
-     */
-    input_t input_{input_t::Zero()};
-
-    /**
-     * Process noise error covariance.
-     */
-    processCovariance_t cov_{};
-  };
-
   /**
    * Creates an instance housing all the parameters that woul
    * @param odometry Odometry reading for sensor.
-   * @param forw_vel_var Forward velocity error variance.
-   * @param ang_vel_var Angular velocity error variance.
+   * @param var_fvel Forward velocity error variance.
+   * @param var_avel Angular velocity error variance.
    */
   Odometry(const std::vector<utias::mrclam::Robot::Odometry> &odometry,
-           double forw_vel_var, double ang_vel_var);
+           double var_fvel, double var_avel);
+
+  /**
+   * Get the timestamp of the odometry message at the given index.
+   * @param index Sequence number in the list of odometry.
+   */
+  double timeAt(size_t index) const;
+
+  OdomData const &odomAt(size_t index) const;
 
 private:
   /**
@@ -60,5 +52,7 @@ private:
    * assumed to be zero.
    */
   processCovariance_t cov_{processCovariance_t::Zero()};
+
+  std::vector<OdomData> data_;
 };
 } // namespace CL::sensors

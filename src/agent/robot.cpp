@@ -5,7 +5,6 @@
 
 #include <UtiasMrclam/utils/Utils.hpp>
 #include <cassert>
-#include <iostream>
 
 namespace CL {
 Robot::Robot(const utias::mrclam::Robot &data)
