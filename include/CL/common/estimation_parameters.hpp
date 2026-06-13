@@ -53,19 +53,6 @@ struct EstimationParameters {
   covariance_t error_covariance{covariance_t::Identity() * 1e-3};
 
   /**
-   * @brief Odometry process noise covariance matrix: 2x2 matrix.
-   * @details The process noise covariance matrix is defined by the
-   * expression:
-   * \f[ w = \begin{bmatrix} q_v & 0 \\ 0 & q_\omega \end{bmatrix}, \f] where
-   * \f$q_v\f$ denotes the forward velocity noise variance; and
-   * \f$q_\omega\f$ denotes the angular velocity noise variance.
-   * @note The process noise is assumed to be uncorrelated and therefore the
-   * covariance between the forward velocity and the angular velocity is
-   * assumed to be zero.
-   */
-  processCovariance_t process_noise{processCovariance_t::Zero()};
-
-  /**
    * @brief Measurement noise covariance matrix: 2x2 matrix.
    * @details The matrix for the measurement noise covariance matrix take the
    * form \f[ v = \begin{bmatrix} q_r & 0 \\ 0 & q_\phi \end{bmatrix}, \f]

@@ -13,6 +13,7 @@
 #include "CL/utils/utils.hpp"
 
 #include <cmath>
+#include <iostream>
 
 #ifdef COUPLED
 #include "CL/utils/matrix_operations.hpp"
@@ -27,9 +28,12 @@ namespace CL::filter {
  * @param[in,out] estimation_parameters The parameters required by the Extended
  * Kalman filter to perform the prediction step.
  */
-EstimationParameters
-EKF::prediction(const utias::mrclam::Robot::Odometry &odometry,
-                const EstimationParameters &parameters, double sample_period) {
+EstimationParameters EKF::prediction(sensors::OdomData const &odometry,
+                                     EstimationParameters const &parameters,
+                                     double sample_period) {
+
+  std::cerr << "Using odom covariance" << std::endl;
+
   EstimationParameters predictive_density{parameters};
 
   /* Calculate the Motion Jacobian: 3x3 matrix. */
@@ -44,8 +48,7 @@ EKF::prediction(const utias::mrclam::Robot::Odometry &odometry,
   predictive_density.error_covariance =
       motion_jacobian * parameters.error_covariance *
           motion_jacobian.transpose() +
-      process_jacobian * parameters.process_noise *
-          process_jacobian.transpose();
+      process_jacobian * odometry.noiseCov() * process_jacobian.transpose();
 
   return predictive_density;
 }

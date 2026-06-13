@@ -4,6 +4,7 @@
 #include <UtiasMrclam/agents/Agent.hpp>
 
 #include "CL/common/types.hpp"
+#include "CL/sensors/odom_data.hpp"
 
 namespace CL::Models {
 class Process {
@@ -22,7 +23,7 @@ public:
    * @param[in] state The state estimate at the previous time index.
    * @param[in] sample_period The period between odometry measurements.
    */
-  Process(const utias::mrclam::Robot::Odometry &odometry, const state_t &state,
+  Process(sensors::OdomData const &odometry, state_t const &state,
           const double sample_period);
 
   /**
@@ -45,6 +46,8 @@ public:
    * and angular velocity.
    * @param[in] state The state estimate at the previous time index.
    * @param[in] sample_period The period between odometry measurements.
+   * @param[in] noise Sampled noise. Used by monte-carlo sampling based
+   * filtering.
    *
    * @details The motion model used for robot takes the form:
    * \f[\begin{bmatrix} x_i^{(t+1)} \\  y_i^{(t+1)}
@@ -60,9 +63,10 @@ public:
    * are normally distributed random variables \f$\mathcal{N}(0,w)\f$ (see
    * Filter::EstimationParameters::process_noise).
    */
-  [[nodiscard]] static state_t
-  motionModel(const utias::mrclam::Robot::Odometry &odometry,
-              const state_t &state, const double sample_period);
+  [[nodiscard]] static state_t motionModel(sensors::OdomData const &odometry,
+                                           state_t const &state,
+                                           double const sample_period,
+                                           input_t noise = input_t::Zero());
 
   /**
    * @brief Calculates the Jacobian matrix of the unicycle motion model in terms
@@ -85,8 +89,8 @@ public:
    * information on the motion model from which this was derived.
    */
   [[nodiscard]] static motionJacobian_t
-  calculateMotionJacobian(const utias::mrclam::Robot::Odometry &odometry,
-                          const state_t &state, const double sample_period);
+  calculateMotionJacobian(sensors::OdomData const &odometry,
+                          state_t const &state, const double sample_period);
 
   /**
    * @brief Calculates the Jacobian matrix of the motion model evaluated in

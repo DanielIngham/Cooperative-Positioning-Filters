@@ -11,15 +11,15 @@
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
 #include "CL/models/process.hpp"
+#include "CL/sensors/odom_data.hpp"
 #include "CL/utils/matrix_operations.hpp"
 #include "CL/utils/utils.hpp"
-#include <iostream>
 
 namespace CL::filter {
 
 EstimationParameters
-InformationFilter::prediction(const utias::mrclam::Robot::Odometry &odometry,
-                              const EstimationParameters &parameters,
+InformationFilter::prediction(sensors::OdomData const &odometry,
+                              EstimationParameters const &parameters,
                               double sample_period) {
 
   EstimationParameters predictive_density{parameters};
@@ -34,8 +34,7 @@ InformationFilter::prediction(const utias::mrclam::Robot::Odometry &odometry,
   predictive_density.error_covariance =
       motion_jacobian * parameters.precision_matrix.inverse() *
           motion_jacobian.transpose() +
-      process_jacobian * parameters.process_noise *
-          process_jacobian.transpose();
+      process_jacobian * odometry.noiseCov() * process_jacobian.transpose();
 
   predictive_density.precision_matrix =
       predictive_density.error_covariance.inverse();

@@ -44,10 +44,9 @@ public:
    * @param[in,out] parameters The parameters required by the
    * Information filter to perform the prediction step.
    */
-  EstimationParameters
-  prediction(const utias::mrclam::Robot::Odometry &odometry,
-             const EstimationParameters &parameters,
-             double sample_period) override;
+  EstimationParameters prediction(sensors::OdomData const &odometry,
+                                  EstimationParameters const &parameters,
+                                  double sample_period) override;
 
   /**
    * @brief Performs Information Filter correct step.

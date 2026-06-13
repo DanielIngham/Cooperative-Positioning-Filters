@@ -8,10 +8,9 @@
 #pragma once
 
 #include "CL/common/estimation_parameters.hpp"
+#include "CL/sensors/odom_data.hpp"
 
 #include <Eigen/Dense>
-#include <UtiasMrclam/DataHandler.hpp>
-#include <UtiasMrclam/agents/Agent.hpp>
 
 namespace CL::filter {
 class Filter {
@@ -26,8 +25,8 @@ public:
   explicit Filter(const EstimationParameters &prior) : prior_{prior} {};
 
   [[nodiscard]] virtual EstimationParameters
-  prediction(const utias::mrclam::Robot::Odometry &odometry,
-             const EstimationParameters &ego, double sample_period) = 0;
+  prediction(sensors::OdomData const &odometry, EstimationParameters const &ego,
+             double sample_period) = 0;
 
   virtual void correction(EstimationParameters &ego,
                           const EstimationParameters &agent) = 0;

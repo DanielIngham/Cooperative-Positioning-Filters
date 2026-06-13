@@ -1,9 +1,11 @@
 #include "CL/filters/particle.hpp"
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
+#include "CL/models/process.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
+#include <iostream>
 #include <numeric>
 #include <random>
 #include <stdexcept>
@@ -16,9 +18,9 @@ Particle::Particle(const EstimationParameters &prior, size_t samples)
   gen_.seed(rd());
 }
 
-EstimationParameters
-Particle::prediction(const utias::mrclam::Robot::Odometry &odometry,
-                     const EstimationParameters &ego, double sample_period) {
+EstimationParameters Particle::prediction(sensors::OdomData const &odometry,
+                                          EstimationParameters const &ego,
+                                          double sample_period) {
   EstimationParameters predictive_density{ego};
 
   particles_.propagate(odometry, ego, sample_period, gen_);
@@ -51,16 +53,19 @@ Particle::Particles::Particles(const size_t samples, const state_t &prior) {
   }
 }
 
-void Particle::Particles::propagate(
-    const utias::mrclam::Robot::Odometry &odometry,
-    const EstimationParameters &ego, const double sample_period,
-    std::mt19937 &gen) {
+void Particle::Particles::propagate(sensors::OdomData const &odometry,
+                                    EstimationParameters const &ego,
+                                    double sample_period, std::mt19937 &gen) {
 
   for (auto &[state, weight] : samples_) {
     const input_t noise{
-        sampleMultivariateNormal(input_t::Zero(), ego.process_noise, gen)};
+        sampleMultivariateNormal(input_t::Zero(), odometry.noiseCov(), gen)};
 
     motionModel(odometry, state, noise, sample_period);
+    // auto tmp_state{state};
+    // state =
+    //     Models::Process::motionModel(odometry, tmp_state, sample_period,
+    //     noise);
   }
 }
 
@@ -176,16 +181,18 @@ Particle::Particles::sampleMultivariateNormal(const Eigen::VectorXd &mean,
   return mean + L * z;
 }
 
-void Particle::Particles::motionModel(
-    const utias::mrclam::Robot::Odometry &odometry, state_t &state,
-    const input_t &noise, const double sample_period) {
+void Particle::Particles::motionModel(sensors::OdomData const &odometry,
+                                      state_t &state, const input_t &noise,
+                                      const double sample_period) {
 
-  state << state(X) + (odometry.forward_velocity + noise(FORWARD_VELOCITY)) *
-                          sample_period * std::cos(state(ORIENTATION)),
-      state(Y) + (odometry.forward_velocity + noise(FORWARD_VELOCITY)) *
+  state << state(X) +
+               (odometry.input(FORWARD_VELOCITY) + noise(FORWARD_VELOCITY)) *
+                   sample_period * std::cos(state(ORIENTATION)),
+      state(Y) + (odometry.input(FORWARD_VELOCITY) + noise(FORWARD_VELOCITY)) *
                      sample_period * std::sin(state(ORIENTATION)),
       state(ORIENTATION) +
-          (odometry.angular_velocity + noise(ANGULAR_VELOCITY)) * sample_period;
+          (odometry.input(ANGULAR_VELOCITY) + noise(ANGULAR_VELOCITY)) *
+              sample_period;
 }
 
 bool Particle::Particles::checkWeights() {

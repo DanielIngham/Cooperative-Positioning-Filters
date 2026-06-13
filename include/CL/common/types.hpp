@@ -21,9 +21,9 @@ const unsigned short total_inputs{2};
 const unsigned short total_measurements{2};
 
 /* Enums for easier accessing of variables in arrays and vectors. */
-enum { FORWARD_VELOCITY = 0, ANGULAR_VELOCITY = 1 };
-enum { RANGE = 0, BEARING = 1 };
-enum { X = 0, Y = 1, ORIENTATION = 2 };
+enum OdomIdx { FORWARD_VELOCITY = 0, ANGULAR_VELOCITY = 1 };
+enum MeasIdx { RANGE = 0, BEARING = 1 };
+enum StateIdx { X = 0, Y = 1, ORIENTATION = 2 };
 
 /* General Vector Types Definitions. */
 using vector2D_t = Eigen::Matrix<double, 2, 1>;

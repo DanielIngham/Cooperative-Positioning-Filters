@@ -5,10 +5,15 @@
  * Data structure housing the list of odometry.
  */
 namespace CL::sensors {
-struct OdomData {
+
+class OdomData {
 public:
   OdomData() = delete;
-
+  OdomData(OdomData &&) = default;
+  OdomData(const OdomData &) = default;
+  OdomData &operator=(OdomData &&) = default;
+  OdomData &operator=(const OdomData &) = default;
+  ~OdomData() = default;
   /**
    * Construct an odometry data instance.
    * @param time Timestamp of the odometry reading.
@@ -25,6 +30,13 @@ public:
   double time() const;
 
   /**
+   * Get either a forward or angular velocity value from the odometry.
+   * @returns a double containing either the forward or angular velocity
+   * odometry measurement taken.
+   */
+  double const &input(OdomIdx index) const;
+
+  /**
    * Get the measured odometry.
    * @returns A constant reference input vector containing the forward and
    * angular velocity.
@@ -33,11 +45,9 @@ public:
 
   /**
    * Get the process noise error covariance matrix.
-   * @returns A reference to the process noise covariance matrix.
-   * @note It was made non-constant to allow for adaptive covariance
-   * adjustments.
+   * @returns A constant reference to the process noise covariance matrix.
    */
-  processCovariance_t &cov();
+  processCovariance_t const &noiseCov() const;
 
 private:
   /**
@@ -52,7 +62,15 @@ private:
   input_t input_{input_t::Zero()};
 
   /**
-   * Process noise error covariance matrix.
+   * @brief Odometry process noise covariance matrix: 2x2 matrix.
+   * @details The process noise covariance matrix is defined by the
+   * expression:
+   * \f[ w = \begin{bmatrix} q_v & 0 \\ 0 & q_\omega \end{bmatrix}, \f] where
+   * \f$q_v\f$ denotes the forward velocity noise variance; and
+   * \f$q_\omega\f$ denotes the angular velocity noise variance.
+   * @note The process noise is assumed to be uncorrelated and therefore the
+   * covariance between the forward velocity and the angular velocity is
+   * assumed to be zero.
    */
   processCovariance_t cov_{};
 };

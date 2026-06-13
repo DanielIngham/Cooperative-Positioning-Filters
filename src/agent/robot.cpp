@@ -1,10 +1,14 @@
 #include "CL/agent/robot.hpp"
 #include "CL/agent/agent.hpp"
 #include "CL/common/estimation_parameters.hpp"
+#include "CL/common/types.hpp"
+#include "CL/sensors/odometry.hpp"
 #include "CL/utils/utils.hpp"
 
 #include <UtiasMrclam/utils/Utils.hpp>
 #include <cassert>
+#include <iostream>
+#include <memory>
 
 namespace CL {
 Robot::Robot(const utias::mrclam::Robot &data)
@@ -20,12 +24,6 @@ Robot::Robot(const utias::mrclam::Robot &data)
   prior.state_estimate(ORIENTATION) =
       data.groundtruth.states.front().orientation;
 
-  /* Populate odometry error covariance matrix: 2x2 matrix. */
-  prior.process_noise(FORWARD_VELOCITY, FORWARD_VELOCITY) =
-      data.forward_velocity_error.variance;
-  prior.process_noise(ANGULAR_VELOCITY, ANGULAR_VELOCITY) =
-      data.angular_velocity_error.variance;
-
   /* Populate measurement error covariance matrix: 2x2 matrix. */
   prior.measurement_noise(RANGE, RANGE) = data.range_error.variance;
   prior.measurement_noise(BEARING, BEARING) = data.bearing_error.variance;
@@ -33,6 +31,10 @@ Robot::Robot(const utias::mrclam::Robot &data)
   /* Populate the Initial information vector */
   prior.precision_matrix = prior.error_covariance.inverse();
   prior.information_vector = prior.precision_matrix * prior.state_estimate;
+
+  new_odometry_ = std::make_unique<sensors::Odometry>(
+      data.synced.odometry, data.forward_velocity_error.variance,
+      data.angular_velocity_error.variance);
 }
 
 const EstimationParameters &Robot::broadcastEstimate(size_t index) {
@@ -44,19 +46,19 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
    * NOTE: The assertion ensures that the estimates are not empty and therefore
    * this subtraction should be a safe operation.
    */
-  for (size_t i{estimates_.size() - 1}; i < index; i++) {
+  size_t const &last_idx{estimates_.size() - 1};
+  for (size_t i{last_idx}; i < index; i++) {
 
-    /* Extend the time-series by duplicating the last element in place. */
+    double const &next_time{new_odometry_->timeAt(i + 1)};
 
-    const double &next_time{odometry_.at(i + 1).time};
-    const utias::mrclam::Robot::Odometry &prior_odometry{odometry_.at(i)};
+    sensors::OdomData const &odometry{new_odometry_->odomAt(i)};
 
-    const double dt{next_time - prior_odometry.time};
+    double const dt{next_time - odometry.time()};
 
     assert(dt > 0);
 
     estimates_.emplace_back(
-        filter_->prediction(prior_odometry, estimates_.back(), dt));
+        filter_->prediction(odometry, estimates_.back(), dt));
   }
 
   return estimates_.back();

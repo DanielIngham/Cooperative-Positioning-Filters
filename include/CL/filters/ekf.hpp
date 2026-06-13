@@ -13,7 +13,6 @@
 #include "CL/filters/filter.hpp"
 
 #include <Eigen/Dense>
-#include <UtiasMrclam/DataHandler.hpp>
 
 namespace CL::filter {
 
@@ -37,8 +36,8 @@ public:
   EKF(const EstimationParameters &prior) : Filter{prior} {};
 
   [[nodiscard]] EstimationParameters
-  prediction(const utias::mrclam::Robot::Odometry &odometry,
-             const EstimationParameters &parameters,
+  prediction(sensors::OdomData const &odometry,
+             EstimationParameters const &parameters,
              double sample_period) override;
 
   void correction(EstimationParameters &ego,

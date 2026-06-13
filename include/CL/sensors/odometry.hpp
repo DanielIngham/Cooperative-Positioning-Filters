@@ -37,6 +37,11 @@ public:
    */
   double timeAt(size_t index) const;
 
+  /**
+   * Get the odometry data at a given sequence number.
+   * @param index Sequence number.
+   * @returns Odometry data structure.
+   */
   OdomData const &odomAt(size_t index) const;
 
 private:
@@ -53,6 +58,9 @@ private:
    */
   processCovariance_t cov_{processCovariance_t::Zero()};
 
+  /**
+   * List of odometry data measured from the odometry sensors.
+   */
   std::vector<OdomData> data_;
 };
 } // namespace CL::sensors

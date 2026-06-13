@@ -2,6 +2,7 @@
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
 #include "CL/filters/filter.hpp"
+#include "CL/sensors/odom_data.hpp"
 
 #include <Eigen/Dense>
 #include <Eigen/src/Core/Matrix.h>
@@ -19,9 +20,9 @@ public:
   Particle &operator=(const Particle &) = delete;
   ~Particle() = default;
 
-  virtual EstimationParameters
-  prediction(const utias::mrclam::Robot::Odometry &odometry,
-             const EstimationParameters &ego, double sample_period) override;
+  virtual EstimationParameters prediction(sensors::OdomData const &odometry,
+                                          EstimationParameters const &ego,
+                                          double sample_period) override;
 
   virtual void correction(EstimationParameters &ego,
                           const EstimationParameters &agent) override;
@@ -37,8 +38,12 @@ protected:
      */
     Particles(const size_t, const state_t &);
 
-    void propagate(const utias::mrclam::Robot::Odometry &,
-                   const EstimationParameters &, const double, std::mt19937 &);
+    /**
+     * Propagtes the particles using the motion model.
+     */
+    void propagate(sensors::OdomData const &odometry,
+                   EstimationParameters const &ego, double sample_period,
+                   std::mt19937 &gen);
 
     /**
      * Calculates the new weights of the particles based on the likelihood of
@@ -59,9 +64,8 @@ protected:
                                              const Eigen::MatrixXd &cov,
                                              std::mt19937 &gen);
 
-    void motionModel(const utias::mrclam::Robot::Odometry &odometry,
-                     state_t &state, const input_t &noise,
-                     const double sample_period);
+    void motionModel(sensors::OdomData const &odometry, state_t &state,
+                     const input_t &noise, const double sample_period);
 
     double Gaussian(const Eigen::VectorXd &mean,
                     const Eigen::MatrixXd &covariance);

@@ -48,6 +48,7 @@ set (MODEL_SRC
 
 set (SENSOR_SRC 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sensors/odometry.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sensors/odom_data.cpp"
 )
 
 set (UTILS_SRC
