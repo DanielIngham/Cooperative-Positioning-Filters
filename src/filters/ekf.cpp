@@ -13,7 +13,6 @@
 #include "CL/utils/utils.hpp"
 
 #include <cmath>
-#include <iostream>
 
 #ifdef COUPLED
 #include "CL/utils/matrix_operations.hpp"
@@ -31,8 +30,6 @@ namespace CL::filter {
 EstimationParameters EKF::prediction(sensors::OdomData const &odometry,
                                      EstimationParameters const &parameters,
                                      double sample_period) {
-
-  std::cerr << "Using odom covariance" << std::endl;
 
   EstimationParameters predictive_density{parameters};
 
