@@ -7,13 +7,11 @@
 
 #include <UtiasMrclam/utils/Utils.hpp>
 #include <cassert>
-#include <iostream>
 #include <memory>
 
 namespace CL {
 Robot::Robot(const utias::mrclam::Robot &data)
-    : Agent(data.barcode()), odometry_{data.synced.odometry},
-      measurements_{data.synced.measurements} {
+    : Agent(data.barcode()), measurements_{data.synced.measurements} {
 
   EstimationParameters &prior{
       estimates_.emplace_back(data.id(), data.barcode())};
@@ -32,7 +30,7 @@ Robot::Robot(const utias::mrclam::Robot &data)
   prior.precision_matrix = prior.error_covariance.inverse();
   prior.information_vector = prior.precision_matrix * prior.state_estimate;
 
-  new_odometry_ = std::make_unique<sensors::Odometry>(
+  odometry_ = std::make_unique<sensors::Odometry>(
       data.synced.odometry, data.forward_velocity_error.variance,
       data.angular_velocity_error.variance);
 }
@@ -49,9 +47,9 @@ const EstimationParameters &Robot::broadcastEstimate(size_t index) {
   size_t const &last_idx{estimates_.size() - 1};
   for (size_t i{last_idx}; i < index; i++) {
 
-    double const &next_time{new_odometry_->timeAt(i + 1)};
+    double const &next_time{odometry_->timeAt(i + 1)};
 
-    sensors::OdomData const &odometry{new_odometry_->odomAt(i)};
+    sensors::OdomData const &odometry{odometry_->odomAt(i)};
 
     double const dt{next_time - odometry.time()};
 
@@ -72,7 +70,7 @@ void Robot::recieveVanetMessages(
    * NOTE: This operation uses the assumption that the measurements for the
    * indpendent robots/landmarks are independent of one another.
    */
-  const double time{odometry_.at(index).time};
+  const double time{odometry_->timeAt(index)};
   const utias::mrclam::Robot::Measurement *current_measurement{
       utias::mrclam::utils::getMeasurement(measurements_, time)};
 
