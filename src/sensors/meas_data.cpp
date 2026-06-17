@@ -5,10 +5,14 @@
  */
 #include "CL/sensors/meas_data.hpp"
 
+namespace CL::sensors {
+
 MeasData::MeasData(double time, double range, double bearing, size_t barcode)
-    : time_{time}, range_{range}, bearing_{bearing}, barcode_{barcode} {}
+    : time_{time}, barcode_{barcode}, vec_{range, bearing} {}
 
 double MeasData::time() const { return time_; }
-double MeasData::range() const { return range_; }
-double MeasData::bearing() const { return bearing_; }
+
+measurement_t MeasData::vec() const { return vec_; }
+
 size_t MeasData::barcode() const { return barcode_; }
+} // namespace CL::sensors

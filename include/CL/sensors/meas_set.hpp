@@ -8,7 +8,7 @@
 #include <UtiasMrclam/agents/Robot.hpp>
 #include <set>
 
-namespace apn {
+namespace CL::sensors {
 
 /**
  * Contains the set of measurements corresponding to a given timestamp.
@@ -34,4 +34,4 @@ private:
   double time_;
   std::set<MeasData> meas_set_;
 };
-} // namespace apn
+} // namespace CL::sensors

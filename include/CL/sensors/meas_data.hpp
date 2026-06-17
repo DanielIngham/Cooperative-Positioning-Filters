@@ -5,11 +5,16 @@
  */
 #pragma once
 
+#include "CL/common/types.hpp"
+#include <Eigen/Dense>
 #include <cstddef>
+
 /**
  * Data structure housing the range and bearing measurements taken by mobile
  * agents in the VANET.
  */
+namespace CL::sensors {
+
 class MeasData {
 public:
   MeasData() = delete;
@@ -34,29 +39,30 @@ public:
    * @returns A timestamp.
    */
   double time() const;
+
   /**
-   * Get the range measurement.
-   * @returns A range measurement in meters.
+   * Get the range and bearing measurement data.
+   * @returns A 2D Eigen measurement vector.
    */
-  double range() const;
-  /**
-   * Get the bearing measurement.
-   * @returns A bearing measurement in radians.
-   */
-  double bearing() const;
+  measurement_t vec() const;
+
   /**
    * Get the observed agents barcode.
    * @returns The barcode of the agent observed.
    */
   size_t barcode() const;
 
+  bool operator<(MeasData const &rhs) const { return barcode_ < rhs.barcode_; }
+
 private:
   /** Timestamp of the measurement. */
   double time_{};
-  /** Range in meters to the observed agent. */
-  double range_{};
-  /** Bearing in radians of the observation from the vehicles heading. */
-  double bearing_{};
+
   /** Barcode of the observed agent. */
   size_t barcode_{};
+
+  /** Contains Range in meters to the observed agent and bearing in radians of
+   * the observation from the vehicles heading. */
+  measurement_t vec_{};
 };
+} // namespace CL::sensors

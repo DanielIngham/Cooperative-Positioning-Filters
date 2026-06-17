@@ -5,11 +5,12 @@
  */
 
 #include "CL/sensors/meas_set.hpp"
+
 #include "UtiasMrclam/agents/Robot.hpp"
-#include <optional>
+
 #include <vector>
 
-namespace apn {
+namespace CL::sensors {
 
 class Measurements {
 public:
@@ -28,4 +29,4 @@ public:
 private:
   std::vector<MeasSet> measurements_;
 };
-} // namespace apn
+} // namespace CL::sensors

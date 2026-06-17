@@ -2,7 +2,7 @@
 #include "CL/sensors/meas_set.hpp"
 #include <algorithm>
 
-namespace apn {
+namespace CL::sensors {
 
 Measurements::Measurements(
     std::vector<utias::mrclam::Robot::Measurement> const &measurements) {
@@ -36,4 +36,4 @@ MeasSet *const Measurements::find(double time) {
   return nullptr;
 }
 
-} // namespace apn
+} // namespace CL::sensors

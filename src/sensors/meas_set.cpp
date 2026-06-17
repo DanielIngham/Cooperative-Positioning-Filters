@@ -2,7 +2,7 @@
 #include "CL/sensors/meas_data.hpp"
 #include <cassert>
 
-namespace apn {
+namespace CL::sensors {
 
 MeasSet::MeasSet(utias::mrclam::Robot::Measurement const &measurement)
     : time_{measurement.time} {
@@ -22,4 +22,4 @@ auto MeasSet::begin() const { return meas_set_.begin(); }
 
 auto MeasSet::end() const { return meas_set_.end(); }
 
-} // namespace apn
+} // namespace CL::sensors
