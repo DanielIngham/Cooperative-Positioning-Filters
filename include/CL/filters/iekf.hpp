@@ -37,12 +37,27 @@ public:
 
   IEKF(const EstimationParameters &prior) : EKF{prior} {};
 
-  void correction(EstimationParameters &,
-                  const EstimationParameters &) override;
+  /**
+   * @brief Performs the Iterative Extended Kalman correct step.
+   * @param[in,out] ego_robot The estimation parameters of the ego robot.
+   * @param[in] other_agent The estimation parameters of the obejct that was
+   * measured by the ego robot.
+   */
+  void correction(EstimationParameters &ego, const EstimationParameters &agent,
+                  sensors::MeasData const &meas) override;
 
+  /**
+   * @brief A robust version of the correction function that uses the Huber cost
+   * function to increase estimation error covariance of measurements that seem
+   * to be outliers.
+   * @param[in,out] ego_robot The estimation parameters of the ego robot.
+   * @param[in] other_agent The estimation parameters of the obejct that was
+   * measured by the ego robot.
+   */
   void robustCorrection(EstimationParameters &, const EstimationParameters &);
 
 private:
+  /** Maximum number of iterations performed by the iterative update. */
   const unsigned short max_iterations_{100U};
 };
 } // namespace CL::filter

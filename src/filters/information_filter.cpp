@@ -49,7 +49,8 @@ InformationFilter::prediction(sensors::OdomData const &odometry,
 /* WARN: This filter approach is unstable due to the inversion of the joint
  * sensor noise matrix. The coupled approach is more robust.   */
 void InformationFilter::correction(EstimationParameters &ego,
-                                   const EstimationParameters &agent) {
+                                   EstimationParameters const &agent,
+                                   sensors::MeasData const &meas) {
   state_t prior_state{ego.state_estimate};
 
   Models::Measurement model{ego.state_estimate, agent.state_estimate};
@@ -90,7 +91,8 @@ void InformationFilter::correction(EstimationParameters &ego,
 
 #ifdef COUPLED
 void InformationFilter::correction(EstimationParameters &ego,
-                                   const EstimationParameters &agent) {
+                                   EstimationParameters const &agent,
+                                   sensors::MeasData const &meas) {
 
   /* Create the augmented information vector and precision matrix */
   augmentedInformation_t information_vector{

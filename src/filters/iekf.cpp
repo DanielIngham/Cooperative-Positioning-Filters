@@ -14,19 +14,9 @@
 
 namespace CL::filter {
 
-/**
- * @brief Performs the Iterative Extended Kalman correct step.
- * @param[in,out] ego_robot The estimation parameters of the ego robot.
- * @param[in] other_agent The estimation parameters of the obejct that was
- * measured by the ego robot.
- */
 void IEKF::correction(EstimationParameters &ego,
-                      const EstimationParameters &agent) {
-
-#ifdef ROBUST
-  robustCorrection(ego_robot, other_agent);
-  return;
-#endif // ROBUST
+                      EstimationParameters const &agent,
+                      sensors::MeasData const &meas) {
 
   /* Create the state matrix for both robot. */
   augmentedState_t inital_state_estimate{
@@ -101,35 +91,30 @@ void IEKF::correction(EstimationParameters &ego,
   ego.error_covariance = error_covariance.topLeftCorner<3, 3>();
 }
 
-/**
- * @brief A robust version of the correction function that uses the Huber cost
- * function to increase estimation error covariance of measurements that seem to
- * be outliers.
- * @param[in,out] ego_robot The estimation parameters of the ego robot.
- * @param[in] other_agent The estimation parameters of the obejct that was
- * measured by the ego robot.
- */
 // void IEKF::robustCorrection(EstimationParameters &ego_robot,
 //                             const EstimationParameters &other_agent) {
 //
 //   /* Create the state matrix for both robot: 5x1 matrix. */
-//   augmentedState_t initial_state_estimate{createAugmentedVector(
-//       ego_robot.state_estimate, other_agent.state_estimate)};
+//   augmentedState_t initial_state_estimate{
+//       MatrixOperations::createAugmentedVector(ego_robot.state_estimate,
+//                                               other_agent.state_estimate)};
 //
 //   /* Create the iterative state estimate matrix. */
 //   augmentedState_t iterative_state_estimate{initial_state_estimate};
 //
 //   /* Create and populate 5x5 error covariance matrix. */
-//   augmentedCovariance_t error_covariance{createAugmentedMatrix(
-//       ego_robot.error_covariance, other_agent.error_covariance)};
+//   augmentedCovariance_t error_covariance{
+//       MatrixOperations::createAugmentedMatrix(ego_robot.error_covariance,
+//                                               other_agent.error_covariance)};
 //
 //   /* Calculate the Cholesky Decomposition of the estimation error covariance
-//   */ Eigen::LLT<augmentedCovariance_t> error_cholesky{error_covariance};
+//    */
+//   Eigen::LLT<augmentedCovariance_t> error_cholesky{error_covariance};
 //
 //   if (error_cholesky.info() != Eigen::Success) {
 //     throw std::runtime_error(
-//         "An error has occurred with calculating the Cholesky decomposition of
-//         " "the estimation error covariance");
+//         "An error has occurred with calculating the Cholesky decomposition
+//         of" " the estimation error covariance");
 //   }
 //
 //   augmentedCovariance_t error_cholesky_matrix{error_cholesky.matrixL()};
@@ -140,22 +125,25 @@ void IEKF::correction(EstimationParameters &ego,
 //
 //   if (measurement_cholesky.info() != Eigen::Success) {
 //     throw std::runtime_error(
-//         "An error has occurred with calculating the Cholesky decomposition of
-//         " "the measurement error covariance");
+//         "An error has occurred with calculating the Cholesky decomposition
+//         of" "the measurement error covariance");
 //   }
 //
 //   measurementCovariance_t measurement_cholesky_matrix =
 //       measurement_cholesky.matrixL();
 //
+//   augmentedKalmanGain_t kalman_gain{};
+//   augmentedMeasurementJacobian_t measurement_jacobian{};
 //   /* Perform the iterative update.  */
 //   for (int i{}; i < max_iterations_; i++) {
 //     /* Calculate measurement Jacobian */
-//     calculateMeasurementJacobian(ego_robot, other_agent);
+//     measurement_jacobian = Models::Measurement::calculateMeasurementJacobian(
+//         ego_robot.state_estimate, other_agent.state_estimate);
 //
 //     /* Populate the predicted measurement matrix. */
-//
-//     measurement_t predicted_measurement{
-//         measurementModel(ego_robot, other_agent)};
+//     measurement_t
+//     predicted_measurement{Models::Measurement::measurementModel(
+//         ego_robot.state_estimate, other_agent.state_estimate)};
 //
 //     /* Calculate the measurement residual */
 //     ego_robot.innovation = (ego_robot.measurement - predicted_measurement);
@@ -164,16 +152,16 @@ void IEKF::correction(EstimationParameters &ego,
 //     utils::normaliseAngle(ego_robot.innovation(BEARING));
 //
 //     /* Calculate the new estimation residual. */
-//     ego_robot.estimation_residual =
-//         initial_state_estimate - iterative_state_estimate;
+//     augmentedState_t estimation_residual{initial_state_estimate -
+//                                          iterative_state_estimate};
 //
-//     utils::normaliseAngle(ego_robot.estimation_residual(ORIENTATION));
+//     utils::normaliseAngle(estimation_residual(ORIENTATION));
 //
 //     /* Calculate the new robust estimation error covariance. */
 //     augmentedCovariance_t reweighted_error_covariance{
 //         error_cholesky_matrix *
-//         HuberState(ego_robot.estimation_residual, state_thresholds).inverse()
-//         * error_cholesky_matrix.transpose()};
+//         HuberState(estimation_residual, state_thresholds).inverse() *
+//         error_cholesky_matrix.transpose()};
 //
 //     /* Calculate the new robust sensor error covariance. */
 //     measurementCovariance_t reweighted_measurement_covariance{
@@ -183,24 +171,22 @@ void IEKF::correction(EstimationParameters &ego,
 //         measurement_cholesky_matrix.transpose()};
 //
 //     /* Calculate Covariance Innovation: */
-//     ego_robot.innovation_covariance =
-//         ego_robot.measurement_jacobian * reweighted_error_covariance *
-//             ego_robot.measurement_jacobian.transpose() +
-//         reweighted_measurement_covariance;
+//     ego_robot.innovation_covariance = measurement_jacobian *
+//                                           reweighted_error_covariance *
+//                                           measurement_jacobian.transpose() +
+//                                       reweighted_measurement_covariance;
 //
 //     /* Calculate Kalman Gain */
-//     ego_robot.kalman_gain = reweighted_error_covariance *
-//                             ego_robot.measurement_jacobian.transpose() *
-//                             ego_robot.innovation_covariance.inverse();
+//     kalman_gain = reweighted_error_covariance *
+//                   measurement_jacobian.transpose() *
+//                   ego_robot.innovation_covariance.inverse();
 //
 //     augmentedState_t old_estimate{iterative_state_estimate};
 //
 //     iterative_state_estimate =
 //         initial_state_estimate +
-//         ego_robot.kalman_gain *
-//             (ego_robot.innovation -
-//              ego_robot.measurement_jacobian *
-//              (ego_robot.estimation_residual));
+//         kalman_gain * (ego_robot.innovation -
+//                        measurement_jacobian * (estimation_residual));
 //
 //     /* Break if the change between iterations converges */
 //     double change{(iterative_state_estimate - old_estimate).norm()};
@@ -216,9 +202,8 @@ void IEKF::correction(EstimationParameters &ego,
 //
 //   /* Update estimation error covariance */
 //   error_covariance =
-//       (augmentedCovariance_t::Identity() -
-//        ego_robot.kalman_gain * ego_robot.measurement_jacobian) *
-//       error_cholesky_matrix *
+//       (augmentedCovariance_t::Identity() - kalman_gain *
+//       measurement_jacobian) * error_cholesky_matrix *
 //       HuberState(initial_state_estimate - iterative_state_estimate,
 //                  state_thresholds)
 //           .inverse() *

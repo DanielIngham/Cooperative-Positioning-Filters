@@ -8,7 +8,8 @@
 namespace CL::filter {
 
 void CMEKF::correction(EstimationParameters &ego,
-                       const EstimationParameters &agent) {
+                       EstimationParameters const &agent,
+                       sensors::MeasData const &meas) {
 
   const measurementJacobian_t agent_measurement_Jacobian{
       Models::Measurement::agentMeasurementJacobian(ego.state_estimate,

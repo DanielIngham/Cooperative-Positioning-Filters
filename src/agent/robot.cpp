@@ -2,6 +2,7 @@
 #include "CL/agent/agent.hpp"
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
+#include "CL/sensors/meas_set.hpp"
 #include "CL/sensors/odometry.hpp"
 #include "CL/utils/utils.hpp"
 
@@ -10,8 +11,7 @@
 #include <memory>
 
 namespace CL {
-Robot::Robot(const utias::mrclam::Robot &data)
-    : Agent(data.barcode()), measurements_{data.synced.measurements} {
+Robot::Robot(const utias::mrclam::Robot &data) : Agent(data.barcode()) {
 
   EstimationParameters &prior{
       estimates_.emplace_back(data.id(), data.barcode())};
@@ -33,6 +33,10 @@ Robot::Robot(const utias::mrclam::Robot &data)
   odometry_ = std::make_unique<sensors::Odometry>(
       data.synced.odometry, data.forward_velocity_error.variance,
       data.angular_velocity_error.variance);
+
+  new_measurements_ = std::make_unique<sensors::Measurements>(
+      data.synced.measurements, data.range_error.variance,
+      data.bearing_error.variance);
 }
 
 const EstimationParameters &Robot::broadcastEstimate(size_t index) {
@@ -68,35 +72,27 @@ void Robot::recieveVanetMessages(
   /* Loop through the measurements taken and perform the measurement
    * update for each robot.
    * NOTE: This operation uses the assumption that the measurements for the
-   * indpendent robots/landmarks are independent of one another.
-   */
-  const double time{odometry_->timeAt(index)};
-  const utias::mrclam::Robot::Measurement *current_measurement{
-      utias::mrclam::utils::getMeasurement(measurements_, time)};
+   * indpendent robots/landmarks are independent of one another. */
+  double const &time{odometry_->timeAt(index)};
 
-  if (current_measurement == nullptr) {
+  sensors::MeasSet const *new_curr_meas{new_measurements_->find(time)};
+
+  if (new_curr_meas == nullptr)
     return;
-  }
 
   EstimationParameters &parameters{estimates_.at(index)};
 
   /* Loop through the list of measurements. It is assumed that the data
    * associations are known. */
-  for (unsigned short i{}; i < current_measurement->subjects.size(); ++i) {
+  for (const sensors::MeasData &meas : *new_curr_meas) {
 
-    /* Find the subject for whom the barcode belongs to and check if they are on
-     * the VANET. */
-    const utias::mrclam::Agent::Barcode &barcode{
-        current_measurement->subjects.at(i)};
-    auto measured_agent{vanet_msgs.find(barcode.val())};
-
+    auto measured_agent{vanet_msgs.find(meas.barcode())};
     if (measured_agent == vanet_msgs.end())
       continue;
 
-    parameters.measurement[RANGE] = current_measurement->ranges.at(i);
-    parameters.measurement[BEARING] = current_measurement->bearings.at(i);
+    parameters.measurement = meas.vec();
 
-    filter_->correction(parameters, measured_agent->second);
+    filter_->correction(parameters, measured_agent->second, meas);
 
     double &normalised_angle{parameters.state_estimate(ORIENTATION)};
     utils::normaliseAngle(normalised_angle);

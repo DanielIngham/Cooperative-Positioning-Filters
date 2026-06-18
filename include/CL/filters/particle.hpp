@@ -25,9 +25,13 @@ public:
                                           double sample_period) override;
 
   virtual void correction(EstimationParameters &ego,
-                          const EstimationParameters &agent) override;
+                          EstimationParameters const &agent,
+                          sensors::MeasData const &meas) override;
 
 protected:
+  /**
+   * Set of particle used in Particle filtering.
+   */
   struct Particles {
     /**
      * Initialises all the particles to the known prior state and sets the

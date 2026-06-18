@@ -8,6 +8,7 @@
 #pragma once
 
 #include "CL/common/estimation_parameters.hpp"
+#include "CL/sensors/meas_data.hpp"
 #include "CL/sensors/odom_data.hpp"
 
 #include <Eigen/Dense>
@@ -29,7 +30,8 @@ public:
              double sample_period) = 0;
 
   virtual void correction(EstimationParameters &ego,
-                          const EstimationParameters &agent) = 0;
+                          EstimationParameters const &agent,
+                          sensors::MeasData const &meas) = 0;
 
 private:
 protected:

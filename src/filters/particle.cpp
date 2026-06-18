@@ -32,7 +32,8 @@ EstimationParameters Particle::prediction(sensors::OdomData const &odometry,
 }
 
 void Particle::correction(EstimationParameters &ego,
-                          const EstimationParameters &agent) {
+                          EstimationParameters const &agent,
+                          sensors::MeasData const &meas) {
 
   bool resample{particles_.reweight(ego, agent)};
 

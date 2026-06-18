@@ -52,7 +52,8 @@ EstimationParameters EKF::prediction(sensors::OdomData const &odometry,
 
 #if DECOUPLED
 void EKF::correction(EstimationParameters &ego,
-                     const EstimationParameters &agent) {
+                     const EstimationParameters &agent,
+                     sensors::MeasData const &meas) {
 
   Models::Measurement model{ego.state_estimate, agent.state_estimate};
 
@@ -101,7 +102,9 @@ void EKF::correction(EstimationParameters &ego,
 #if COUPLED
 
 void EKF::correction(EstimationParameters &ego_robot,
-                     const EstimationParameters &other_agent) {
+                     const EstimationParameters &other_agent,
+                     sensors::MeasData const &meas) {
+  // TODO: Add check the matrix covariance matrix.
 
   /* Calculate measurement Jacobian */
   Models::Measurement model{ego_robot.state_estimate,

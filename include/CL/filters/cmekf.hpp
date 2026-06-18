@@ -17,8 +17,8 @@ public:
 
   CMEKF(const EstimationParameters &prior) : EKF{prior} {};
 
-  void correction(EstimationParameters &,
-                  const EstimationParameters &) override;
+  void correction(EstimationParameters &ego, EstimationParameters const &agent,
+                  sensors::MeasData const &meas) override;
 
 protected:
   Eigen::Matrix2d jacobian(measurement_t measurement);

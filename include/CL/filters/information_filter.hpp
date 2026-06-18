@@ -56,8 +56,8 @@ public:
    * @param[in] robust Flag which determines whether the information and
    * precision should be updated using a robust cost function.
    */
-  void correction(EstimationParameters &,
-                  const EstimationParameters &) override;
+  void correction(EstimationParameters &ego, EstimationParameters const &agent,
+                  sensors::MeasData const &meas) override;
 
 private:
 };
