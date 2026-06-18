@@ -126,7 +126,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     # EKF
     add_filter_target(EKF 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
@@ -134,7 +133,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_filter_target(IEKF 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/iekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
@@ -142,21 +140,18 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_filter_target(CMEKF 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/cmekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
     # Information Filter
     add_filter_target(INFO 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/information_filter.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
     # Information Filter
     add_filter_target(PARTICLE 
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/particle.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${MAIN_SOURCE}
     )
 
@@ -169,7 +164,6 @@ else()
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/ekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/cmekf.cpp"
 	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/information_filter.cpp"
-	    "${CMAKE_CURRENT_SOURCE_DIR}/src/filters/filter.cpp"
 	    ${PROJ_SRC}
     )
 
