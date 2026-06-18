@@ -5,9 +5,13 @@
 namespace CL::sensors {
 
 Measurements::Measurements(
-    std::vector<utias::mrclam::Robot::Measurement> const &measurements) {
+    std::vector<utias::mrclam::Robot::Measurement> const &measurements,
+    double var_range, double var_bearing) {
+
+  cov_.diagonal() << var_range, var_bearing;
+
   for (const auto &meas : measurements) {
-    measurements_.emplace_back(meas);
+    measurements_.emplace_back(meas, cov_);
   }
 }
 

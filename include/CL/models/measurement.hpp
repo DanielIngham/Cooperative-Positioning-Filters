@@ -57,7 +57,7 @@ public:
    * & 0\end{bmatrix} \f] where \f$\Delta x = x_j - x_i\f$; \f$\Delta y = y_j
    * - y_i\f$; and \f$\Delta d = \sqrt{\Delta x^2 + \Delta y^2}\f$.
    */
-  static augmentedMeasurementJacobian_t
+  [[nodiscard]] static augmentedMeasurementJacobian_t
   calculateMeasurementJacobian(const state_t &ego_robot,
                                const state_t &obs_agent);
 

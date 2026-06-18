@@ -20,8 +20,8 @@ public:
   MeasData() = delete;
   MeasData(MeasData &&) = default;
   MeasData(const MeasData &) = default;
-  MeasData &operator=(MeasData &&) = default;
-  MeasData &operator=(const MeasData &) = default;
+  MeasData &operator=(MeasData &&) = delete;
+  MeasData &operator=(const MeasData &) = delete;
   ~MeasData() = default;
 
   /**
@@ -32,7 +32,8 @@ public:
    * heading.
    * @param barcode Barcode of the observed agent.
    */
-  MeasData(double time, double range, double bearing, size_t barcode);
+  MeasData(double time, double range, double bearing, size_t barcode,
+           measurementCovariance_t const &cov);
 
   /**
    * Get the measurement timestamp.
@@ -45,6 +46,13 @@ public:
    * @returns A 2D Eigen measurement vector.
    */
   measurement_t vec() const;
+
+  /**
+   * Get the error covariance matrix of the range and bearing measurement.
+   * @returns a constant reference to an eigen matrix containing the range and
+   * bearing covariance matrix.
+   */
+  measurementCovariance_t const &cov() const;
 
   /**
    * Get the observed agents barcode.
@@ -64,5 +72,7 @@ private:
   /** Contains Range in meters to the observed agent and bearing in radians of
    * the observation from the vehicles heading. */
   measurement_t vec_{};
+
+  measurementCovariance_t const &cov_;
 };
 } // namespace CL::sensors
