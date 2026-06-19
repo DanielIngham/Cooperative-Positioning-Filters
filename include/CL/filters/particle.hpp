@@ -2,6 +2,7 @@
 #include "CL/common/estimation_parameters.hpp"
 #include "CL/common/types.hpp"
 #include "CL/filters/filter.hpp"
+#include "CL/sensors/meas_data.hpp"
 #include "CL/sensors/odom_data.hpp"
 
 #include <Eigen/Dense>
@@ -52,9 +53,13 @@ protected:
     /**
      * Calculates the new weights of the particles based on the likelihood of
      * the state given the measurement.
+     * @param ego Estimate parameters of the ego vehicle.
+     * @param agent Estimate parameters of the observed agent.
+     * @param meas Measurement of the observed agent produced by the ego agent.
      * @returns A flag indicating whether the particles should be resampled.
      */
-    bool reweight(const EstimationParameters &, const EstimationParameters &);
+    bool reweight(const EstimationParameters &ego,
+                  const EstimationParameters &agent, sensors::MeasData meas);
 
     state_t mmse();
 

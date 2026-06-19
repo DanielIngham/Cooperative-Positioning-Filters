@@ -15,6 +15,10 @@
  */
 namespace CL::sensors {
 
+/**
+ * Data structure containing the data pertaining to a given range and bearing
+ * measurement.
+ */
 class MeasData {
 public:
   MeasData() = delete;
@@ -60,6 +64,12 @@ public:
    */
   size_t barcode() const;
 
+  /**
+   * The barcode is what is used for comparison of measurments. This is done
+   * since the the barcode will be used for ordering.
+   * @param rhs the instance compared against.
+   * @note Allows for storage in a std::set.
+   */
   bool operator<(MeasData const &rhs) const { return barcode_ < rhs.barcode_; }
 
 private:
@@ -73,6 +83,8 @@ private:
    * the observation from the vehicles heading. */
   measurement_t vec_{};
 
+  /** Reference to the measurement error covariance matrix of the robot sensor.
+   */
   measurementCovariance_t const &cov_;
 };
 } // namespace CL::sensors

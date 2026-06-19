@@ -24,11 +24,6 @@ struct EstimationParameters {
   state_t state_estimate{state_t::Zero()};
 
   /**
-   * @brief Recieved range and bearing measurement: 2x1 matrix.
-   */
-  measurement_t measurement{measurement_t::Zero()};
-
-  /**
    * @brief The difference between the measurement recieved by the sensor and
    * the predicted measurement based on the vehicles' states.
    * @details The measurement residual is defined by the expression:
@@ -51,17 +46,6 @@ struct EstimationParameters {
    * value.
    */
   covariance_t error_covariance{covariance_t::Identity() * 1e-3};
-
-  /**
-   * @brief Measurement noise covariance matrix: 2x2 matrix.
-   * @details The matrix for the measurement noise covariance matrix take the
-   * form \f[ v = \begin{bmatrix} q_r & 0 \\ 0 & q_\phi \end{bmatrix}, \f]
-   * where \f$q_r\f$ denotes the range noise variance; and \f$\phi_r\f$
-   * denotes the bearing noise variance.
-   * @note The measurement noise is assumed to be uncorrelated and therefore
-   * the covariance between the range and bearing is assumed to be zero.
-   */
-  measurementCovariance_t measurement_noise{measurementCovariance_t::Zero()};
 
   /**
    * @brief Information vector: 3x1 matrix.

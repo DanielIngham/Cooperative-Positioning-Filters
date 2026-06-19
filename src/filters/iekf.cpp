@@ -44,7 +44,7 @@ void IEKF::correction(EstimationParameters &ego,
     /* Calculate Covariance Innovation: */
     ego.innovation_covariance = measurement_jacobian * error_covariance *
                                     measurement_jacobian.transpose() +
-                                ego.measurement_noise;
+                                meas.cov();
 
     /* Calculate Kalman Gain */
     kalman_gain = error_covariance * measurement_jacobian.transpose() *
@@ -55,7 +55,7 @@ void IEKF::correction(EstimationParameters &ego,
         Models::Measurement::measurementModel(ego_state, agent_state)};
 
     /* Calculate the measurement residual. */
-    ego.innovation = ego.measurement - predicted_measurement;
+    ego.innovation = meas.vec() - predicted_measurement;
 
     /* Normalise the bearing residual */
     utils::normaliseAngle(ego.innovation(BEARING));
@@ -75,11 +75,10 @@ void IEKF::correction(EstimationParameters &ego,
             (ego.innovation - measurement_jacobian * (estimation_residual));
 
     /* Break if the change between iterations converges */
-    double change{(iterative_state_estimate - old_estimate).norm()};
     static constexpr double convergence_threshold{1e-8};
-    if (change < convergence_threshold) {
+    if (double const change{(iterative_state_estimate - old_estimate).norm()};
+        change < convergence_threshold)
       break;
-    }
   }
 
   /* Resize matrices back to normal */

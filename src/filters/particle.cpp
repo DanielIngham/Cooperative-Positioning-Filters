@@ -1,12 +1,9 @@
 #include "CL/filters/particle.hpp"
 #include "CL/common/types.hpp"
 #include "CL/models/measurement.hpp"
-#include "CL/models/process.hpp"
-#include "CL/utils/utils.hpp"
 
 #include <UtiasMrclam/DataHandler.hpp>
 #include <cmath>
-#include <iostream>
 #include <numeric>
 #include <random>
 #include <stdexcept>
@@ -22,6 +19,7 @@ Particle::Particle(const EstimationParameters &prior, size_t samples)
 EstimationParameters Particle::prediction(sensors::OdomData const &odometry,
                                           EstimationParameters const &ego,
                                           double sample_period) {
+
   EstimationParameters predictive_density{ego};
 
   particles_.propagate(odometry, ego, sample_period, gen_);
@@ -35,11 +33,10 @@ void Particle::correction(EstimationParameters &ego,
                           EstimationParameters const &agent,
                           sensors::MeasData const &meas) {
 
-  bool resample{particles_.reweight(ego, agent)};
+  bool resample{particles_.reweight(ego, agent, meas)};
 
-  if (resample) {
+  if (resample)
     particles_.resample(gen_);
-  }
 
   ego.state_estimate = particles_.mmse();
 
@@ -69,14 +66,15 @@ void Particle::Particles::propagate(sensors::OdomData const &odometry,
 }
 
 bool Particle::Particles::reweight(const EstimationParameters &ego,
-                                   const EstimationParameters &agent) {
+                                   const EstimationParameters &agent,
+                                   sensors::MeasData meas) {
   std::vector<double> log_weights{};
 
-  Eigen::LLT<Eigen::MatrixXd> llt(ego.measurement_noise);
+  Eigen::LLT<Eigen::MatrixXd> llt(meas.cov());
 
   for (auto &[state, weight] : samples_) {
-    const measurement_t difference{
-        ego.measurement -
+    measurement_t const difference{
+        meas.vec() -
         Models::Measurement::measurementModel(state, agent.state_estimate)};
 
     Eigen::VectorXd y{llt.matrixL().solve(difference)};

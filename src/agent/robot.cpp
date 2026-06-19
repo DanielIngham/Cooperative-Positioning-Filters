@@ -22,10 +22,6 @@ Robot::Robot(const utias::mrclam::Robot &data) : Agent(data.barcode()) {
   prior.state_estimate(ORIENTATION) =
       data.groundtruth.states.front().orientation;
 
-  /* Populate measurement error covariance matrix: 2x2 matrix. */
-  prior.measurement_noise(RANGE, RANGE) = data.range_error.variance;
-  prior.measurement_noise(BEARING, BEARING) = data.bearing_error.variance;
-
   /* Populate the Initial information vector */
   prior.precision_matrix = prior.error_covariance.inverse();
   prior.information_vector = prior.precision_matrix * prior.state_estimate;
@@ -90,12 +86,9 @@ void Robot::recieveVanetMessages(
     if (measured_agent == vanet_msgs.end())
       continue;
 
-    parameters.measurement = meas.vec();
-
     filter_->correction(parameters, measured_agent->second, meas);
 
-    double &normalised_angle{parameters.state_estimate(ORIENTATION)};
-    utils::normaliseAngle(normalised_angle);
+    utils::normaliseAngle(parameters.state_estimate(ORIENTATION));
   }
 }
 

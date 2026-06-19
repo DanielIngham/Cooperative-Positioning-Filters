@@ -16,15 +16,14 @@ void CMEKF::correction(EstimationParameters &ego,
                                                     agent.state_estimate)};
 
   measurementCovariance_t joint_sensor_noise{
-      ego.measurement_noise + agent_measurement_Jacobian *
-                                  agent.error_covariance *
-                                  agent_measurement_Jacobian.transpose()};
+      meas.cov() + agent_measurement_Jacobian * agent.error_covariance *
+                       agent_measurement_Jacobian.transpose()};
 
   /* Covert the range and bearing into relative x and y coordinates.*/
-  const measurement_t measurement{relativePosition(ego.measurement)};
+  const measurement_t measurement{relativePosition(meas.vec())};
 
   /* Jacobian of the measurement with respect to the relative position change.*/
-  const measurementCovariance_t J{jacobian(ego.measurement)};
+  const measurementCovariance_t J{jacobian(meas.vec())};
 
   const measurement_t predicted_measurment{
       relativePosition(ego.state_estimate, agent.state_estimate)};

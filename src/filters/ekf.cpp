@@ -66,8 +66,8 @@ void EKF::correction(EstimationParameters &ego,
    * measurment noise and the estimate error covariance of the measured agent.
    */
   const measurementCovariance_t joint_sensor_noise{
-      ego.measurement_noise + agent_meas_Jacobian * agent.error_covariance *
-                                  agent_meas_Jacobian.transpose()};
+      meas.cov() + agent_meas_Jacobian * agent.error_covariance *
+                       agent_meas_Jacobian.transpose()};
 
   /* Calculate innovation Covariance.  */
   ego.innovation_covariance =
@@ -79,7 +79,7 @@ void EKF::correction(EstimationParameters &ego,
                            ego_meas_Jacobian.transpose() *
                            ego.innovation_covariance.inverse()};
 
-  ego.innovation = ego.measurement - predicted_measurement;
+  ego.innovation = meas.vec() - predicted_measurement;
   utils::normaliseAngle(ego.innovation(BEARING));
 
   /* Update the state estimate. */
@@ -96,15 +96,14 @@ void EKF::correction(EstimationParameters &ego,
  * @param[in,out] ego_robot The parameters required by the Extended
  * Kalman filter to perform the correction step.
  * @param[in] other_agent The agent that was measured by the ego robot.
- * @param[in] robust Flag which determines whether the state and covariance
- * should be updated using a robust cost function.
+ * @param[in] meas Range and bearing measurement of the agent, containing the
+ * measurement error covariance.
  */
 #if COUPLED
 
 void EKF::correction(EstimationParameters &ego_robot,
                      const EstimationParameters &other_agent,
                      sensors::MeasData const &meas) {
-  // TODO: Add check the matrix covariance matrix.
 
   /* Calculate measurement Jacobian */
   Models::Measurement model{ego_robot.state_estimate,
@@ -118,12 +117,12 @@ void EKF::correction(EstimationParameters &ego_robot,
       MatrixOperations::createAugmentedMatrix(ego_robot.error_covariance,
                                               other_agent.error_covariance)};
 
-  ego_robot.innovation = (ego_robot.measurement - model.predictedMeasurement());
+  ego_robot.innovation = (meas.vec() - model.predictedMeasurement());
 
   /* Calculate Innovation Covariance */
   ego_robot.innovation_covariance = measurement_Jacobian * error_covariance *
                                         measurement_Jacobian.transpose() +
-                                    ego_robot.measurement_noise;
+                                    meas.cov();
 
   /* Calculate Kalman Gain */
   augmentedKalmanGain_t kalman_gain{error_covariance *

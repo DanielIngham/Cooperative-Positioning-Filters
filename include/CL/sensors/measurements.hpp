@@ -50,6 +50,15 @@ private:
    */
   std::vector<MeasSet> measurements_;
 
+  /**
+   * @brief Measurement noise covariance matrix: 2x2 matrix.
+   * @details The matrix for the measurement noise covariance matrix take the
+   * form \f[ v = \begin{bmatrix} q_r & 0 \\ 0 & q_\phi \end{bmatrix}, \f]
+   * where \f$q_r\f$ denotes the range noise variance; and \f$\phi_r\f$
+   * denotes the bearing noise variance.
+   * @note The measurement noise is assumed to be uncorrelated and therefore
+   * the covariance between the range and bearing is assumed to be zero.
+   */
   measurementCovariance_t cov_{measurementCovariance_t::Zero()};
 };
 } // namespace CL::sensors

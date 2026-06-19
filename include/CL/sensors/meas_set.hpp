@@ -63,7 +63,8 @@ private:
   /** The set of measurements taken for a given timestamp. */
   std::set<MeasData> meas_set_;
 
-  /** Sensor error covariance matrix. */
+  /** Reference to the measurement error covariance matrix of the robot sensor.
+   */
   measurementCovariance_t const &cov_{};
 };
 } // namespace CL::sensors

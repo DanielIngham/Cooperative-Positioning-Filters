@@ -59,10 +59,10 @@ void InformationFilter::correction(EstimationParameters &ego,
   const measurementJacobian_t agent_meas_Jacobian{model.agentJacobian()};
 
   measurementCovariance_t joint_sensor_noise{
-      ego.measurement_noise + agent_meas_Jacobian * agent.error_covariance *
-                                  agent_meas_Jacobian.transpose()};
+      meas.cov() + agent_meas_Jacobian * agent.error_covariance *
+                       agent_meas_Jacobian.transpose()};
 
-  ego.innovation = ego.measurement - predicted_measurement;
+  ego.innovation = meas.vec() - predicted_measurement;
   utils::normaliseAngle(ego.innovation(BEARING));
   ego.innovation += ego_meas_Jacobian * prior_state;
 
@@ -112,19 +112,19 @@ void InformationFilter::correction(EstimationParameters &ego,
       model.augmentedJacobian()};
 
   /* Calculate the measurement residual. */
-  ego.innovation = ego.measurement - model.predictedMeasurement();
+  ego.innovation = meas.vec() - model.predictedMeasurement();
 
   /* Normalise the angle residual. */
   utils::normaliseAngle(ego.innovation(BEARING));
 
   /* Calculate the precision contribution */
   augmentedPrecision_t precision_matrix_contribution{
-      measurement_Jacobian.transpose() * ego.measurement_noise.inverse() *
+      measurement_Jacobian.transpose() * meas.cov().inverse() *
       measurement_Jacobian};
 
   /* Calculate the information contribution */
   augmentedInformation_t information_vector_contribution{
-      measurement_Jacobian.transpose() * ego.measurement_noise.inverse() *
+      measurement_Jacobian.transpose() * meas.cov().inverse() *
       (ego.innovation + measurement_Jacobian * estimated_state)};
 
   /* Add only the contribution of the other agent. */
