@@ -43,23 +43,20 @@ public:
 
     utias::mrclam::Robot::List &fleet_data{data.getRobots()};
 
-    size_t i{};
-    for (const utias::mrclam::Robot &robot_data : fleet_data) {
-      /* Populate the VANET first with cooperative robots, then with faulty
-       * robots. */
-      if (i++ < config.robots.cooperative)
-        robots_.push_back(Robot::create<FilterType, Robot>(robot_data));
-      else
+    for (size_t i{}; const utias::mrclam::Robot &robot_data : fleet_data) {
+      if (i++ < config.robots.faulty)
         robots_.push_back(Robot::create<FilterType, FaultyRobot>(robot_data));
+      else
+        robots_.push_back(Robot::create<FilterType, Robot>(robot_data));
     }
 
     const utias::mrclam::Landmark::List &landmarks{data.getLandmarks()};
 
-    size_t j{};
-    for (const utias::mrclam::Landmark &landmark_data : landmarks) {
+    for (size_t j{}; const utias::mrclam::Landmark &landmark_data : landmarks) {
       if (j++ < config.landmarks.adversarial) {
         landmarks_.emplace_back(
             std::make_unique<AdversarialLandmark>(landmark_data));
+
       } else
         landmarks_.emplace_back(std::make_unique<Landmark>(landmark_data));
     }

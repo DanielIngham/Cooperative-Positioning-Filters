@@ -31,8 +31,6 @@ public:
    * behaviour of the robot agents in the VANET.
    */
   struct Robots {
-    /** The number of cooperative robots. */
-    size_t cooperative{1};
     /** The number of adversarial robots. */
     size_t adversarial{};
     /** The number of faulty cooperative robots. */
@@ -44,8 +42,6 @@ public:
    * behaviour of the landmark agents in the VANET.
    */
   struct Landmarks {
-    /** The number of cooperative robots. */
-    size_t cooperative{15};
     /** The number of faulty cooperative robots. */
     size_t adversarial{};
   } landmarks; /**< Configuration for the landmarks in the VANET. */
